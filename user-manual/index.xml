@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>使用手册 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-manual/</link>
+    <description>Recent content in 使用手册 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-manual/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>企业中心</title>
+      <link>http://skyzhangyf.github.io/user-manual/business-center/business-center/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/business-center/business-center/</guid>
+      <description> 功能描述 企业管理员可以设置平台信息，管理企业下的团队。
+企业信息 展示包含着企业名称、创建时间以及平台版本。
+平台设置  如果您是企业管理员，平台设置模块才会显示
+ 设置用户是否允许注册 添加用户 填写用户名&amp;gt;所属团队&amp;gt;密码&amp;gt;邮箱&amp;gt;角色权限
+ 提示: 填写团队时,输入框会根据您输入的值匹配企业下的所有团队在下拉框里列出
+提示: 填写角色权限时,下拉框所列出的角色权限是根据团队所分配的
+ 团队管理 管理该平台下的所有团队,包括添加团队，删除团队。
+ 提示：如果您是企业管理员，团队管理模块才会显示。
+ 添加团队 如果您具有团队权限设置权限，才可以进行操作，点击确定后方可在所选的数据中心下创建团队 删除团队 企业管理员可以删除（可以删除的）团队，哪怕你不是该团队的管理员。 </description>
+    </item>
+    
+  </channel>
+</rss>

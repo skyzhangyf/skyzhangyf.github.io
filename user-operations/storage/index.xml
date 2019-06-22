@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>存储解决方案 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-operations/storage/</link>
+    <description>Recent content in 存储解决方案 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 11 Mar 2019 12:50:54 +0800</lastBuildDate>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-operations/storage/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>对接GlusterFS</title>
+      <link>http://skyzhangyf.github.io/user-operations/storage/glusterfs/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/storage/glusterfs/</guid>
+      <description>存储节点部署示例环境，仅供参考
+   主机名 IP 系统     gfs01 10.10.10.13 CentOS 7.4.1708   gfs02 10.10.10.14 CentOS 7.4.1708    一、GlusterFS的安装 1.1 存储节点配置hostname解析 所有节点都需要配置存储节点hostname解析
+# gfs01节点更新hostname hostname gfs01 echo &amp;quot;gfs01&amp;quot; &amp;gt; /etc/hostname # gfs02节点更新hostname hostname gfs02 echo &amp;quot;gfs02&amp;quot; &amp;gt; /etc/hostname # gfs01/gfs02配置hosts解析 [root@gfs01 ~]# cat /etc/hosts 10.10.10.13 gfs02 10.10.10.14 gfs01  配置完成后确定存储节点可以正常ping通gfs01和gfs02
+1.2 格式化磁盘、创建目录并挂载 # 查看可用磁盘 fdisk -l # 分区并格式化 mkfs.xfs /dev/vdb1 mkdir -p /data echo &amp;quot;/dev/vdb1 /data xfs defaults 1 2&amp;quot; &amp;gt;&amp;gt;/etc/fstab # 挂载 mount -a  gfs01和gfs02节点都需要执行如上操作。</description>
+    </item>
+    
+    <item>
+      <title>对接阿里云NAS</title>
+      <link>http://skyzhangyf.github.io/user-operations/storage/alinas/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/storage/alinas/</guid>
+      <description>阿里云文件存储（Network Attached Storage，简称 NAS）是面向阿里云 ECS 实例、HPC 和 Docker 等节点的文件存储服务，提供标准的文件访问协议，即可使用具备无限容量及性能扩展、单一命名空间、多共享、高可靠和高可用等特性的分布式文件系统。
+本文默认已创建了文件系统，如果未创建，请参考阿里云NAS文档
+快速配置指南 提前准备好NAS，安装时指定存储类型为nas,具体示例如下：
+./grctl init --storage nas --storage-args &amp;quot;82b554a292-rvg38.cn-huhehaote.nas.aliyuncs.com:/ /grdata nfs vers=3,nolock,noatime 0 0&amp;quot;  手动对接NAS 安装配置NFS客户端程序 # Debian/Ubuntu apt-get update apt-get install nfs-common # CentOS yum install nfs-utils  配置NFS请求数量 cat /proc/sys/sunrpc/tcp_slot_table_entries  {{site.data.alerts.callout_danger}} Linux NFS 客户端对于同时发起的NFS请求数量进行了控制，若该参数配置较小，会降低 IO 性能。默认编译的内核中该参数最大值为256。您可以使用root用户执行以下命令来提高该参数的值，取得较好的性能。 {{site.data.alerts.end}}
+echo &amp;quot;options sunrpc tcp_slot_table_entries=128&amp;quot; &amp;gt;&amp;gt; /etc/modprobe.d/sunrpc.conf echo &amp;quot;options sunrpc tcp_max_slot_table_entries=128&amp;quot; &amp;gt;&amp;gt; /etc/modprobe.d/sunrpc.conf sysctl -w sunrpc.tcp_slot_table_entries=128  参数修改完成后，请重启系统。
+节点挂载NFS文件系统  推荐使用NFS v3协议</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>DevOps实践 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/advanced-scenarios/devops/</link>
+    <description>Recent content in DevOps实践 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/advanced-scenarios/devops/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Jenkins与Rainbond对接部署应用</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/jenkins-rainbond/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/jenkins-rainbond/</guid>
+      <description> 概述 如果您现在已经有了自己的CI工作流程，并且想在云帮中持续部署您的应用，那么本文将引导您将自己的应用部署到云帮并设置持续部署。考虑到Jenkins是目前主流的持续集成工具，并且它在源码测试和Pipline方面已经做得非常成熟，所以我们提供了针对Jenkins的集成方案。一般情况下，我们的源码在经Jenkins的构建和集成后，产出的应用可能是源码格式或镜像。 Rainbond支持应用持续部署，下面我们来分别说明一下jenkins与rainbond对接如何把源码和镜像格式应用部署到云帮。
+构建自己的持续部署流程 在云帮的应用市场中有丰富的应用可以安装使用，您可以使用这些应用构建自己的工作流。我们使用GitLab或GitHub开源代码仓库，Jenkins集成工具与Rainbond对接实现CI、CD。
+源码 我们以Spring Boot demo为例，https://github.com/ITboy6/spring-boot-mysql-demo 对接的点是jenkins进行代码检测（可使用Sonar插件来实现），构建完之后把打包好的jar包和所需文件放在target目录下，rainbond构建时只需要拉target一个目录，进行源码自动部署。
+1. Jenkins配置  Jenkins安装所需插件：系统管理 &amp;ndash;&amp;gt; 插件管理 &amp;ndash;&amp;gt; 安装需要用到的相关插件
+ Jenkins配置测试工程: 新建任务
+  这一步是把所需文件及打包好的jar包都放到target目录下，并push到代码仓库。使用API触发rainbond自动构建。
+2.Rainbond配置  需要有一个创建好的源码应用
+ 如何使用API触发自动构建
+  通过开启API自动构建返回的url，POST方法调用API，携带秘钥即可触发API自动构建，秘钥可以自定义设置。
+API使用：
+curl -d &#39;{&amp;quot;secret_key&amp;quot;:&amp;quot;&amp;lt;秘钥&amp;gt;&amp;quot;}&#39; -H &amp;quot;Content-type: application/json&amp;quot; -X POST &amp;lt;API地址&amp;gt;  在Jenkins构建流程中添加即可
+镜像  Jenkins构建完成后，会产出镜像并且会push到DockerHub
+ 在云帮中创建一个镜像格式应用
+ 在云帮中生成触发镜像仓库的Webhook，将该webhook添加到DockerHub中，使DockerHuab每次更新镜像完成后调用该API
+  </description>
+    </item>
+    
+    <item>
+      <title>基于源码的自动CI流程创建</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/autobuild/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/autobuild/</guid>
+      <description>概述 对于从Github、Gitlab、Gogs、Gitee仓库源码构建的应用， Rainbond 提供基于WEBHOOKS的自动部署功能。
+实践场景 Rainbond官方文档系统部署在我们的公有云环境中。现在以此场景为例，演示如何实现源码的自动部署。
+- 项目源码地址： rainbond-docs
+操作配置方式  基于源码创建服务，参考文档 从源码创建服务 进入服务管理-构建源管理-打开Git-Webhook功能，可以获取到hook地址。 参考文档 服务自动构建设置 前往Github或其他Git server配置Webhooks.  值得注意的是：
+Content type 选项务必选择 application/json
+触发方式 webhook配置完成后，再次提交代码，当Commmit信息包含“@deploy”时将自动触发应用自动部署
+ 触发测试  - 提交信息
+- 成果
+这篇文档在提交代码后无需任何其他操作即可上线，即是触发自动部署的成果。</description>
+    </item>
+    
+    <item>
+      <title>离线环境下的Java源码构建</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/offline-java-build/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/offline-java-build/</guid>
+      <description>概述 在交付了很多企业级用户后，我们发现很多用户的环境都是离线的。我们一直在探索离线环境下实现源码构建的方案，以期让这些企业用户可以也可以体验到Rainbond源码构建功能带来的便捷。
+那么，在离线环境下，实现源码构建会有哪些难点呢？其实这个问题的答案就是整套源码构建流程中有那些点对于互联网有依赖：
+- 代码仓库：源码构建过程的起点是一个可用的代码仓库，离线环境下我们不可以使用 Github、Gitee 等基于互联网的代码仓库。Gitlab、Gogs 等私有代码仓库成为了最佳选择。有些用户已经拥有了自己的私有代码仓库，这种情况下，保证Rainbond管理节点所在的服务器可以正常访问到该代码仓库即可；而对于还没有搭建自己的私有代码仓库的用户而言，如何快速搭建一个Gitlab或者Gogs就是离线源码构建需要攻克的第一关。
+- 构建私服：构建私服是指在源码构建过程中，获取依赖包的仓库，常见的有 Nexus、Artifactory 等。有些用户已经拥有了自己的私有构建私服用以管理自己的依赖包，这种情况下，我们提供方案让 Rainbond 可以直接对接私服；而对于还没有搭建自己的构建私服的用户而言，Rainbond自带的 rbd-repo 组件可以作为本地仓库使用。
+- 应用运行时：应用运行时是指服务运行所依赖的环境，比如对于Java应用而言，运行时就是环境中安装的 Jdk。对于用户而言，离线环境如何配置好应用运行时是离线源码构建最大的挑战。
+在明确了上述难点后，接下来的文章，会以Java应用构建为例，指引用户一步步攻克这些难关，最终达成离线源码构建的目标。
+离线部署代码仓库 在离线环境下，推荐使用平台的应用离线导入功能，快速导入 Gitlab 应用并安装使用。
+需要事先获取离线资源：Gitlab应用包 Gogs应用包
+- 访问Rainbond应用管理平台，并导入离线应用包
+ Gogs离线导入方式和Gitlab一致。
+ 至此，我们已经拥有了一个私有化的代码仓库。可以通过它来托管代码，并可以通过它实现自动构建。
+离线对接/部署构建私服 Java源码基于Maven构建过程中，会根据 pom.xml 文件解析依赖关系，并前往指定的构建私服拉取依赖包。而在Rainbond中，安装了默认的源码构建包仓库 rbd-repo ，这个组件既可以作为已有私服的代理，也可以用来搭建本地私服，来应对不同用户的需求。
+- 已有私服的对接
+- 搭建本地仓库，并导入jar包
+离线配置应用运行时 本节提供一个在应用中离线安装运行时（Jdk）的方案，这个方案会运行起一个私服仓库服务，这个私服仓库可以负责安装java运行所需要的Jdk环境。 需要事先获取离线资源：Java运行时私服仓库服务镜像
+ 有网环境下载离线资源镜像  docker pull rainbond/buildpack:java-v5.1.1 docker save rainbond/buildpack:java-v5.1.1 &amp;gt; rainbond-buildpack-java-v5.1.1.tgz   导入镜像  首先，将镜像导入首个管理节点。
+docker load -i rainbond-buildpack-java-v5.1.1.tgz docker tag rainbond/buildpack:java-v5.1.1 goodrain.me/buildpack:java-v5.1.1 docker push goodrain.</description>
+    </item>
+    
+    <item>
+      <title>Maven 多模块源码构建</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/java-multi-module-build/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/java-multi-module-build/</guid>
+      <description>Maven 多模块项目构建识别策略 Maven 多模块项目是根据 pom.xml 文件(下面简称 pom)来划分的, Rainbond 对它的识别也是建立在 pom 的基础上的. 主要是识别出具体模块(module)的构建命令和启动命令. 构建命令的作用是指定需要构建的模块, 是类似于 &amp;ldquo;mvn install -pl &amp;lsquo;module name&amp;rsquo; -am&amp;rdquo; 的 mvn 命令. 启动命令的作用是在构建完成后, 指定需要执行的 Jar 包, 是类似于 &amp;ldquo;web: java $JAVA_OPTS -jar *.jar&amp;rdquo; 的命令.
+识别策略:
+ 根据根 pom 中的 modules 中的 module 标签, 找到相应模块下的 pom. 如果 pom 中的 packing 标签的值是 jar(war), 则解析出当前 pom 对应的模块名和 jar(war)包名. packing 标签的值为空, 会认为是 jar. 模块名由名级父 pom 中的 module 标签的值组成, 用 &amp;ldquo;/&amp;rdquo; 分割, 类似于: rbd-worker/rbd-thirdparty. jar(war) 包名默认是 ${artifaceId}-*.</description>
+    </item>
+    
+    <item>
+      <title>Maven项目源码构建实践之私有仓库对接</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-maven-repository/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-maven-repository/</guid>
+      <description>Maven仓库镜像 Maven仓库 Maven仓库主要分两种:
+ Remote仓库：相当于公共仓库，大部分都是可以通过URL的形式进行访问 Local仓库: 存放于本地磁盘的文件夹(其路径类似.m2/repository)  其中Remote仓库主要有3种：
+ 中央仓库: http://repo1.maven.org/maven2/ 私服: 自建的Maven仓库 其他公共仓库: 其他公网可以访问的Maven仓库  仓库种主要是存放Maven构建时需要的各种构件(jar包或者Maven插件)，当向仓库请求构件时，会先检查本地仓库是否已经存在，不存在会向远程仓库请求并缓存到本地。
+Maven镜像仓库 mirror相当于一个拦截器，它会拦截Maven对remote仓库的相关请求，把请求里的remote仓库地址，重定向到mirror里配置的地址。
+示例1：mirrorOf的值为central，表示该配置为中央仓库的镜像，任何对于中央仓库的请求都会转发给镜像仓库http://192.168.1.200:8081
+ &amp;lt;mirror&amp;gt; &amp;lt;id&amp;gt;maven.goodrain&amp;lt;/id&amp;gt; &amp;lt;name&amp;gt;goodrain maven&amp;lt;/name&amp;gt; &amp;lt;url&amp;gt;http://192.168.1.200:8081/&amp;lt;/url&amp;gt; &amp;lt;mirrorOf&amp;gt;central&amp;lt;/mirrorOf&amp;gt; &amp;lt;/mirror&amp;gt;  示例2: mirrorOf的值为*,则表示该配置是所有仓库的镜像，任何对远程仓库的请求都会转发到这个镜像
+&amp;lt;mirror&amp;gt; &amp;lt;id&amp;gt;maven.all.goodrain&amp;lt;/id&amp;gt; &amp;lt;name&amp;gt;goodrain all maven&amp;lt;/name&amp;gt; &amp;lt;url&amp;gt;http://192.168.1.200:8081&amp;lt;/url&amp;gt; &amp;lt;mirrorOf&amp;gt;*&amp;lt;/mirrorOf&amp;gt; &amp;lt;/mirror&amp;gt;  其他高级操作 &amp;lt;mirrorOf&amp;gt;*&amp;lt;/mirrorOf&amp;gt; # 表示所有远程仓库 &amp;lt;mirrorOf&amp;gt;external:*&amp;lt;/mirrorOf&amp;gt; # 除本地仓库外到远程仓库 &amp;lt;mirrorOf&amp;gt;repo1,repo2&amp;lt;/mirrorOf&amp;gt; # 匹配repo1和repo2 &amp;lt;mirrorOf&amp;gt;*,!repo1&amp;lt;/miiroOf&amp;gt; # 匹配除repo1外所有远程仓库  通过Rainbond构建Maven项目，如果不禁用Mirror功能，默认情况下，在源码构建时会通过添加全局Maven配置文件来定义mirror,即任何对远程仓库的请求都会重定向至maven.goodrain.me,如果没有将自己的私服对接到rbd-repo则可能导致无法正常下载私服中的构件从而导致源码构建失败。默认配置如下
+ &amp;lt;mirror&amp;gt; &amp;lt;id&amp;gt;goodrain-repo&amp;lt;/id&amp;gt; &amp;lt;name&amp;gt;goodrain repo&amp;lt;/name&amp;gt; &amp;lt;url&amp;gt;http://maven.goodrain.me&amp;lt;/url&amp;gt; &amp;lt;mirrorOf&amp;gt;*&amp;lt;/mirrorOf&amp;gt; &amp;lt;/mirror&amp;gt;  由于镜像仓库完全屏蔽了被镜像仓库，当镜像仓库不稳定或者停止服务的时候，Maven仍将无法访问被镜像仓库，因而将无法下载构件。  Rainbond构建源Maven镜像仓库参数说明 1. 禁用Maven Mirror: 默认不禁用镜像功能，即在源码构建时会添加Maven全局配置文件，重定向仓库请求至镜像仓库 2.</description>
+    </item>
+    
+    <item>
+      <title>对接私有源码仓库（Git、Svn）</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-git-server/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-git-server/</guid>
+      <description>原理解读 通过自定义源码的方式创建应用 当你填写Git地址时，平台会自动判断地址的协议，如果是HTTP的Git地址，平台会提示你输入Git仓库的用户名和密码，如果是公开项目，用户名密码可以省略。当输入的Git地址是SSH协议时，平台会提示你将Rainbond的SSH公钥复制到Git仓库中。Rainbond会为每个团队生成独立的公钥以避免多团队密钥冲突。
+当你填写Svn代码地址时，平台提示输入账号名和密码，如果是私有仓库，请务必输入账号。
+操作流程 本文主要讲解通过 SSH 公钥的方式对接私有部署的Git仓库，以 GitLab为示例进行说明。
+Gitlab创建新项目  如果你已有项目，此步骤跳过
+  新建项目   填写项目名称   创建示例代码  切换到SSH地址后，需要记住项目的SSH地址，后续创建应用时需要用到，这里的地址是 `git@172.16.210.205:test/helloworld.git`  新建一个index.html 的文件，内容为 hello world,hello goodrain! 提交。
+配置SSH公钥对接私有仓库 获取公钥 进入【创建应用】-【从源码创建】-【自定义源码】，将项目的SSh协议的地址复制到【Git仓库地址】栏中时，会提示【配置授权Key】连接，点开显示详细信息：
+将公钥添加到Git仓库  切换到项目首页   添加SSH公钥   SSH 公钥添加完成  测试对接是否成功 通过私有仓库创建应用的方式来测试云帮能否通过SSH关于获取Git仓库中的代码。
+ 创建服务  能够识别语言，代表对接成功
+  在Rainbond部署GitLab私有仓库服务 上文介绍的是对接现有GitLab的情况，如果你还没有Git仓库，Rainbond可以一键部署GitLab应用，下面主要介绍对接云帮上部署的GitLab
+创建GitLab应用 通过 【新建应用】-【应用市场】搜索到GitLab应用，选择需要的版本安装即可。
+配置GitLab GitLab安装完成后，可以在应用的端口页面看到对外打开的端口号，如下图：
+ 端口号：应用内部监听的端口，本例中监听了22和80端口 访问地址：云帮映射的地址与端口，本例中 22端口映射的地址为172.16.210.205，端口为20006 ，80端口地址为80.grea7fc4.zggk.48mt2.goodrain.org，端口为80  - Rainbond为HTTP协议的应用端口默认分配一个访问域名 - Rainbond为非HTTP协议的应用端口默认分配一个访问地址和一个随机的映射端口，但端口映射与应用端口唯一对应，不会变化，因此本例的端口可能与你实际情况不一致。  设置GitLab的HTTP和SSH地址 GitLab应用通过 GITLAB_SSH_HOST 和 GITLAB_HOST 环境变量来设置SSH和HTTP的地址，因此需要将这两个变量设置到GitLab应用中。</description>
+    </item>
+    
+    <item>
+      <title>应用A/B测试实践</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/ab-released-app/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/ab-released-app/</guid>
+      <description>功能说明 对照实验，也叫随机实验和A /B测试。在软件开发中，产品需求通过多种技术手段来实现。 A/B测试实验提供了一个有价值的方式来评估新功能对客户行为的影响。 运行网站和服务的A/B测试实验能力，从而可以用更科学方法来评估规划过程中不同阶段的想法价值。一屋子人拍桌子瞪眼的争辩到底哪个设计好？哪个文案好？哪个执行策略有效，还不如让真实的用户和数据来告诉你答案。
+落实到技术本身上来，A/B测试讲究为不同的客户端提供不同的服务，这里的两个不同非常关键。
+ 不同的客户端   一般是通过某种方式将客户端进行分类，比如HTTP协议，通常根据用户信息设置Header请求头、Cookie从而区分不同客户端。
+  不同的服务   一般是指不同的应用的不同版本，在Rainbond平台是不同的服务组件。
+ {{site.data.alerts.callout_success}}
+Rainbond目前支持HTTP协议的A/B测试实践，这也是目前应用面最广的协议。
+{{site.data.alerts.end}}
+服务需要进行A/B测试，需要区分其是属于内部服务还是对外服务。内部服务的A/B测试特性由ServiceMesh层提供，对外服务由应用网关提供。
+我们以下述场景为例，分别对 外部服务 外部服务2 内部服务 内部服务2 进行A/B测试实践。
+2. 对外服务的A/B测试实践 对外服务的A/B测试是最常使用的场景，因为对外服务是直接面对用户的服务。业务程序需要通过一定的业务策略将用户标识信息注入到Cookie中或者是通过移动端APP注入到Header请求头中。Rainbond应用网关可以识别这些标识并根据用户配置的策略匹配相应的服务提供给用户。
+如上图例子所示，外部服务 外部服务2 我已经提前创建，模拟为同一个业务程序的两个版本
+通过 应用网关 -&amp;gt; 访问策略 添加以下两个HTTP访问策略：
+ 用法一：通过Header请求头标识客户端     域名 请求头 服务     www.test.com 无 外部服务   www.test.com user:test 外部服务2    测试方式：
+# 模拟请求外部服务,请注意，域名请按照添加访问策略文档提示正确进行DNS解析设置或本地HOST文件设置 curl www.test.com # 模拟请求外部服务2 curl -H user:test www.</description>
+    </item>
+    
+    <item>
+      <title>应用灰度发布实践方案</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/gray-released-app/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/gray-released-app/</guid>
+      <description>功能说明 灰度发布主要是按照一定策略选取部分用户，让他们先行体验新版本的应用，通过收集这部分用户对新版本应用的反馈，以及对新版本功能、性能、稳定性等指标进行评论，进而决定继续放大新版本投放范围直至全量升级或回滚至老版本。灰度发布可以保证整体系统的稳定，在初始灰度的时候就可以发现、调整问题，以保证其影响度。
+灰度发布策略可以平滑、可控的调整新旧版本的流量负载情况。
+灰度发布实践  基于A/B测试的实践  A/B测试策略本身就是灰度发布的一种实践，在继续下文之前，请务必阅读并掌握 A/B测试实践
+ 基于权重的灰度发布实践  在A/B测试用例中我们主要强调通过客户端标识明确的标识客户请求来精确控制。当然不是所有场景都需要这样的精确控制，或者我们只需要从流量的维度进行控制，比如开始先 10%流量切换到新版本，后续逐步增加这个权重，在正常的情况下直到旧版权重较少到 0。 内部服务和外部服务都支持基于权重的路由控制。
+ 外部服务  依然通过 应用网关 -&amp;gt; 访问策略 添加以下两个HTTP访问策略：
+   域名 权重 服务     www.test.com 90 外部服务   www.test.com 10 外部服务2    根据需要逐步分别降低和升高权重即可。
+ 内部服务  同样通过网络治理插件设置以下参数，权重是在 PREFIX DOMAINS HEADERS 完全一致的情况下生效。
+ PREFIX：URL前缀path配置，例如/api DOMAINS：内网请求域名配置，基于配置的域名转发至下游应用，仅支持一级域名 WEIGHT：转发权重设置，范围1~100。规定相同的DOMAINS与PREFIX组合情况下，权重总和为100。数值越大，权重越高。 HEADERS：HTTP请求头设置，多个参数以;分隔，您可以根据请求头中的参数不同来决定去请求哪个下游应用 LIMITS：TCP限速，设值值为0则熔断  存在的缺陷和改进计划 主要缺陷和计划与A/B测试文档描述的一致。</description>
+    </item>
+    
+    <item>
+      <title>无影响滚动升级无状态应用</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/upgrade-stateless-app/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/upgrade-stateless-app/</guid>
+      <description>无状态应用可以包含多个实例，其中所有实例都相同，但各实例之间相互独立，互不依赖，任意一个Web请求完全与其他请求隔离,用户不需要保存应用的状态或者持久化数据，访问时系统会自动为多实例的应用分发请求，所有实例共享存储卷。Rainbond针对无状态应用采用滚动升级策略。
+应用场景 应用部署运行时，如果应用不需要任何稳定的状态标示、有序的部署、更新升级、删除和扩展，建议使用无状态(Deployment)方式部署。大多数Web类和API类都可以选用无状态应用。平台创建应用默认是无状态应用。
+平台设置 源码构建还是镜像构建，配置流程一致，这里以镜像创建为例。
+创建应用时设置应用类型 应用检测通过后可以配置高级设置
+已创建应用修改应用类型 目前只能对已关闭应用进行应用类型修改。
+在应用的其他设置基础信息里可配置应用类型,修改应用类型会丢数据。
+滚动升级(RollingUpdate) Rainbond默认使用Deployment类型来部署Web类应用, 应用升级策略方面采用了滚动升级策略.所谓的滚动升级策略就是采用逐步替换的方式，使用新的实例逐步更新替换旧的实例.好处是不会中断服务，但会导致调用时出现应用版本不一致情况，输出内容不一致。
+滚动更新策略 # 默认RollingUpdateStrategy 25% max unavailable, 25% max surge  部署可以确保在更新时只有一定数量的实例可能会关闭。默认情况下，它确保至少比所需的实例数量少25％（25% max unavailable,）。 部署还可以确保在所需数量的实例之上只能创建一定数量的实例。默认情况下，它确保最多比所需数量的实例多25％（25% max surge）。 如果你的实例数为3,确保可用实例至少为2，并且保证实例数总数最多为4.
+操作 滚动升级在平台体现在两个方面的操作流程，一个是构建并启动过程，另外一个就是伸缩过程。
+如果仔细查看上面的部署，您将看到它首先创建了一个新的Pod，然后删除了一些旧的Pod并创建了新的Pod。在有足够数量的新Pod出现之前，它不会杀死旧的Pod，并且在足够数量的旧Pod被杀之前不会创建新的Pod。它确保可用Pod的数量至少为2，并且Pod的总数最多为4。 也可以通过命名行方式查看具体event事件，来确定滚动更新具体流程。
+Name: eb02a36a5f8d0b349b2254461393369e-deployment Namespace: 34869bb254f6491e97d4993980a2cf85 Annotations: deployment.kubernetes.io/revision=4 Selector: name=gr93369e,service_id=eb02a36a5f8d0b349b2254461393369e,tenant_id=34869bb254f6491e97d4993980a2cf85 Replicas: 3 desired | 3 updated | 3 total | 3 available | 0 unavailable StrategyType: RollingUpdate MinReadySeconds: 0 RollingUpdateStrategy: 25% max unavailable, 25% max surge Conditions: Type Status Reason ---- ------ ------ Available True MinimumReplicasAvailable Progressing True NewReplicaSetAvailable OldReplicaSets: &amp;lt;none&amp;gt; NewReplicaSet: eb02a36a5f8d0b349b2254461393369e-deployment-9fcdf797 (3/3 replicas created) Events: Type Reason Age From Message ---- ------ ---- ---- ------- Normal ScalingReplicaSet 27m deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-84dc79c979 to 1 #第一次部署，新建实例数设置为1 Normal ScalingReplicaSet 25m deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-d5ff5fbd4 to 1 #构建操作，新建实例数设置为1 Normal ScalingReplicaSet 24m deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-84dc79c979 to 0 #构建操作，旧实例数设置为0 Normal ScalingReplicaSet 24m deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 1 #伸缩操作，新建实例数设置为1 Normal ScalingReplicaSet 24m deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-d5ff5fbd4 to 0 #伸缩操作，旧实例数设置为0 Normal ScalingReplicaSet 30s deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 3 #伸缩操作，新建实例数设置为3 Normal ScalingReplicaSet 22s deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-9fcdf797 to 1 #构建操作，新建实例数设置为1 Normal ScalingReplicaSet 20s deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 2 #构建操作，旧实例数设置为2 Normal ScalingReplicaSet 20s deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-9fcdf797 to 2 #构建操作，新实例数设置为2 Normal ScalingReplicaSet 18s deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 1 #构建操作，旧实例数设置为1 Normal ScalingReplicaSet 18s deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-9fcdf797 to 3 #构建操作，新实例数设置为3 Normal ScalingReplicaSet 16s deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 0 #构建操作，旧实例数设置为0  无影响升级 无影响的前提，是已经多实例部署了。如果单实例部署，需要保证应用启动即服务。</description>
+    </item>
+    
+    <item>
+      <title>服务配置文件实践</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/config-file/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/config-file/</guid>
+      <description>这篇文章将会介绍 Rainbond 中的配置文件, 并且会以 mariadb 为例, 演示配置文件的使用.
+配置文件的介绍 Rainbond 结合了 Kubernetes 的 ConfigMap 实现的配置文件, 是一种特殊的存储类型, 此类型允许用户直接定义文件内容, 通常是指配置文件.
+配置文件有两大特性：动态渲染环境变量 和 配置文件共享.
+动态渲染环境变量 动态渲染配置文件解析环境变量的语法:
+${环境变量名} ${环境变量名:默认值}  如果服务中存在指定的环境变量, 那么 Rainbond 会将该环境变量的值解析到配置文件中; 如果服务中不存在该环境变量, 那么 Rainbond 会将默认值解析到配置文件中。
+如果指定的环境变量不存在, 且没有设置默认值, 那么 Rainbond 不会进行解析  配置文件共享 可以通过存储共享的机制来共享配置文件, 如果你有多个服务使用同一个配置文件的场景, 可以直接共享, 无需多次编辑设置.共享的配置文件只会解析当前服务的环境变量.
+配置文件在 Mariadb 中的应用 mariadb, Docker 的官方镜像, 给出了两种自定义 MySQL 配置文件的方法.
+Mariadb 官方的配置方法 第一种方法是在宿主机创建一个配置文件, 并将这个配置文件挂载到容器的 /etc/mysql/conf.d 目录下. /etc/mysql/conf.d下的配置文件就会覆盖默认配置文件 /etc/mysql/my.cnf. 这种方法不够灵活, 无法在创建服务时确认 Pod 会被调度在哪个节点上(数据中心通常是集群), 需要服务创建完成后才能挂载配置文件, 然后重启服务使其生效.
+第二种方法是在 docker run 命令中传入 mysqld 的参数, 比如, 通过 character-set-server 和 collation-server 两个参数修改l默认的编码和校对规则:</description>
+    </item>
+    
+    <item>
+      <title>通过应用市场做应用交付与升级</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/application-delivery/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/application-delivery/</guid>
+      <description>概述 在企业选定Rainbond作为生产交付平台后，如何将开发好的应用交付到最终用户的生产环境中去，就变成了一个非常重要的课题。本文通过实际的测试流程，讲解了如何通过Rainbond应用市场做应用的交付，以及在原始应用有升级后，如何将升级内容同步到其他已经通过原始版本的应用市场部署的应用。
+基于Rainbond应用市场交付的流程 事先准备 完成这个操作需要两套Rainbond环境。一套作为应用的发布平台，用于应用的发布与升级；另一套作为部署平台，我们将会通过离线导出/导入市场应用的方式，实现应用的交付与升级操作。
+本文在写作的时候搭建了两套Rainbond v3.7.2 作为测试环境，来演示与验证通过应用市场做应用交付与升级。
+应用的发布与导出 本次测试挑选了一个基于Maven构建的 spring boot 项目。搭配了 mysql 组成了一个完整的应用。接下来，将其发布为一个应用市场的应用,并将其导出为包。这里提供本次导出的测试应用包，以供用户进行测试。
+应用包的导入 接下来，我们会在一个新的环境导入刚刚导出的应用包。此过程对应了离线环境下，基于Rainbond应用市场的交付场景。
+导入完成后，即可以使用从应用市场构建，来将导入的包构建为应用。基于Rainbond应用市场的应用交付就完成了。
+应用市场升级操作 应用的重新发布 对于已发布到应用市场的应用，该如何才能升级呢？这涉及到同一个应用的重复发布。在这里指出很重要的一点：
+ 将应用发布到应用市场后，不要将原始应用删除。未来的升级将以原始应用为基础，进行调整。在调整完成后，重新发布到应用市场，即可完成应用市场中应用的升级。
+ 接下来，依然以spring boot为基础，完整的实现一次升级操作。在开始之前，通过未升级的应用市场部署一个应用 app_delivery作为测试用例；并为应用的源码仓库添加了一个标示文件 new_file_for_test 模拟应用源码发生变更。
+重新构建来升级原始应用
+重新发布来升级应用市场中的应用
+ 需要注意的是，重新发布同一个应用的时候，版本 应与原应用保持一致，方视为对原应用的升级；否则，会发布出一个新的应用。
+ 同Rainbond下应用市场部署应用的升级 对于使用了应用市场中应用的首个版本部署的应用 app_delivery 。在重新发布应用后，就可以进行升级操作了。Rainbond会自动检测应用市场应用的版本，并体现 应用升级按钮。
+不同Rainbond下应用市场应用的升级 对于已交付的其他Rainbond环境，我们在升级了应用后，如何在交付环境中升级呢？我们需要将应用重新导出，再导入到交付环境中去。导出的方式以及介绍过了，这里提供本次导出的测试应用升级包，以供用户进行测试。
+成功将应用市场应用升级后，就可以对已通过原始版本的应用进行升级操作了。</description>
+    </item>
+    
+  </channel>
+</rss>

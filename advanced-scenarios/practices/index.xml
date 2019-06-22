@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>应用管理实践 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/advanced-scenarios/practices/</link>
+    <description>Recent content in 应用管理实践 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/advanced-scenarios/practices/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>第三方服务实践-统一管理集群内服务访问集群外数据库</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice2/</guid>
+      <description>如果在公有云(比如阿里云, AWS)上的分布式数据库, 无法迁移到 Rainbond 上; 或是其他尚未迁移到 Rainbond 的数据库, 那么你可以使用第三方服务将它们注册到 Rainbond 中, 从而使得集群内服务也可以访问它们。本文将演示如何把集群外的 MySQL 通过第三方服务注册到 Rainbond 集群中, 并为其定义共享环境变量，从而解决多个服务重复定义数据库连接信息变量的问题。
+ 如果Rainbond安装在阿里云，请注意使用阿里云RDS云数据库时必须与Rainbond集群处于同一个区域。
+ 前期准备  请确保你已经安装了 Rainbond V5.1 或更高的版本。
+ 需要添加的服务, 本文使用的是 Rainbond 集群外的一个 MySQL。
+ phpMyAdmin, 可以在应用云市中安装, 也可以通过镜像的方式创建.
+  你可以假设这个 MySQL 是非常复杂的, 比如它是一个分布式, 主从复制, 读写分享的 MySQL, 迁移的难度比较在; 那么你可以先不迁移这个 MySQL, 通过第三方服务将这个 MySQL 的实例添加到 Rainbond 集群中, 让它也可以使用 Rainbond 服务通信治理, 服务拓扑关系等功能.
+步骤 1: 填写第三方服务信息 登录 Rainbond 控制台, 进入 创建应用 -&amp;gt; 添加第三方服务.
+填写 服务名称, 应用名称, 服务注册方式(以 API 注册为例), 服务地址等信息.</description>
+    </item>
+    
+    <item>
+      <title>第三方服务实践-通过Rainbond应用网关访问企业内网应用</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice1/</guid>
+      <description>企业基于Rainbond建设自己的私有云，管理企业所有的应用的过程中，会遇到这样一个问题，有一些应用需要被公网访问，但是由于各种原因，应用尚未迁移到 Rainbond 中。但是 公司只有一个公网 IP。用户为了能够使Rainbond集群内外的应用可以同时对外网提供服务，不得不单独部署一个nginx服务来作为最外层的应用负载。这样带来的问题就是没办法直接方便的使用Rainbond网关，每开放一个应用都需要手动配置nginx的规则，如果不了解Rainbond网关的工作原理，这个过程将更加复杂。
+为了解决这个问题，结合其他方面的需求，Rainbond第三方服务管理集成功能应运而生。参考第三方服务定义
+本文将会实践如何使用第三方服务, 让未迁移到Rainbond集群的应用也能够直接动态注册到Rainbond网关，从而实现基于Rainbond网关来管理企业所有的对外提供服务的应用。
+前期准备  请确保你已经安装了 Rainbond V5.1 或更高的版本。
+ 企业内网的其他服务, 本文使用一个Nginx应用来说明。
+  步骤 1: 填写第三方服务信息 登录 Rainbond 控制台, 进入 创建应用 -&amp;gt; 添加第三方服务.
+填写 服务名称, 应用名称, 服务注册方式(以静态注册为例), 服务地址等信息.
+点击 创建服务, 并在检测通过后, 点击 创建.
+步骤 2: 添加端口 创建完成后, 会进入到服务的管理页面. 在导航中选择 端口.
+点击添加端口, 输入端口为 80, 选择 http 协议.
+添加完成后, 打开对外服务, 让应用网关代理该服务.
+这里需要注意的是, 内部的服务可以添加多个端口, 而第三方服务只能添加一个端口.  步骤 3: 确认服务 打开对外服务后, 你会得到一个类似http://80.grf53077.ex05o2yt.2cbcac.grapps.cn/的域名, 这是 Rainbond 为该服务会分配一个默认的域名, 最关键的是这时候你可以在网关中为该服务自定义域名和设置需要的访问策略参数。
+参考文档 网关访问策略管理</description>
+    </item>
+    
+  </channel>
+</rss>

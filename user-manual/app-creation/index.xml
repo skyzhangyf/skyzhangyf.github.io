@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>应用&amp;服务创建 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-manual/app-creation/</link>
+    <description>Recent content in 应用&amp;服务创建 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-manual/app-creation/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>服务创建方式</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/service_create/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/service_create/</guid>
+      <description>这篇文章将会为你介绍Rainbond的服务的创建方式.
+应用的定义中已经提到,应用是由各个不同的服务组件构成,那么应用的创建就离不开服务组件的创建.服务组件创建的方式有4种,分别是:从源码创建,从Docker镜像创建,从应用市场安装和创建第三方服务。
+从源码创建 Rainbond支持多种流行的编程语言的源码创建,同时也支持通过Dockerfile进行创建，从源代码创建和持续部署服务是Rainbond最常用的创建方式，其是DevOps流程中最关键的一环。
+Rainbond目前支持的语言有:
+ Java源码创建服务 PHP源码创建服务 Python源码创建服务 Node.js源码创建服务 Golang源码创建服务 .Net源码创建服务 Html静态源码创建服务 Dockerfile源码创建服务  通过源码的方式创建服务组件,需要把源码托管在版本控制系统上,Rainbond目前支持的版本控制系统有*Git*和SVN,也是目前大家常用的版本控制系统。相应的源码必须符合Rainbond的源码支持规范，当然定义的规范都是与各语言推荐规范一致。 需要注意的是对于一些聚合工程,我们想要构建服务所需的源码,可能位于仓库下的某一个子目录下，获取对应子目录下的源码的方式如下：
+ Git:使用dir请求参数指定源码主目录。例如： 源码仓库地址为: https://github.com/demo/demo.git, 所需源码位于子目录/subdir1/subdir2下，则构建应用使用的仓库地址为: https://github.com/demo/demo.git?dir=subdir1/subdir2   我们不推荐使用子目录的方式对项目进行区分,应该尽可能地给每个项目建立独立的Git仓库.这样可以使代码的结构更加地清晰,不至于太臃肿,方便管理。
+  SVN:svn原生支持处理子目录，例如：  源码仓库地址为:http://svn.demo.net/trunk/subdir, 则构建应用使用仓库地址为: http://svn.demo.net 分支选择为子目录路径:trunk/subdir
+从Docker镜像创建 从标准的Docker镜像创建一些中间价或其他开源项目服务是最便捷的途径，但是对于企业自研的业务系统要求用户必须掌握容器化相关知识。
+你可以将项目的代码,运行时环境,依赖库,配置等资源或信息通过Dockerfile打包成一个或多个镜像,上传到DockerHub或其他公有镜像仓库中,或是自己的私有仓库。对于项目中所需要的数据库,消息队列等中间件,或者ElasticSearch,Kibana,Grafana等日志收集工具,你甚至可以直接在DockerHub找官方制作好的镜像,不需要自己去制作.然后,你可以通过镜像的名字,DockerRun命令,或者DockerCompose,将的镜像直接跑在Rainbond平台。
+从Docker镜像创建和持续构建服务也是DevOps流程中使用较为广泛的方式，特别是对于已经搭建了CI流程的企业，通过第三方的CI系统（比如Jenkins）将代码处理完成打包为Docker镜像存储于私有镜像仓库中。Rainbond完成后续的CD流程，将镜像转化为集群服务与应用中其他组件进行架构关联，调度运行，生命周期管理等。
+以下的镜像不能安装:  发行版及软件包镜像：Debian,Ubuntu,Centos,Fedora,FreeBSD 编程语言或其他基础运行环境镜像：Golang,Ruby,Openjdk 命令行工具类软件镜像:Docker,HomebrewBottles  指定镜像 Rainbond可以通过直接拉取Docker官方或者第三方Docker镜像的方式创建服务,但需要注意的是,第三方Docker仓库一定要支持HTTPS协议,否则需要就修改管理节点的Docker配置,使其支持非HTTPS的Docker仓库.
+指定DockerRun命令 使用DockerRun命令创建是Rainbond支持Docker镜像基础上提供的一项便捷操作,Rainbond会解析出DockerRun命令中的镜像,端口,环境变量，内存和存储等服务属性信息,然后生成Rainbond应用（服务）抽象。因此此过程的体验效果与你在单机上运行DockerRun命令可以直接运行容器一样，直接在集群下快捷创建并启动一个服务。
+ Rainbond支关心镜像,端口,环境变量，内存和持久化挂载等信息,其它信息将会被忽略。此方式支持大多数Dockerhub上提供的镜像运行方式执行。
+ 指定DockerCompose 对DockerCompose的支持是在对DockerRun命令的基础上进一步升级，用户在单机环境下可以基于DockerCompose快捷部署多个容器，在Rainbond平台一样，基于Docker Compose配置可以便捷生成多个服务（通常是一个完整的应用抽象），直接在集群环境下运行。Rainbond提供的服务间通信机制可以完美支持常用的DockerCompose配置，目前支持的DockerCompose版本有：
+&amp;ldquo;1&amp;rdquo;, &amp;ldquo;1.0&amp;rdquo;, &amp;ldquo;2&amp;rdquo;, &amp;ldquo;2.0&amp;rdquo;, &amp;ldquo;2.1&amp;rdquo;, &amp;ldquo;2.2&amp;rdquo;, &amp;ldquo;2.3&amp;rdquo;, &amp;ldquo;2.4&amp;rdquo; &amp;ldquo;3&amp;rdquo;, &amp;ldquo;3.0&amp;rdquo;, &amp;ldquo;3.1&amp;rdquo;, &amp;ldquo;3.2&amp;rdquo;, &amp;ldquo;3.3&amp;rdquo;, &amp;ldquo;3.4&amp;rdquo;, &amp;ldquo;3.5&amp;rdquo;, &amp;ldquo;3.</description>
+    </item>
+    
+    <item>
+      <title>服务创建流程</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/creation-process/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/creation-process/</guid>
+      <description>本节内容就上文提到的三种创建方式在Rainbond平台上如何操作提供指南。
+从源码创建 下面将会以Java源码创建服务为例, 介绍在Rainbond上用源码创建服务流程。 &amp;gt; 源码地址: https://github.com/goodrain/java-maven-demo.git
+服务的创建目前有两个入口，分别是左部导航的创建应用入口和应用管理的添加服务组件入口，创建流程一致。
+ Step 1: 提供服务名称和所属应用，最关键的是提供构建源信息，源码构建即提供代码仓库地址，授权等信息。
+ Step 2: 等待Rainbond对源代码进行检测，这个过程Rainbond将根据代码源信息获取源代码并进行语言类型、语言规范等检测，并从rainbondfile文件中读取服务属性。
+ Step 3: 如果检测结果通过即会根据检测回的服务属性创建服务，如果不通过用户需要根据提示更改相关信息。
+ Step 4: 检测完成后用户可以选择构建启动或进行高级设置，设置更多服务属性。若选择构建启动Rainbond将再次获取源代码根据代码检测的语言类型进行源码构建。请注意，源码类型只会在源码检测中读取，因此后续的开发过程如果更改了语言类型，需要触发重新代码检测。
+ Step 5: 服务构建完成后即可通过端口绑定的默认域名进行访问。后续的管理维护流程参阅 服务管理文档
+  其他语言源码支持参阅下述文档  Java源码创建服务 PHP源码创建服务 Python源码创建服务 Node.js源码创建服务 Golang源码创建服务 .Net源码创建服务 Html静态源码创建服务 Dockerfile源码创建服务  Git 和 SVN 的使用 在创建服务时，根据代码仓库的类型选择 Git 或 SVN, 并正确填写该应用的代码仓库地址以及要使用的代码分支或 tag. Git的默认分支是 master, SVN 的默认 tag 是 trunk.
+ 账号密码连接代码仓库  如果需要用账号密码连接代码仓库, 则点击填写仓库账号密码, 正确填写你的登陆用户名及密码即可.
+ SSH 连接代码仓库  如果需要用 SSH 秘钥连接代码仓库, 则点击下方的配置授权 Key, 会为你生成一段秘钥, 然后把这段秘钥添加到你代码仓库的部署秘钥中.</description>
+    </item>
+    
+  </channel>
+</rss>

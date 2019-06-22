@@ -1,0 +1,830 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/</loc>
+    <lastmod>2019-04-17T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-define/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-design/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-create/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/quick-start/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/architecture/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/quick-start/rainbond_overview/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/quick-start/rainbond_overview1/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/quick-start/rainbond_install/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/enterprise_service/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/architecture/design-concept/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/architecture/flow/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/quick-start/edition/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/architecture/architecture/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/quick-start/roadmap/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/quick-start/roadmap.5.0/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/component-description/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/recommendation/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/required_ports/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/reset_enterprise_password/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/op-repo/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/offline-package/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/error_dialing_backend/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/table_region_tenants_not_exist/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/console_error/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/user-registration-login/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/install/online_install/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/install/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/install/install-base-alicloud/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/install/install-base-ha/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/install/install-base-kubernetes/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/install/offline_install/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/install/custom-install/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/management/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/management/node/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/management/component-op/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/management/domain/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/management/reset-pod-cidr/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/management/add-lb-node/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/monitor/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/storage/glusterfs/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/monitor/monitor/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/monitor/monitor-alter-items/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/storage/alinas/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/storage/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/network/calico/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/network/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/tools/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/trouble-shooting/pt-faq/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/trouble-shooting/app-faq/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/upgrade/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/manage-team/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/manage-team/create-team/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/manage-team/manage-user/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/manage-team/manage-datacenter/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/manage-team/manage-permision/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/service_create/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/creation-process/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/image-support/docker-compose/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/image-support/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/dockerfile/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/python/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/netcore/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/golang/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/html/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs-static/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-manage/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-manage/operation/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-manage/add-service/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-properties/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/basic-operation/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-log/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-monitor/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-scaling/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rely/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-volume/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-port-domain/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/auto-deploy/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-plugins/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-source/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rollback/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-other-set/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-env/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/service-container/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-service-manage/thirdparty-manage/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-store/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-store/app-market-define/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-store/app-market-synchronous/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-store/share-app-market/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-store/app-specification/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/gateway/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/plugin-manage/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/plugin-manage/plugin-manage/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/plugin-manage/plugin-design-develop/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/plugin-manage/mesh-plugin/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/plugin-manage/tcm-plugin/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/plugin-manage/create-mysql-plugin/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/</loc>
+    <lastmod>2019-04-17T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/app-create/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-mesh/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-define/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-re-dis/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-connection/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-config/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-integration/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-security/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-operate/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/jenkins-rainbond/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-advantage/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/autobuild/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-merge/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-case/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/offline-java-build/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/java-multi-module-build/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-maven-repository/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/micro/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/practices/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/faqs/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/app_startup/</loc>
+    <lastmod>2019-04-17T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/op-guide/code_build_failure_download_gzip/</loc>
+    <lastmod>2019-03-11T12:50:54+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/go_more/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php_more/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/ruby_more/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/slugignore/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/upgrade/5.0.4-5.1.0/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/upgrade/5.1.0-5.1.1/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/upgrade/5.1.1-5.1.2/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/upgrade/5.1.2-5.1.3/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/upgrade/5.1.3-5.1.4/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-gradle/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-jar/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-maven/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-war/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/jetty-runner/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php_more/extensions/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/procfile/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/spring-boot-mysql/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/tomcat-redis-session/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/calico/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/docker/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/etcd/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/tools/grclis/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/tools/grctl/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/kubelet/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/k8s/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/node/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/rainbondfile/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-api/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-app-ui/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-chaos/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-db/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-dns/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-eventlog/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-gateway/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-hub/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-monitor/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-mq/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-repo/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-webcli/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/component/rbd-worker/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/webapp-runner/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/business-center/business-center/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-operations/tools/other/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/envs/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-git-server/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/ab-released-app/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-manage/share-app/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-manage/upgrade_app/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-manage/app-backup/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/app-manage/app-topology/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/gray-released-app/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/gateway/gateway/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/app-create/gitlab/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/upgrade-stateless-app/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/config-file/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/quick-start/release-cycle/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/user-registration-login/user-register/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice2/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice1/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/gateway/traffic-control/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/user-manual/gateway/cert-management/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/contribution/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/devops/application-delivery/</loc>
+  </url>
+  
+  <url>
+    <loc>http://skyzhangyf.github.io/advanced-scenarios/app-create/create-middleware-cluster/</loc>
+  </url>
+  
+</urlset>

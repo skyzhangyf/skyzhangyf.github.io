@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ServiceMesh微服务架构 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/</link>
+    <description>Recent content in ServiceMesh微服务架构 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>ServiceMesh微服务架构简介</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-mesh/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-mesh/</guid>
+      <description>ServiceMesh 一般的字面解释是“服务网格”，作为时下最流行的分布式系统架构微服务的动态链接器，处于服务到服务的通信的专用基础设施层，该层独立于应用程序为服务之间的通信提供轻量级的可靠传递。如果简单的描述的话，可以将它比作是应用程序或者说微服务间的 TCP/IP，负责服务之间的网络调用、限流、熔断和监控，同样使用 ServiceMesh 也就无须关系服务之间的那些原来是通过应用程序或者其他框架实现的事情，比如 Spring Cloud架构，现在只要交给 ServiceMesh 就可以了。ServiceMesh的出现主要是由于应用虚拟化技术的发展，例如Kubernetes, Rainbond等项目，大大降低了应用的部署和运维复杂度。   
+微服务架构对比 
+为何使用ServiceMesh ServiceMesh 并没有给我们带来新功能，它是用于解决其他工具已经解决过的问题，只不过这是在 Cloud Native 的云原生环境下将过去复杂的人工运维工作有机的自动化管理。
+在传统的 MVC 三层 Web 应用程序架构下，服务之间的通讯并不复杂，在应用程序内部自己管理即可，但是在现今的复杂的大型网站情况下，单体应用被分解为众多的微服务，服务之间的依赖和通讯十分复杂，出现了 twitter 开发的 Finagle、Netflix 开发的 Hystrix 和 Google 的 Stubby 这样的 “胖客户端” 库，这些就是早期的 ServiceMesh，但是它们都近适用于特定的环境和特定的开发语言，并不能作为平台级的 ServiceMesh 支持。
+在 Cloud Native 架构下，容器的使用给予了异构应用程序的更多可行性，kubernetes 增强的应用的横向扩容能力，用户可以快速的编排出复杂环境、复杂依赖关系的应用程序，同时开发者又无须过分关心应用程序的监控、扩展性、服务发现、负载均衡和分布式追踪这些繁琐的事情而专注于程序开发，赋予开发者更多的创造性。如果你是符合以下场景，推荐选择ServiceMesh架构：
+ 遗留庞大系统逐步过渡到微服务架构 业务系统由多种开发语言开发  ServiceMesh相对其他微服务架构优势  最大层度透明   ServiceMesh通过全局控制层控制服务与服务之间的调用关系，服务的治理策略。对于服务本身来说，只需要站在单机的维度考虑上游服务的依赖通信，采用简单的通信协议例如HTTP，gRPC等。Mesh层透明的发现上游目标，进行重试/超时、监控、追踪。为单机服务赋予分布式系统能力。
+  学习成本低   过去我们要设计搭建一个完整的微服务架构，比如SpringCloud,Dubbo等，免不了需要改变我们传统的编程思想，学习复杂的架构框架，例如SpringCloud,其包含各类组件10余个，基本与服务业务本身没有直接关系。对于大多数业务开发者来说是一个高高的门槛。但是使用ServiceMesh架构，由于其最大化的透明，开发者几乎不需要额外学习与业务无关的框架技术。大大降低了学习成本。
+  架构灵活   对于不同的团队组成，可能拥有具有掌握不同开发语言的成员，或者具有成熟的已实现业务系统。如果转变到微服务架构支持更大量级用户，如果使用SpringCloud架构，免不了对系统进行重构甚至重写。面对现实与未来，我们需要逐步落地微服务架构，使用合适的开发语言开发合适的服务，甚至融合多种轻量级架构模式，比如Dubbo,SpringBoot和LNMP架构。
+ ServiceMesh架构性能 有人提出，在服务与服务之间增加两层代理对性能会产生较大影响，对于性能问题，我们应该放眼全局，从以下几个方面分析：</description>
+    </item>
+    
+    <item>
+      <title>服务化定义</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-define/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-define/</guid>
+      <description> 服务的定义 Rainbond服务组件即服务，所有运行于Rainbond的服务，组件Rainbond默认按照服务化的管理方式进行运维和治理。
+怎么理解这句话呢？我们从以下几个方面来解读：
+ 我们通常在了解微服务架构的开始阶段总是考虑的是如何进行服务化拆分或规划，这个过程显得很复杂，从而导致微服务落地难。我们试想为什么不能是直接将已有的业务先定义为一个服务先融入到微服务架构中去，这样我们就可以开始新服务的开发或老服务的逐步拆分，走循序渐进 数据库中间件也是服务，微服务架构中我们一般推荐每个业务服务具有自己的数据库。当然也可以共用数据库。云原生下数据库也是服务，它可以独立维护和升级，某些云数据库也需要通信治理和负载均衡。 异构的微服务架构在Rainbond都是服务，比如已经使用SpringCloud开发的微服务架构，部署到Rainbond以后，Rainbond统一管理SpringCloud的所有组件之间的通信。对于单独的SpringCloud架构，它是不维护比如业务与配置中心、业务与数据库的通信的。  </description>
+    </item>
+    
+    <item>
+      <title>服务注册和服务发现</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-re-dis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-re-dis/</guid>
+      <description>服务注册 服务为什么需要注册 在云原生环境下，服务的通信地址可能是不确定的，根据生命周期的变化而变化，同时其还有可能有多个运行实例。那么其他服务需要与去通信的前提是需要发现服务的通信地址，因此服务需要通过服务注册来将自己的通信地址和运行状态注册到服务注册中心，比如SpringCloud架构有eureka注册中心。
+服务注册粒度和范围 Rainbond服务注册的粒度是端口级别，也就是说如果服务组件有多个端口它可以分别控制注册。同时为了区分服务是对外网提供服务（通过应用网关）还是对内网提供服务（通过ServiceMesh）,Rainbond为服务的每个端口设置了两种注册范围。
+服务注册方式 由于Rainbond不同于SpringCloud架构还提供了服务运行环境，因此Rainbond的服务注册是自动的，即服务实例启动就会注册到注册中心。但是需要用户指定注册范围，开启了对内服务或者对外服务。
+服务发现 服务发现与服务注册是对应的概念，即服务A希望访问服务B时，需要先获取对方的服务地址。Rainbond提供了两种服务发现策略。
+声明式服务发现 所谓声明式服务发现即服务A需要访问服务B时，需要显式的在Rainbond设置依赖关系，即A依赖B。当建立依赖关系以后，服务A的同一个网络空间内的Mesh服务会通过XDS协议从Rainbond服务注册中心获取服务B的所有运行健康的服务实例，从而建立本地的监听来对服务B进行负载均衡。 对于服务A来说，访问B的方式是固定的本地地址，比如访问服务B的8080端口，访问地址即是127.0.0.1:8080。此地址可以在代码中固定配置或通过相应的环境变量获取。 由此可以得出，Rainbond的服务发现是对业务层透明的，即用户的业务不需要处理服务发现的逻辑，Mesh层会自动完成。根据Mesh层的自定义路由配置和负载均衡算法配置，目前此方式主要支持无状态服务、单实例有状态服务和可以无差别多实例运行的有状态集群服务。
+基于DNS的服务发现 除了上文提到的服务类型，还有一类服务通信比较特殊，比如以下场景：
+ 集群化服务，支持水平扩容，实例之间需要通信。比如zookeeper、etcd等 主从集群服务，从实例需要与主实例通信。比如Mysql主从集群，Redis主从复制集群  对于上诉服务主要涉及到同一个服务的多个实例间通信。此类需求必须将服务类型设置为有状态服务
+通过固定的DNS解析的方式进行服务发现：
+对于已经部署的有状态服务，我们可以进入容器查看主机名，如下图：
+从中你可以看到，服务实例的主机名是按照如下规则生成的：
+服务别名-服务实例编号.服务别名.租户ID.svc.cluster.local  对于不同的服务涉及的变量主要如下：
+ 服务别名，可以通过获取环境变量SERVICE_NAME 获取 服务实例编号，根据实例数量从0开始依次编号。它们的启动顺序和更新数据都会按照编号顺序进行，因此一般编号0会作为特殊实例，比如主从集群的主实例。 租户ID，可以通过获取环境变量TENANT_ID 获取  通过上述分析你应该已经理解了，当你需要发现当前服务的所有已运行实例地址时，可以以DNS的nslookup方式获取服务别名.租户ID.svc.cluster.local域名的NS记录。此方式有很多现成的实现工具.比如参考： cockroachdb服务源码
+如果需要与主节点通信，直接请求主节点的域名即可。比如 服务别名-0.服务别名.租户ID.svc.cluster.local</description>
+    </item>
+    
+    <item>
+      <title>服务通信治理(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-connection/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-connection/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>服务配置管理(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-config/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-config/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ServiceMesh架构与其他服务化架构的集成(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-integration/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-integration/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>服务安全(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-security/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-security/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>服务运维管理(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-operate/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-operate/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

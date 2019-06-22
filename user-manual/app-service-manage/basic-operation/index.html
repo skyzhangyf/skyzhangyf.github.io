@@ -1,0 +1,5592 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="description" content="Rainbond服务基础生命周期操作说明文档">
+
+
+    <link rel="icon" href="http://skyzhangyf.github.io/images/favicon.ico" type="image/png">
+
+    <title>服务基础操作 :: Rainbond文档中心(5.1版)</title>
+
+    
+    <link href="http://skyzhangyf.github.io/css/nucleus.css?1561194071" rel="stylesheet">
+    <link href="http://skyzhangyf.github.io/css/fontawesome-all.min.css?1561194071" rel="stylesheet">
+    <link href="http://skyzhangyf.github.io/css/hybrid.css?1561194071" rel="stylesheet">
+    <link href="http://skyzhangyf.github.io/css/featherlight.min.css?1561194071" rel="stylesheet">
+    <link href="http://skyzhangyf.github.io/css/perfect-scrollbar.min.css?1561194071" rel="stylesheet">
+    <link href="http://skyzhangyf.github.io/css/auto-complete.css?1561194071" rel="stylesheet">
+    <link href="http://skyzhangyf.github.io/css/theme.css?1561194071" rel="stylesheet">
+    <link href="http://skyzhangyf.github.io/css/hugo-theme.css?1561194071" rel="stylesheet">
+    
+
+    <script src="http://skyzhangyf.github.io/js/jquery-2.x.min.js?1561194071"></script>
+
+    <style type="text/css">
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/user-manual/app-service-manage/basic-operation/">
+    <nav id="sidebar" class="showVisitedLinks">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="http://skyzhangyf.github.io/">
+  
+  <img src="//www.rainbond.com/images/logos/logo_bg.png" width="90%"/>
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="搜索...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="http://skyzhangyf.github.io/js/lunr.min.js?1561194071"></script>
+<script type="text/javascript" src="http://skyzhangyf.github.io/js/auto-complete.js?1561194071"></script>
+<script type="text/javascript">
+    
+        var baseurl = "http:\/\/skyzhangyf.github.io\/";
+    
+</script>
+<script type="text/javascript" src="http://skyzhangyf.github.io/js/search.js?1561194071"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+
+        
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/quick-start/" title="快速开始" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/quick-start/">
+          <b>1. </b>快速开始
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/quick-start/rainbond_overview/" title="简介" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/quick-start/rainbond_overview/">
+        简介
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/quick-start/rainbond_overview1/" title="简介" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/quick-start/rainbond_overview1/">
+        简介
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/quick-start/rainbond_install/" title="平台安装" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/quick-start/rainbond_install/">
+        平台安装
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/quick-start/edition/" title="功能列表" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/quick-start/edition/">
+        功能列表
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/quick-start/roadmap/" title="RoadMap" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/quick-start/roadmap/">
+        RoadMap
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/architecture/" title="架构" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/architecture/">
+          <b>2. </b>架构
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/architecture/design-concept/" title="设计思想" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/architecture/design-concept/">
+        设计思想
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/architecture/flow/" title="业务流程" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/architecture/flow/">
+        业务流程
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/architecture/architecture/" title="技术架构" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/architecture/architecture/">
+        技术架构
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/" title="使用手册" class="dd-item 
+        parent
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/">
+          <b>3. </b>使用手册
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/user-registration-login/" title="用户管理" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/user-registration-login/">
+          <b>3.1  </b>用户管理
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/manage-team/" title="团队管理" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/manage-team/">
+          <b>3.2  </b>团队管理
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/app-creation/" title="应用&amp;服务创建" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/app-creation/">
+          <b>3.3 </b>应用&amp;服务创建
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/user-manual/app-creation/service_create/" title="服务创建方式" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/user-manual/app-creation/service_create/">
+        服务创建方式
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/user-manual/app-creation/creation-process/" title="服务创建流程" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/user-manual/app-creation/creation-process/">
+        服务创建流程
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/app-creation/image-support/" title="Docker镜像支持规范" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/app-creation/image-support/">
+          Docker镜像支持规范
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/user-manual/app-creation/image-support/docker-compose/" title="DockerCompose支持规范" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/user-manual/app-creation/image-support/docker-compose/">
+        DockerCompose支持规范
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/app-creation/language-support/" title="开发语言支持规范" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/app-creation/language-support/">
+          开发语言支持规范
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/app-creation/thirdparty-service/" title="第三服务规范" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/">
+          第三服务规范
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/app-manage/" title="应用管理" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/app-manage/">
+          <b>3.4. </b>应用管理
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/app-service-manage/" title="服务管理" class="dd-item 
+        parent
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/app-service-manage/">
+          <b>3.5. </b>服务管理
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/app-store/" title="应用市场" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/app-store/">
+          <b>3.6. </b>应用市场
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/gateway/" title="应用网关管理" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/gateway/">
+          <b>3.7. </b>应用网关管理
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-manual/plugin-manage/" title="插件管理" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-manual/plugin-manage/">
+          <b>3.8. </b>插件管理
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/user-manual/business-center/business-center/" title="企业中心" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/user-manual/business-center/business-center/">
+        <b>3.9. </b>企业中心
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/user-operations/" title="运维手册" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-operations/">
+          <b>4. </b>运维手册
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/user-operations/op-guide/component-description/" title="平台组件架构" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/user-operations/op-guide/component-description/">
+        平台组件架构
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/user-operations/op-guide/recommendation/" title="软件和硬件环境要求" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/user-operations/op-guide/recommendation/">
+        软件和硬件环境要求
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-operations/install/" title="部署集群" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-operations/install/">
+          部署集群
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-operations/management/" title="管理集群" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-operations/management/">
+          管理集群
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-operations/monitor/" title="监控集群" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-operations/monitor/">
+          监控集群
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-operations/storage/" title="存储解决方案" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-operations/storage/">
+          存储解决方案
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-operations/network/" title="网络解决方案" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-operations/network/">
+          网络解决方案
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-operations/tools/" title="周边工具集" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-operations/tools/">
+          周边工具集
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/user-operations/trouble-shooting/pt-faq/" title="平台问题排查FAQ" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/user-operations/trouble-shooting/pt-faq/">
+        平台问题排查FAQ
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/user-operations/trouble-shooting/app-faq/" title="应用问题排查FAQ" class="dd-item ">
+        <a href="http://skyzhangyf.github.io/user-operations/trouble-shooting/app-faq/">
+        应用问题排查FAQ
+        <i class="fas fa-check read-icon"></i>
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/user-operations/upgrade/" title="版本升级" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/user-operations/upgrade/">
+          版本升级
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/advanced-scenarios/" title="进阶场景" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/advanced-scenarios/">
+          <b>5. </b>进阶场景
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/advanced-scenarios/app-create/" title="应用部署实践" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/advanced-scenarios/app-create/">
+          <b>5.1 </b>应用部署实践
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/advanced-scenarios/devops/" title="DevOps实践" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/advanced-scenarios/devops/">
+          <b>5.2 </b>DevOps实践
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/advanced-scenarios/micro/" title="微服务架构方面" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/advanced-scenarios/micro/">
+          <b>5.3 </b>微服务架构方面
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+          
+        
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/advanced-scenarios/micro/service_mesh/" title="ServiceMesh微服务架构" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/">
+          ServiceMesh微服务架构
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/advanced-scenarios/micro/spring_cloud/" title="SpringCloud应用部署运维" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/">
+          SpringCloud应用部署运维
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/advanced-scenarios/practices/" title="应用管理实践" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/advanced-scenarios/practices/">
+          <b>5.4 </b>应用管理实践
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
+             
+            
+          
+             
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/faqs/" title="FAQs" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/faqs/">
+          <b>6. </b>FAQs
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+ 
+  
+    
+    <li data-nav-id="/contribution/" title="贡献" class="dd-item 
+        
+        
+        
+        ">
+      <a href="http://skyzhangyf.github.io/contribution/">
+          <b>7. </b>贡献
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+              
+    </li>
+  
+ 
+
+          
+         
+    </ul>
+
+  
+    <section id="shortcuts">
+      <h3>更多</h3>
+      <ul>
+            <li> 
+                <a class="padding" target="_blank" href="https://t.goodrain.com">
+                  <i class="fas fa-fw fa-discourse"></i>  社区
+                </a>
+            </li>
+            <li> 
+              <a class="padding" target="_blank" href="https://blog.goodrain.com">
+                <i class="fas fa-fw fa-blog"></i>  博客
+              </a>
+          </li>
+          <li> 
+            <a class="padding" target="_blank" href="https://www.rainbond.com/docs/enterprise_service/">
+              <i class="fas fa-fw fa-bookmark"></i>  企业服务
+            </a>
+        </li>
+      </ul>
+    </section>
+
+    
+    <section id="prefooter">
+      <hr/>
+      <ul>
+      
+      
+      
+        <li><a class="padding" href="#" data-clear-history-toggle=""><i class="fas fa-history fa-fw"></i> 清除浏览历史</a></li>
+        <li style="margin-top:1em;"><a target="_blank" class="padding" href="http://v5-0.docs.rainbond.com/docs/v5.0/"><i class="fas fa-camera fa-fw"></i> V5.0 版本文档</a></li>
+      
+      </ul>
+    </section>
+    
+    <section id="footer">
+      <center>
+    
+    <a class="github-button" href="https://github.com/goodrain/rainbond" data-icon="octicon-star" data-show-count="true" aria-label="Star goodrain/rainbond on GitHub">Star</a>
+
+    
+    <a class="github-button" href="https://github.com/goodrain/rainbond/fork" data-icon="octicon-repo-forked" data-show-count="true" aria-label="Fork goodrain/rainbond on GitHub">Fork</a>
+    <p>Rainbond</p>
+</center>
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+    </section>
+  </div>
+</nav>
+
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                  
+                  
+                  
+                  <div id="top-github-link">
+                    <a class="github-link" title='编辑当前页面' href="https://github.com/goodrain/rainbond-docs/edit/master/content/user-manual/app-service-manage/basic-operation.md" target="blank">
+                      <i class="fas fa-code-branch"></i>
+                      <span id="top-github-link-text">编辑当前页面</span>
+                    </a>
+                  </div>
+                  
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='http://skyzhangyf.github.io/'>Rainbond文档中心</a> > <a href='http://skyzhangyf.github.io/user-manual/'>使用手册</a> > <a href='http://skyzhangyf.github.io/user-manual/app-service-manage/'>服务管理</a> > 服务基础操作
+          
+         
+          
+         
+          
+         
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#服务基本操作">服务基本操作</a></li>
+<li><a href="#构建操作">构建操作</a>
+<ul>
+<li><a href="#云市服务升级支持的属性">云市服务升级支持的属性</a></li>
+</ul></li>
+<li><a href="#更新操作">更新操作</a></li>
+<li><a href="#启动操作">启动操作</a></li>
+<li><a href="#关闭操作">关闭操作</a></li>
+<li><a href="#重启操作">重启操作</a></li>
+<li><a href="#访问操作">访问操作</a></li>
+<li><a href="#管理容器操作">管理容器操作</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+
+        
+        <div id="body-inner">
+          
+            <h1>服务基础操作</h1>
+          
+
+        
+
+
+
+
+<h4 id="服务基本操作">服务基本操作</h4>
+
+<p>先就服务可进行的操作进行基础说明：</p>
+
+<table>
+<thead>
+<tr>
+<th>基础操作</th>
+<th>说明</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>构建</td>
+<td>构建操作将触发服务从构建源获取最新的代码或镜像构建服务的新版本，</br>默认情况下构建成功后将触发滚动升级。</td>
+</tr>
+
+<tr>
+<td>更新（滚动升级）</td>
+<td>更新操作将以最新的服务属性配置对集群中运行的服务实例进行滚动升级</td>
+</tr>
+
+<tr>
+<td>启动</td>
+<td>具有至少一个可用构建版本的服务可以启动</td>
+</tr>
+
+<tr>
+<td>停止</td>
+<td>服务停止即释放所有集群资源</td>
+</tr>
+
+<tr>
+<td>访问</td>
+<td>运行中的服务可进行访问，如是HTTP服务将跳转访问网址，非HTTP</td>
+</tr>
+
+<tr>
+<td>管理容器</td>
+<td>运行中的服务可进行管理容器操作，选择需要操作的容器实例即可进入容器Web终端控制</td>
+</tr>
+
+<tr>
+<td>重启</td>
+<td>运行中的服务可进行重启操作，正常情况下我们推荐使用更新操作来完成服务重启，若服务任何属性都未变化，无法使用更新。</td>
+</tr>
+
+<tr>
+<td>修改所属应用</td>
+<td>服务可以灵活调整所属的应用</td>
+</tr>
+
+<tr>
+<td>删除</td>
+<td>删除服务是一个危险的操作，请谨慎操作。服务删除后持久化数据默认会保留7天。</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="构建操作">构建操作</h4>
+
+<blockquote>
+<p>适用场景：服务的任何状态</p>
+</blockquote>
+
+<p>针对不同类型的服务，触发 <code>构建</code> 操作后，有着不同的含义，下表针对不同类型的服务加以说明：</p>
+
+<table>
+<thead>
+<tr>
+<th>服务类型</th>
+<th>说明</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>从源代码构建的服务</td>
+<td>拉取最新源代码，根据预先识别的语言类型进行服务版本构建并进行滚动升级</td>
+</tr>
+
+<tr>
+<td>从Docker镜像构建的服务</td>
+<td>重新拉取指定镜像地址的镜像，构建出服务新版本并进行滚动升级</td>
+</tr>
+
+<tr>
+<td>从云市应用构建的服务</td>
+<td>若云市应用不存在更新的版本，构建操作将提醒用户无需操作，若已存在多个更新版本，将提示用户选择需要获取的版本号。根据所选版本获取服务介质生成构建版本并进行滚动升级</td>
+</tr>
+</tbody>
+</table>
+
+<div class="notices note" >
+
+- Dockerfile 源码类服务就是将 Dockerfile 及所需要的文件放到 代码仓库（Git/Svn），通过源代码创建的服务。
+- 构建后，如果一切顺利，服务会自动切换为新版本并上线，构建操作默认并更新升级，也可在其他设置中去设置构建后不升级流程。
+- 滚动升级过程对于多节点的服务理论上无影响，对于单节点的服务如果正常配置了业务级的[健康检测](/user-manual/app-service-manage/service-other-set/#健康检查) 也可以做到无影响升级。
+- 处于关闭状态的服务，触发构建操作后，如果构建正常，平台会将服务运行起来。
+
+</div>
+
+<h5 id="云市服务升级支持的属性">云市服务升级支持的属性</h5>
+
+<p>在对云市服务进行升级的时候, 并不是所有的属性都支持升级; 在升级的时候, 各种属性的处理方式又会有所区别. 具体如下表所示:</p>
+
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>是否支持升级</th>
+<th>元数据（升级方式）</th>
+<th>说明</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>实例可选项</td>
+<td>是</td>
+<td>更新</td>
+<td></td>
+</tr>
+
+<tr>
+<td>内存可选项</td>
+<td>是</td>
+<td>更新</td>
+<td></td>
+</tr>
+
+<tr>
+<td>依赖关系</td>
+<td>是</td>
+<td>增加</td>
+<td>如果依赖的服务在同一个应用内, 则增加依赖关系; 否则不进行处理</td>
+</tr>
+
+<tr>
+<td>端口</td>
+<td>是</td>
+<td>更新, 增加</td>
+<td>对于端口的升级, 可以更新已有的端口信息, 也可以增加新的端口; 但是不能删除已有的端口</td>
+</tr>
+
+<tr>
+<td>存储</td>
+<td>是</td>
+<td>增加</td>
+<td>对于存储的升级, 只能增加新的存储; 不能对已有的存储进行删除, 或修改</td>
+</tr>
+
+<tr>
+<td>健康检测</td>
+<td>是</td>
+<td>更新</td>
+<td>对于健康检测的升级, 修改已有的健康检测信息, 不能删除, 或增加(一个服务只能有一个健康检测信息)</td>
+</tr>
+
+<tr>
+<td>镜像</td>
+<td>是</td>
+<td>更新</td>
+<td>直接更改为新的镜像</td>
+</tr>
+
+<tr>
+<td>环境变量</td>
+<td>是</td>
+<td>增加</td>
+<td>对环境变量的升级, 只支持增加新的环境变量; 不能修改, 或删除已有的环境变量</td>
+</tr>
+
+<tr>
+<td>启动参数</td>
+<td>是</td>
+<td>更新</td>
+<td></td>
+</tr>
+
+<tr>
+<td>依赖存储</td>
+<td>是</td>
+<td>如果依赖的存储所在的服务在同一个应用内, 则增加依赖关系; 否则不进行处理</td>
+<td></td>
+</tr>
+
+<tr>
+<td>有无状态类型</td>
+<td>否</td>
+<td></td>
+<td></td>
+</tr>
+
+<tr>
+<td>标签</td>
+<td>否</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="更新操作">更新操作</h4>
+
+<blockquote>
+<p>使用场景：运行中服务</p>
+</blockquote>
+
+<p>当服务的依赖、存储、环境变量、特性、健康监测等运行属性发生改变以后，必须通过手工触发更新操作来将最新的属性配置应用的服务的运行环境中，在这更新过程中默认采用滚动升级的策略对服务实例进行升级。</p>
+
+<p>对于滚动升级有两类控制策略：</p>
+
+<ul>
+<li>无状态服务</li>
+</ul>
+
+<p>对无状态服务采用的是无序的先启动后停止的策略，即先启动新版本的运行实例，当其处于健康运行状态后关闭旧版本运行实例。需要注意的是，此过程会出现多版本同时工作的情况，若你的业务服务无法容忍多版本同时工作，请使用重启策略。</p>
+
+<ul>
+<li>有状态服务</li>
+</ul>
+
+<p>对于有状态服务采用的是有序的先关闭后停止策略，即根据运行实例编号，从第一个实例开始先关闭实例然后启动新版本实例。</p>
+
+<div class="notices warning" >
+
+这种控制对于像数据库类的服务至关重要，因此请勿将数据库类服务部署为无状态服务。
+
+</div>
+
+<h4 id="启动操作">启动操作</h4>
+
+<blockquote>
+<p>使用场景：构建成功，并处于关闭状态的服务</p>
+</blockquote>
+
+<p>启动操作会启动上一次成功构建的服务版本，启动后可以在服务概览页面的 <code>操作日志</code> 看到平台调度与处理服务的详细操作日志，当调度完成后，服务就进入启动阶段，这时候可以通过 <code>日志</code> 页面查看服务的启动日志。</p>
+
+<p>特别是对于第一次在Rainbond启动的服务，尤其需要关注如下几点：</p>
+
+<ol>
+<li><b>服务启动或更新超时怎么办？</b></li>
+</ol>
+
+<blockquote>
+<p>目前Rainbond对于异步任务确定了固定的超时时间，因此请注意，超时并不是失败，需要根据实际情况优化服务的配置，如果有超时，请按如下路径进行排查：</p>
+
+<ul>
+<li>查询<a href="../service-log/">服务日志</a> 确定服务的启动情况，若你的服务日志未输出到stdout或stderr,请进入服务容器查询你的日志。比如一些Java类的服务，若分配的内存不足将导致启动非常缓慢, 亦或者从日志中发现服务运行环境是否正常，比如依赖了数据库，是否能够正常访问数据库等。</li>
+<li>如果源码构建的服务在启动后很长时间才进入正常的业务启动过程，请优化代码忽略掉多余的源代码文件减少运行代码解压时间 参考 <a href="http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/slugignore/">slugignore文件使用方式</a></li>
+<li>确定服务监听的地址不是127.0.0.1 或 localhost</li>
+<li>若服务监听地址正确且已正常监听，请查询 <a href="http://skyzhangyf.github.io/user-manual/app-service-manage/service-other-set/#健康检查">服务健康检测</a> 配置是否正确，一般若服务有多个端口时容易出现默认配置错误的问题。</li>
+<li>以上服务可能的故障如都已排除还是启动超时且一直处于启动中状态，请通过运维工具 <code>grctl cluster</code> 和 <code>grctl service get &lt;service_name&gt; -t &lt;tenant_name&gt;</code> 查询集群和服务运行实际状态。</li>
+</ul>
+</blockquote>
+
+<ol>
+<li><b>服务运行异常怎么办？</b></li>
+</ol>
+
+<blockquote>
+<p>服务运行异常是指服务进程异常的退出了，一般有几下几种原因：</p>
+
+<ul>
+<li>服务代码故障，无法正常运行</li>
+<li>服务使用了不支持的镜像，比如基础操作系统镜像，无法在前台守护运行。</li>
+<li>服务内存分配不足导致OOM</li>
+<li>服务健康检查配置错误，导致服务无法通过健康检查。</li>
+</ul>
+
+<p>若是上诉情况，请处理你的服务配置，服务运行过程中如果异常退出Rainbond会自动守护并重新启动你的服务</p>
+</blockquote>
+
+<ol>
+<li><b>服务无法访问怎么办？</b></li>
+</ol>
+
+<blockquote>
+<p>服务无法访问时请查看如下几类原因：</p>
+
+<ul>
+<li>服务未正常运行，根据运行状态和服务日志确认</li>
+<li>服务端口配置不正确，服务端口配置务必与服务真实监听的端口一致</li>
+<li>服务可访问端口未打开对外服务开关</li>
+<li>服务未配置正确可访问的域名</li>
+</ul>
+</blockquote>
+
+<h4 id="关闭操作">关闭操作</h4>
+
+<blockquote>
+<p>使用场景：运行中或运行异常的服务</p>
+</blockquote>
+
+<p>触发关闭操作后，服务将首先从应用网关或ServiceMesh网络下线，然后关闭所有运行实例，释放集群资源。</p>
+
+<h4 id="重启操作">重启操作</h4>
+
+<blockquote>
+<p>使用场景：运行中或运行异常的服务</p>
+</blockquote>
+
+<p>触发重启操作后，平台会将现有的服务运行实例全部关闭，待关闭完成后进行启动。若出现关闭超时时 重启操作将退出，服务启动的控制权交予用户。</p>
+
+<div class="notices info" >
+
+- 重启服务并不会更新服务代码或镜像，需要和`构建`操作区分。
+- 重启操作会中断服务
+
+</div>
+
+<h4 id="访问操作">访问操作</h4>
+
+<blockquote>
+<p>使用场景：运行中的服务 &amp;&amp; （打开了对外服务 | 对内服务的端口）</p>
+</blockquote>
+
+<p>针对不同协议的服务，点击访问按钮后所触发的命令也不一样：</p>
+
+<table>
+<thead>
+<tr>
+<th>服务协议</th>
+<th>点击访问按钮后的操作</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>HTTP</td>
+<td>浏览器新开窗口，打开服务的默认域名，如果绑定多个域名，会显示域名列表供用户选择</td>
+</tr>
+
+<tr>
+<td>TCP</td>
+<td>弹出访问信息窗口</td>
+</tr>
+</tbody>
+</table>
+
+<ul>
+<li>HTTP 协议服务</li>
+</ul>
+
+<p><img src="https://static.goodrain.com/images/docs/3.6/user-manual/manage/app-open-http.gif" width="85%" /></p>
+
+<ul>
+<li>TCP 协议服务</li>
+</ul>
+
+<p><img src="https://static.goodrain.com/images/docs/3.6/user-manual/manage/app-open-tcp.gif" width="85%" /></p>
+
+<h4 id="管理容器操作">管理容器操作</h4>
+
+<p>当需要进入服务的运行环境，查看进程信息、端口监听信息、文件内容或直接Debug源代码的情况下，需要进入服务的容器环境，Rainbond提供了两个入口：</p>
+
+<ul>
+<li>服务操作列表中的管理容器操作</li>
+<li>服务伸缩管理中的实例列表，点击实例名称即可进入</li>
+</ul>
+
+
+<footer class=" footline" >
+	
+</footer>
+
+
+        
+        </div> 
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+        
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+        
+        
+
+
+	 
+	 
+		
+			<a class="nav nav-prev" href="http://skyzhangyf.github.io/user-manual/app-service-manage/service-properties/" title="服务基础属性说明"> <i class="fa fa-chevron-left"></i></a>
+		
+		
+			<a class="nav nav-next" href="http://skyzhangyf.github.io/user-manual/app-service-manage/service-log/" title="日志管理" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+    
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="http://skyzhangyf.github.io/js/clipboard.min.js?1561194071"></script>
+    <script src="http://skyzhangyf.github.io/js/perfect-scrollbar.min.js?1561194071"></script>
+    <script src="http://skyzhangyf.github.io/js/perfect-scrollbar.jquery.min.js?1561194071"></script>
+    <script src="http://skyzhangyf.github.io/js/jquery.sticky.js?1561194071"></script>
+    <script src="http://skyzhangyf.github.io/js/featherlight.min.js?1561194071"></script>
+    <script src="http://skyzhangyf.github.io/js/html5shiv-printshiv.min.js?1561194071"></script>
+    <script src="http://skyzhangyf.github.io/js/highlight.pack.js?1561194071"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="http://skyzhangyf.github.io/js/modernizr.custom.71422.js?1561194071"></script>
+    <script src="http://skyzhangyf.github.io/js/learn.js?1561194071"></script>
+    <script src="http://skyzhangyf.github.io/js/hugo-learn.js?1561194071"></script>
+
+    <link href="http://skyzhangyf.github.io/mermaid/mermaid.css?1561194071" type="text/css" rel="stylesheet" />
+    <script src="http://skyzhangyf.github.io/mermaid/mermaid.js?1561194071"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    
+<script>
+    var _hmt = _hmt || [];
+    (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?19583a0ffdf6a67e3798ed126b51af5f";
+    var s = document.getElementsByTagName("script")[0]; 
+    s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+  </body>
+</html>
+

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>第三服务规范 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/</link>
+    <description>Recent content in 第三服务规范 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>第三方服务定义</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-define/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-define/</guid>
+      <description> 第三方服务定义 运行于Rainbond集群之外，运行生命周期不受Rainbond管理，且在网络上能够与Rainbond集群通信的服务称为第三方服务。例如单独运行的Oracle服务，或运行于Windows服务器的.net服务等。
+Rainbond支持第三方服务管理的初衷 Rainbond作为一款云应用操作系统开源产品，在众多的企业中落地使用的过程中出现了两类共同的问题：
+ 循序渐进的迁移策略，已经上Rainbond的服务如何与遗留服务通信和统一管理。  ​ Rainbond以应用为核心，应用的关键是服务，Rainbond提供了一套成体系的服务注册和发现机制来维护服务之间的配置共享和通信。但是过去的版本中对于未迁移到Rainbond的服务却鞭长莫及。用户不管是在传统应用架构向微服务架构转化过程，还是从传统运维向Rainbond迁移的过程，我们都非常推荐用户循序渐进的进行。那么在这个过程必然出现集群内外服务共存的现象，举个例子：我有一个传统服务化架构，都使用同一个Oracle数据库，Oracle数据库运行于一台特定的服务器中，第一阶段我们不改变它。首先将部分服务迁移到了Rainbond平台，这些服务即需要访问Oracle服务，还需要访问其他未迁移的服务。在Rainbond中我们推荐使用环境变量的方式定义配置，过去我们就需要重复的为每个服务定义相同的变量信息，如果后期有变化，又得全部重新改一遍。另外，服务需要访问其他服务，过去只能直接定义服务的IP地址，无法使用Rainbond提供的服务通信治理功能。再者在Rainbond平台可以可视化的观察服务拓扑关系和通信状态，然而对于处于集群外的服务无法在Rainbond中统一管理。
+ Rainbond应用网关很好用，但是遗留的服务没办法与Rainbond上的服务共享外网端口或域名。  ​ Rainbond提供了让应用和服务向外网提供服务的能力，越来越多的用户希望Rainbond应用网关可以直接面向外网，即外网IP绑定到Rainbond网关节点，服务网关占用了80和443端口。但是这里马上就带来了问题，企业中可能还存在其他的服务需要被同一个域名访问到，因此过去我们没有办法，只能在Rainbond网关的前面继续添加一层nginx服务，这样带来的就是配置的巨大复杂性。同时未迁移到Rainbond的服务也没办法使用Rainbond网关提供的众多开箱即用的功能，比如域名访问监控。
+根据上诉的用户诉求，我们根据Rainbond的服务抽象定义，提出了支持第三方服务集成管理的新思路。
+第三方服务与内置服务的区别    对比项 内置服务 第三方服务     对接应用网关 支持 支持   被其他服务依赖 支持 支持   ServiceMesh治理 支持 支持上游通信治理   服务属性 全部属性 支持端口、连接信息、健康检查、权限
+支持静态或动态添加Endpoint   服务生命周期管理 全部支持 仅支持健康检查   分享应用市场 支持 V5.2版本支持   备份、恢复 支持 V5.2版本支持    </description>
+    </item>
+    
+    <item>
+      <title>第三方服务支持原理</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-design/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-design/</guid>
+      <description>第三方服务分类 第三方服务的最关键的是用户提供的服务通信地址，因此我们根据用户提供服务通信地址的方式将第三方服务分为两类：
+ 静态注册第三方服务  顾名思义此类第三方服务是用户在创建时提供一个或多个固定的服务通信地址，我们称其为Endpoints。通信请求流量将固定的被负载到这些目标上去。
+ 动态注册第三方服务  相对于静态注册，通常我们的服务还可能是一个动态的通信地址，因此我们支持基于第三方服务注册中心(etcd、zookeeper、consul)或Rainbond提供的API，让用户能够动态的更改服务的通信地址。这一类我们称为动态注册第三方服务。
+工作原理 第三方服务在Rainbond创建完成后，Rainbond应用运行时服务将自动开始维护服务的Endpoints, 通过上述两种方式Rainbond获取到服务的通信地址列表后，将会为每个服务创建一个模型来存储服务的Endpoints信息。此模型工作后将根据用户配置的健康检查策略来对服务进行健康检查，从而呈现服务Endpoints的健康状态。
+ 健康检查  健康检查的方式分为TCP检查和HTTP检查，分别对应不同的服务类型。若实例处于不健康状态将会有两种处理方式：下线或不处理，当前默认设置为不处理，当用户设置为下线时，实例处于不健康将从集群中下线，从而网关或其他服务将不会访问到不健康的实例。
+ Rainbond的服务访问安全控制  Rainbond服务通过设置端口的对内、对外开启属性来进行内部服务注册，这其实也类似于防火墙的概念。参考文档 ，对于第三方服务一样，通过设置端口的对内、对外开启属性来管控当前服务是否向网关或其他服务开启访问权限。
+ 第三方服务端口设置  与内置服务一样，第三方服务也需要设置端口，不同的是第三方服务更加灵活。当前版本中我们规定第三方服务只能添加一个端口，那么这个端口与服务实际监听的端口有什么关系呢？
+通常情况下我们推荐设置端口与监听端口一致，便于理解。用户添加服务Endpoints时只需要提供服务的IP地址，服务多个实例就填写多个IP地址。对于这些服务我们默认为监听端口一致，因此Rainbond在与这些服务通信时将采用Endpoint定义的IP和服务定义的端口组成通信地址。
+ 对接服务网关  第三方服务配置完端口后，开启对外服务对于HTTP类型即会与内置服务一样生成默认访问域名，应用网关接收到服务请求后将负载均衡到服务的Endpoints端点。此原理与内置服务一致，参考 应用网关
+ 其他服务访问  与内置服务一样，其他服务需要访问第三方服务时需要依赖第三方服务，此时Rainbond ServiceMesh机制将会工作，根据用户配置的服务端口在访问端服务网络空间内建立本地监听，对服务的Endpoints进行负载均衡和其他服务治理。</description>
+    </item>
+    
+    <item>
+      <title>第三方服务创建</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-create/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-create/</guid>
+      <description>第三方服务创建 第三方服务创建依然存在两个入口，分别是平台左侧导航的 创建应用-添加第三方服务 和应用Dashboard页面的添加第三方服务按钮，创建流程一致。
+创建静态第三方服务  选择服务注册方式为静态注册
+ 填写服务的通信地址
+  比如服务有两个运行实例，IP地址分别是192.168.0.1 192.168.0.2，为了设置方便，我们可以填写第一个实例时携带上端口配置，即提供如下的数据，告知Rainbond服务的监听端口是8080，且都一致。
+ 192.168.0.1:8080
+192.168.0.2
+  提交创建，进入到服务的Dashboard页面对服务端口、连接信息、健康检查属性进行配置 参考第三方服务管理  创建动态第三方服务  选择服务注册方式为动态注册 选择动态注册类型 填写地址, Key 等服务注册中心的信息(用户名和密码为非必选项) 提交创建，进入到服务的 Dashboard 页面对服务端口、连接信息、健康检查属性进行配置。 参考第三方服务管理  服务注册中心中数据的格式 以 etcd 为例:
+/rainbond/service1/3201a2727b6445e9a9234a26284549e6 {&amp;quot;ip&amp;quot;:&amp;quot;192.168.0.1&amp;quot;, &amp;quot;port&amp;quot;: 5000} /rainbond/service1/728d17f86a5f3d834b6db984dd4a50ad {&amp;quot;ip&amp;quot;:&amp;quot;192.168.0.2&amp;quot;}  这是注册在 etcd 中的两条信息, 每一条代表一个第三方服务的实例. 其中 /rainbond/service1 为上面填写的服务注册中心的信息的 Key, 3201a2727b6445e9a9234a26284549e6 为这条数据的唯一标识(uuid), 以斜杠分割.
+{&amp;quot;ip&amp;quot;:&amp;quot;192.168.0.107&amp;quot;, &amp;quot;port&amp;quot;: 5000} 为第三方服务的实例的 IP 地址和端口. 如果没有提供端口, 那么 Rainbond 将会取你在参考第三方服务管理中添加的端口.
+创建基于API注册的第三方服务  选择服务注册方式为 API 注册</description>
+    </item>
+    
+  </channel>
+</rss>

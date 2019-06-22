@@ -1,0 +1,2411 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Rainbond文档中心 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/</link>
+    <description>Recent content in Rainbond文档中心 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 17 Apr 2019 12:50:54 +0800</lastBuildDate>
+    
+	<atom:link href="http://skyzhangyf.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>第三方服务定义</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-define/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-define/</guid>
+      <description> 第三方服务定义 运行于Rainbond集群之外，运行生命周期不受Rainbond管理，且在网络上能够与Rainbond集群通信的服务称为第三方服务。例如单独运行的Oracle服务，或运行于Windows服务器的.net服务等。
+Rainbond支持第三方服务管理的初衷 Rainbond作为一款云应用操作系统开源产品，在众多的企业中落地使用的过程中出现了两类共同的问题：
+ 循序渐进的迁移策略，已经上Rainbond的服务如何与遗留服务通信和统一管理。  ​ Rainbond以应用为核心，应用的关键是服务，Rainbond提供了一套成体系的服务注册和发现机制来维护服务之间的配置共享和通信。但是过去的版本中对于未迁移到Rainbond的服务却鞭长莫及。用户不管是在传统应用架构向微服务架构转化过程，还是从传统运维向Rainbond迁移的过程，我们都非常推荐用户循序渐进的进行。那么在这个过程必然出现集群内外服务共存的现象，举个例子：我有一个传统服务化架构，都使用同一个Oracle数据库，Oracle数据库运行于一台特定的服务器中，第一阶段我们不改变它。首先将部分服务迁移到了Rainbond平台，这些服务即需要访问Oracle服务，还需要访问其他未迁移的服务。在Rainbond中我们推荐使用环境变量的方式定义配置，过去我们就需要重复的为每个服务定义相同的变量信息，如果后期有变化，又得全部重新改一遍。另外，服务需要访问其他服务，过去只能直接定义服务的IP地址，无法使用Rainbond提供的服务通信治理功能。再者在Rainbond平台可以可视化的观察服务拓扑关系和通信状态，然而对于处于集群外的服务无法在Rainbond中统一管理。
+ Rainbond应用网关很好用，但是遗留的服务没办法与Rainbond上的服务共享外网端口或域名。  ​ Rainbond提供了让应用和服务向外网提供服务的能力，越来越多的用户希望Rainbond应用网关可以直接面向外网，即外网IP绑定到Rainbond网关节点，服务网关占用了80和443端口。但是这里马上就带来了问题，企业中可能还存在其他的服务需要被同一个域名访问到，因此过去我们没有办法，只能在Rainbond网关的前面继续添加一层nginx服务，这样带来的就是配置的巨大复杂性。同时未迁移到Rainbond的服务也没办法使用Rainbond网关提供的众多开箱即用的功能，比如域名访问监控。
+根据上诉的用户诉求，我们根据Rainbond的服务抽象定义，提出了支持第三方服务集成管理的新思路。
+第三方服务与内置服务的区别    对比项 内置服务 第三方服务     对接应用网关 支持 支持   被其他服务依赖 支持 支持   ServiceMesh治理 支持 支持上游通信治理   服务属性 全部属性 支持端口、连接信息、健康检查、权限
+支持静态或动态添加Endpoint   服务生命周期管理 全部支持 仅支持健康检查   分享应用市场 支持 V5.2版本支持   备份、恢复 支持 V5.2版本支持    </description>
+    </item>
+    
+    <item>
+      <title>第三方服务支持原理</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-design/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-design/</guid>
+      <description>第三方服务分类 第三方服务的最关键的是用户提供的服务通信地址，因此我们根据用户提供服务通信地址的方式将第三方服务分为两类：
+ 静态注册第三方服务  顾名思义此类第三方服务是用户在创建时提供一个或多个固定的服务通信地址，我们称其为Endpoints。通信请求流量将固定的被负载到这些目标上去。
+ 动态注册第三方服务  相对于静态注册，通常我们的服务还可能是一个动态的通信地址，因此我们支持基于第三方服务注册中心(etcd、zookeeper、consul)或Rainbond提供的API，让用户能够动态的更改服务的通信地址。这一类我们称为动态注册第三方服务。
+工作原理 第三方服务在Rainbond创建完成后，Rainbond应用运行时服务将自动开始维护服务的Endpoints, 通过上述两种方式Rainbond获取到服务的通信地址列表后，将会为每个服务创建一个模型来存储服务的Endpoints信息。此模型工作后将根据用户配置的健康检查策略来对服务进行健康检查，从而呈现服务Endpoints的健康状态。
+ 健康检查  健康检查的方式分为TCP检查和HTTP检查，分别对应不同的服务类型。若实例处于不健康状态将会有两种处理方式：下线或不处理，当前默认设置为不处理，当用户设置为下线时，实例处于不健康将从集群中下线，从而网关或其他服务将不会访问到不健康的实例。
+ Rainbond的服务访问安全控制  Rainbond服务通过设置端口的对内、对外开启属性来进行内部服务注册，这其实也类似于防火墙的概念。参考文档 ，对于第三方服务一样，通过设置端口的对内、对外开启属性来管控当前服务是否向网关或其他服务开启访问权限。
+ 第三方服务端口设置  与内置服务一样，第三方服务也需要设置端口，不同的是第三方服务更加灵活。当前版本中我们规定第三方服务只能添加一个端口，那么这个端口与服务实际监听的端口有什么关系呢？
+通常情况下我们推荐设置端口与监听端口一致，便于理解。用户添加服务Endpoints时只需要提供服务的IP地址，服务多个实例就填写多个IP地址。对于这些服务我们默认为监听端口一致，因此Rainbond在与这些服务通信时将采用Endpoint定义的IP和服务定义的端口组成通信地址。
+ 对接服务网关  第三方服务配置完端口后，开启对外服务对于HTTP类型即会与内置服务一样生成默认访问域名，应用网关接收到服务请求后将负载均衡到服务的Endpoints端点。此原理与内置服务一致，参考 应用网关
+ 其他服务访问  与内置服务一样，其他服务需要访问第三方服务时需要依赖第三方服务，此时Rainbond ServiceMesh机制将会工作，根据用户配置的服务端口在访问端服务网络空间内建立本地监听，对服务的Endpoints进行负载均衡和其他服务治理。</description>
+    </item>
+    
+    <item>
+      <title>第三方服务创建</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-create/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/thirdparty-service/thirdparty-create/</guid>
+      <description>第三方服务创建 第三方服务创建依然存在两个入口，分别是平台左侧导航的 创建应用-添加第三方服务 和应用Dashboard页面的添加第三方服务按钮，创建流程一致。
+创建静态第三方服务  选择服务注册方式为静态注册
+ 填写服务的通信地址
+  比如服务有两个运行实例，IP地址分别是192.168.0.1 192.168.0.2，为了设置方便，我们可以填写第一个实例时携带上端口配置，即提供如下的数据，告知Rainbond服务的监听端口是8080，且都一致。
+ 192.168.0.1:8080
+192.168.0.2
+  提交创建，进入到服务的Dashboard页面对服务端口、连接信息、健康检查属性进行配置 参考第三方服务管理  创建动态第三方服务  选择服务注册方式为动态注册 选择动态注册类型 填写地址, Key 等服务注册中心的信息(用户名和密码为非必选项) 提交创建，进入到服务的 Dashboard 页面对服务端口、连接信息、健康检查属性进行配置。 参考第三方服务管理  服务注册中心中数据的格式 以 etcd 为例:
+/rainbond/service1/3201a2727b6445e9a9234a26284549e6 {&amp;quot;ip&amp;quot;:&amp;quot;192.168.0.1&amp;quot;, &amp;quot;port&amp;quot;: 5000} /rainbond/service1/728d17f86a5f3d834b6db984dd4a50ad {&amp;quot;ip&amp;quot;:&amp;quot;192.168.0.2&amp;quot;}  这是注册在 etcd 中的两条信息, 每一条代表一个第三方服务的实例. 其中 /rainbond/service1 为上面填写的服务注册中心的信息的 Key, 3201a2727b6445e9a9234a26284549e6 为这条数据的唯一标识(uuid), 以斜杠分割.
+{&amp;quot;ip&amp;quot;:&amp;quot;192.168.0.107&amp;quot;, &amp;quot;port&amp;quot;: 5000} 为第三方服务的实例的 IP 地址和端口. 如果没有提供端口, 那么 Rainbond 将会取你在参考第三方服务管理中添加的端口.
+创建基于API注册的第三方服务  选择服务注册方式为 API 注册</description>
+    </item>
+    
+    <item>
+      <title>简介</title>
+      <link>http://skyzhangyf.github.io/quick-start/rainbond_overview/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/rainbond_overview/</guid>
+      <description>Rainbond是什么  Rainbond（云帮）是企业应用云操作系统。 Rainbond支撑企业应用的开发、架构、交付和运维的全流程，通过“无侵入”架构，无缝衔接各类企业应用，底层资源可以对接和管理IaaS、虚拟机和物理服务器。   企业应用包括： 各类信息系统、OA、CRM、ERP、数据库、大数据、物联网、互联网平台、微服务架构等运行在企业内部的各种系统。
+ Rainbond可以做什么  企业应用开发  开发环境、微服务架构、服务治理及各类技术工具“开箱即用”，不改变开发习惯，让企业专注核心业务，提升10倍效率。
+ 企业应用交付  支持持续交付、企业应用市场交付、SaaS化、企业应用销售、二次开发等交付流程，客户统一管理，兼顾标准化交付和个性化交付
+ 企业应用运维  透明对接管理多种计算资源，天然实现多云和混合云，企业应用自动化运维，提高2倍资源利用率。
+Rainbond主要特性    特性 描述     超越Kubernetes 平台底层基于Kubernetes，但用户无需学习和编辑复杂的yaml文件，通过应用级图形界面操作使用，现实业务流程开箱即用。   原生Service Mesh微服务架构 跨语言、跨协议、代码无侵入的Service Mesh微服务架构原生支持，传统应用直接变成微服务架构。同时支持常见微服务架构Spring Cloud、Dubbo等，通过插件扩展架构能力及治理功能。   一体化DevOps 衔接需求、开发、测试、构建、上线、运维的一体化DevOps。支持对接第三方软件（Jira、Sonar、Jenkins、Gitlab等）。   企业级应用市场 非镜像市场和服务目录，支持各类企业级应用，像手机应用即点即用，全流程管理（应用开发、应用发布、应用展示、应用离线导入/导出、应用安装/升级、应用运维）。   自动化运维 应用自动化运维。节点自动安装、扩容、监控、容错。平台支持高可用、多数据中心管理、多租户管理。   Serverless PaaS 以应用为核心，使用过程不需要了解服务器相关概念，简单灵活。通过对接行业应用，快速构建行业专有PaaS。     更多特性请见 功能列表 版本计划详见 开发计划  Rainbond的优势  只需要关注自身业务，业务之外的技术问题（资源管理、运维、架构、治理、环境等），一站式解决。 Rainbond结合行业应用，通过模块化组装和少量定制开发，就可实现行业专属开发、交付、运维平台。 通过“无侵入”架构，支持各类遗留系统，也不需要改变开发习惯。 系统兼容性强，Windows、国产系统均可支持。  我已经了解，开始安装</description>
+    </item>
+    
+    <item>
+      <title>简介</title>
+      <link>http://skyzhangyf.github.io/quick-start/rainbond_overview1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/rainbond_overview1/</guid>
+      <description>Rainbond是什么  Rainbond（云帮）是企业应用云操作系统。 Rainbond支撑企业应用的开发、架构、交付和运维的全流程，通过“无侵入”架构，无缝衔接各类企业应用，底层资源可以对接和管理IaaS、虚拟机和物理服务器。   企业应用包括： 各类信息系统、OA、CRM、ERP、数据库、大数据、物联网、互联网平台、微服务架构等运行在企业内部的各种系统。
+ Rainbond可以做什么  企业应用开发  开发环境、微服务架构、服务治理及各类技术工具“开箱即用”，不改变开发习惯，让企业专注核心业务，提升10倍效率。
+ 企业应用交付  支持持续交付、企业应用市场交付、SaaS化、企业应用销售、二次开发等交付流程，客户统一管理，兼顾标准化交付和个性化交付
+ 企业应用运维  透明对接管理多种计算资源，天然实现多云和混合云，企业应用自动化运维，提高2倍资源利用率。
+Rainbond主要特性    特性 描述     超越Kubernetes 平台底层基于Kubernetes，但用户无需学习和编辑复杂的yaml文件，通过应用级图形界面操作使用，现实业务流程开箱即用。   原生Service Mesh微服务架构 跨语言、跨协议、代码无侵入的Service Mesh微服务架构原生支持，传统应用直接变成微服务架构。同时支持常见微服务架构Spring Cloud、Dubbo等，通过插件扩展架构能力及治理功能。   一体化DevOps 衔接需求、开发、测试、构建、上线、运维的一体化DevOps。支持对接第三方软件（Jira、Sonar、Jenkins、Gitlab等）。   企业级应用市场 非镜像市场和服务目录，支持各类企业级应用，像手机应用即点即用，全流程管理（应用开发、应用发布、应用展示、应用离线导入/导出、应用安装/升级、应用运维）。   自动化运维 应用自动化运维。节点自动安装、扩容、监控、容错。平台支持高可用、多数据中心管理、多租户管理。   Serverless PaaS 以应用为核心，使用过程不需要了解服务器相关概念，简单灵活。通过对接行业应用，快速构建行业专有PaaS。     更多特性请见 功能列表 版本计划详见 开发计划  Rainbond的优势  只需要关注自身业务，业务之外的技术问题（资源管理、运维、架构、治理、环境等），一站式解决。 Rainbond结合行业应用，通过模块化组装和少量定制开发，就可实现行业专属开发、交付、运维平台。 通过“无侵入”架构，支持各类遗留系统，也不需要改变开发习惯。 系统兼容性强，Windows、国产系统均可支持。  我已经了解，开始安装</description>
+    </item>
+    
+    <item>
+      <title>平台安装</title>
+      <link>http://skyzhangyf.github.io/quick-start/rainbond_install/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/rainbond_install/</guid>
+      <description>快速安装Rainbond  此方式适用于你想快速安装和试用Rainbond平台, 最少只需要单台裸系统机器即可安装完成。此方式为基础安装方式，后续安装方案都是在本方案基础上的扩展和延伸。
+ 安装请阅读： 快速安装
+阿里云安装Rainbond  此方式适用于你使用阿里云服务资源，此方式我们将使用阿里云 ECS+NAS+专有网络(弹性IP)等资源。
+ 安装请阅读： 基于阿里云资源安装Rainbond
+Rainbond高可用部署方案  此方式将首先引导你进行相关资源的规划和准备，以完成高可用集群的部署。
+ 安装请阅读： 从零开始搭建Rainbond高可用集群
+Rainbond与已存在Kubernetes集群对接安装  此方式适用于已安装Kubernetes集群的用户，此安装方式Rainbond将使用用户提供的Kubernetes集群。
+ 安装请阅读： 基于已有Kubernetes集群安装
+离线安装Rainbond  此方式适用于外网网络受到严格限制的用户，此版本目前仅支持CentOS 7.4.1708系统。
+ 安装请阅读： 离线安装
+自定义安装  此方式适用于熟悉ansible使用的用户
+ 自定义安装请阅读: 自定义安装</description>
+    </item>
+    
+    <item>
+      <title>企业服务内容</title>
+      <link>http://skyzhangyf.github.io/enterprise_service/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/enterprise_service/</guid>
+      <description>企业服务定位 Rainbond和容器平台最大的差异是抽象层次，Rainbond核心抽象是应用，支持应用的全生命周期管理，使用者无需学习容器技术，使用效率更高。
+Rainbond企业服务在Rainbond之上，建设面向企业应用的业务交付流程，核心提升企业应用交付效率，并且支持各种复杂交付流程：
+ 互联网公司交付流程 企业软件公司交付流程 行业云交付流程 大型企事业单位IT流程  Rainbond企业服务实现企业应用、企业计算资源和租户的互联互通，根据交付场景需要自定义交付流程。
+开源和企业版差异 企业服务场景 场景1：企业应用SaaS改造 随着社会和商业的不断发展，越来越多企业IT开始选择用「服务」取代传统的「产品」形式，更直接地为用户创造并传达价值，以此获得面向未来的竞争力。 软件企业同样如此——从提供软件产品到提供软件服务，SaaS化转型成为当今软件企业发展的必经之路和必定方向，但却面临着改造周期长、技术要求高、无法同时满足标准交付和个性化交付需求的难题。这些难题不仅是「SaaS改造」的关键点，也是增强软件企业竞争力的关键点。
+服务内容：
+ 应用SaaS改造 （不修改或少修改原应用） 交付流程设计和实施 支撑自动化客户交付  场景2：建设企业应用市场 搭建专有企业应用生态，开发者或软件厂商可以自主开发和销售应用，使用者从应用市场挑选应用，按需购买付费，构建类似手机App Store的体验。
+服务内容：
+ 企业应用市场设计方案 建设企业应用市场（商业流程定制） 企业应用市场运营  场景3：复杂的企业应用交付 复杂的交付场景，会降低交付效率，通过自动化改造，来提升交付效率，降低交付成本。 复杂的交付场景包括：
+ 多云管理和交付 混合云交付 离线环境交付 私有云交付 远程定制开发 跨云应用和数据迁移 解决方案复制和交付  服务内容：
+ 根据场景设计交付流程 建设自动化交付体系 辅助客户交付  场景4：行业云建设 Rainbond是一个通用的平台，只要结合行业应用和行业计算资源，就能快速形成行业云。
+服务内容：
+ 行业云建设方案 行业云建设（行业应用迁移/平台定制）  场景5：遗留系统上云 企事业单位内部有大量老旧应用系统，不同开发语言，不同架构，不同操作系统，独立的安装和维护，导致运维成本很高，迁移上云也是一个大问题。Rainbond通过“无侵入架构”，能黑盒的迁移这些遗留系统，实现统一管理和运维。
+服务内容：
+ 搭建应用管理平台 遗留系统迁移上线  申请免费试用</description>
+    </item>
+    
+    <item>
+      <title>设计思想</title>
+      <link>http://skyzhangyf.github.io/architecture/design-concept/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/architecture/design-concept/</guid>
+      <description>企业应用云操作系统 
+对于企业IT来说，企业应用是企业IT价值的最主要体现，然而，当前不管是开发应用还是使用应用，都需要面对最底层的计算资源（IaaS/虚拟化/物理服务器），导致技术栈很长，需要做很多跟业务不直接相关的工作，比如：开发和运行环境搭建；服务器管理；网络管理；交付流程管理；技术架构支持；基础技术服务提供；技术工具维护等运维和技术工作，而这些工作对所有企业应用是有通用性的，如果把这些工作统一包装并自动化完成，企业专注自身业务，这样就能让企业IT的效率大幅度提高。
+Rainbond 通过 以应用为中心 的方式包装以上重复性工作，并在此上支撑企业应用的开发、架构、交付和运维，这种抽象粒度，即能简化企业应用的管理，又能满足业务的灵活性。在对接底层基础设施时，通过软件定义实现和对接，能做到对接各类基础设施。通过以上设计，自然形成了企业应用的操作系统。
+无侵入架构 
+Rainbond把广泛支撑企业应用作为首要目标，广泛支撑企业应用意味着各种企业应用都能在Rainbond上开发、架构、运维，这点也是影响使用体验的关键点，为了实现这个目标，Rainbond采用无侵入架构。无侵入架构表现在使用简单，已有应用不需要改动就能支持。
+具体从三方面入手：
+ 在开发阶段，对接代码仓库，自动识别开发语言类型，不改变开发者习惯，尽量最大可能不修改现有代码，直接编译、构建和运行。
+ 在架构阶段，如果已有系统没有分布式架构，Rainbond提供Service Mesh 架构，业务模块不改代码就能变成微服务架构。
+ 在运维阶段，老的遗留系统很难找到原有开发人员，要迁移到新运行环境比较困难，Rainbond使用动态生成配置文件和网络关系的方式，迁移和运行遗留系统。运维和治理功能，Rainbond通过“无侵入”插件的形式提供，根据功能需要选择加载插件。
+  无侵入架构还表现在，对使用者无绑定，开发的应用程序可以脱离Rainbond开发和运行。
+以应用为中心，连接企业应用和企业计算资源 
+以应用为中心是Rainbond的核心设计理念，也是Rainbond的抽象思路，强调关注业务，跟业务相关技术概念对外暴露，跟业务不直接相关的技术概念统一包装。通过这种方式抽象，使用者不用过多考虑服务器的问题，也就是Serverless架构。
+通过以应用为中心抽象可以将企业应用和企业计算资源解耦，企业应用的生命周期管理跟计算资源不直接相关，也就是说企业应用的开发可以在任何类型的计算资源上，开发好的企业应用可以直接安装运行在任何类型的计算资源上，还可以随时从一个资源迁移到另一个资源。
+计算资源对使用者完全透明，根据使用场景差异对接计算资源，当计算资源对接的是公有资源，就是公有云，当计算资源对接的是私有资源，就是私有云，当计算资源同时对接公有资源和私有资源，就是混合云。
+Rainbond通过解耦实现连接企业应用和企业计算资源，对接的各类企业应用积累形成企业应用市场，对接的各类企业计算资源积累形成企业计算资源市场，应用市场中的应用和资源市场中的资源可以自由组合使用。组合使用的过程，表现为SaaS和PaaS两种交互界面。SaaS实现不懂技术的即点即用，PaaS实现高级的定制开发。</description>
+    </item>
+    
+    <item>
+      <title>业务流程</title>
+      <link>http://skyzhangyf.github.io/architecture/flow/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/architecture/flow/</guid>
+      <description>抽象流程 
+Rainbond的流程建立在以应用为中心抽象基础上，以交付为目的
+场景流程 互联网公司交付流程 
+企业软件公司交付流程 
+行业云交付流程 
+大型企事业单位IT流程</description>
+    </item>
+    
+    <item>
+      <title>功能列表</title>
+      <link>http://skyzhangyf.github.io/quick-start/edition/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/edition/</guid>
+      <description>开发计划
+
+发布周期
+
+本文档列举Rainbond开源版具备的重点基础功能，随着版本升级本文档列举不一定完全，如有疑问请于社区留言咨询。
+应用的部署    功能 功能描述     支持源代码持续构建 支持PHP源码编译，支持PHP源代码、PHP5.3~7版本运行时，apace、nginx构建应用，并支持流行的PHP开发框架    支持Java源码编译，支持Java（maven）源代码、war包、jar包构建应用，并支持流行的java开发框架    支持Python源码编译，支持Python源代码、Python 2.6~3.2运行时构建应用，并支持流行的Python开发框架    支持Node.js源码编译，支持Node.js源代码、Nods.js 6.x~10.x运行时构建应用，流行的Node.js开发框架，包括前端类项目。    支持Golang源码编译、Golang 1.8.x，1.9.x运行时构建应用，并支持流行的Golang开发框架    支持dotnet源码编译、支持选择多个版本的编译和运行环境（.netcore linux运行）    支持Dockerfile识别和构建，支持Dockerfile源码的方式构建应用    支持Helm Chart源码识别和构建（TODO）       Docker镜像持续构建 支持基于DockerRun命令识别服务运行方式构建服务组件    支持解析DockerCompose文件识别服务运行方式批量构建服务组件    支持从私有镜像仓库、公有镜像仓库获取Docker镜像    支持镜像仓库Webhook服务的持续部署与发布       支持集成Git源码仓库 分租户的代码仓库管理，针对不同的团队隔离代码仓库    支持GitWebhook自动回调功能，实现应用的持续部署与发布    支持代码分支、tag部署，支持使用不同的代码分支、tag构建应用       支持集成Svn源码仓库 支持从Svn代码仓库获取源码，支持账户授权和子目录构建       支持Windows应用创建 支持基于Dockerfile、镜像创建Windows类服务（.</description>
+    </item>
+    
+    <item>
+      <title>技术架构</title>
+      <link>http://skyzhangyf.github.io/architecture/architecture/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/architecture/architecture/</guid>
+      <description>Rainbond技术架构 
+Rainbond践行以应用为中心的理念，吸纳优秀的社区解决方案，形成了应用控制、应用运行时，集群控制三大模块结合的数据中心技术架构，结合跨数据中心的上层结构应用控制台和资源控制台，形成了完整的PaaS平台解决方案，下面将对每个组件集进行简述：
+数据中心服务组件说明 数据中心API服务 API服务作为数据中心级抽象的核心控制服务，对外提供Restful风格的API服务，是数据中心控制流的唯一入口，安全控制基于TLS双向安全认证。
+API服务处理三类请求：
+元数据操作请求 直接操作元数据存储数据库。
+异步任务请求 根据业务特性发送异步任务事件到消息中间件。
+代理请求 API服务同时代理了后端Websocket信息推送服务、监控服务、Web终端控制服务。
+应用网关服务 应用网关是外部流量进入Rainbond内部服务的唯一入口, 提供HTTP, HTTPs路由, TCP/UDP服务, 负载均衡器, 高级路由(A/B测试, 灰度发布)等功能.
+应用网关的大部分灵感来自于NGINX Ingress Controller, 通过kube-apiserver将监听到的Kubernetes资源(Ingress, Service, Secret, Endpoint)应用到Nginx上, 再由Nginx把Rainbond内部的服务暴露出去.
+应用网关的高可用和数据一致性:
+为了避免网络故障, 宕机或其它因素使得应用网关无法正常工作, 从而导致内部服务无法被访问, 有必要为应用网关高可用(尤其在生产环境中). Rainbond应用网关的高可用方案是: 配置两个或两个以上的状态完全一样的应用网关, 并且为这些应用网关配置一个四层的负载均衡器或VIP. 每一个应用网关的数据一致性由Kubernetes的Watch机制来保证, 另处, 应用网关会每10秒同步一次K8s的资源. 如下图所示:
+应用构建服务 Rainbond 应用构建服务处理CI过程，将输入源 包括 源代码 或 Docker镜像 或 应用市场应用 进行解析、编译、打包，最终生成 应用（服务）抽象 介质。
+传统意义上说，完整的CI过程会包括：设计、编码、打包、测试和发布，Docker镜像自推出以来逐步成为众多应用代码打包的新形式。现有的CI产品中已经在源码测试和Pipline方面做得非常成熟，例如Jenkins，Gitlab等，因此Rainbond在对于源码或Docker镜像的前置处理方面可以直接对接第三方服务，由第三方服务处理完成的源码或镜像再对接到 Rainbond-Chaos 模块进行应用抽象。
+Chaos的输入源是支持Git、Svn协议的代码仓库，Docker镜像仓库。如果是源代码，Chaos智能判断源码的类型，例如Java, PHP , Python, Dockerfile等，根据不同的源码类型选择对应的BuildingPack(源码构建器)进行源码编译，同时识别源码中定义的运行环境要求参数，应用端口、环境变量等参数，形成应用抽象的配置雏形。除了Dockerfile以外的源码类型将被编译成应用代码环境包（SLUG）存储于分布式存储中，其他的生成Docker本地镜像存储于数据中心镜像仓库中，结合应用的各类属性信息形成应用抽象包。
+  关于源码编译的BuildingPack参考各语言支持文档。 应用构建服务支持多点高可用部署，多点部署从消息中间件获取应用构建任务。   应用运行时控制服务 应用运行时控制服务将应用构建服务构建出来的应用抽象进行实例化，配属应用运行需要的各类资源，完成应用生命周期中的运行态部分，可以认为是CD流程。</description>
+    </item>
+    
+    <item>
+      <title>RoadMap</title>
+      <link>http://skyzhangyf.github.io/quick-start/roadmap/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/roadmap/</guid>
+      <description>功能列表
+
+发布周期
+
+本文档定义了Rainbond开发的路线图。
+V5.1.X版本规划 支持由JavaMaven多模块源代码批量创建服务 支持服务基于应用市场应用完整的升级 支持服务基于应用市场应用升级后的完整回滚 支持应用基于应用市场应用完整的升级  V5.2版本规划 应用运行时 支持基于Helm-Chart源码创建服务组件 基于业务级监控指标（吞吐率、响应时间）的从0开始的服务自动伸缩 支持基于Operator规范的有状态服自动化运维管理 支持服务生命周期操作事件的跟踪和取消 支持完整的服务生命操作和属性变更操作的记录和回滚  Windows支持 支持Windows服务组件Dockerfile构建 支持Windows插件构建,默认提供性能分析插件和网络治理插件 支持智能Windows服务类型检测 支持Windows节点安装  V5.1版本规划  已发布Release
+ 应用运行时 支持第三方服务管理集成 支持内部服务ServiceMesh架构集成 支持网关对接集成 支持基于Etcd发现第三方服务 支持对第三方服务进行健康检查和状态维护  ServiceMesh支持envoy XDS规范 支持服务批量操作时控制服务批量启动顺序  应用网关 支持暴露域名、服务的访问情况实时监控数据 支持访问策略的高级配置参数（超时时间，上传限制等）  UI控制台 团队总览改版，支持更多监控数据可视化 支持各语言编译参数设置 支持从应用市场跨版本进行应用升级 支持服务构建源的重新检测  源码构建 支持NodeJS前端项目源码构建 静态语言类型增加对Nginx的支持 支持各语言编译参数的UI设置  安装&amp;amp;基础环境 默认安装Docker版本升级到18.06.3-ce 支持安装时指定NFS Server地址  关于5.1版本规划如果你有建议请于Rainbond社区t.goodrain.com反馈
+5.1以前版本规划详情</description>
+    </item>
+    
+    <item>
+      <title>RoadMap(历史)</title>
+      <link>http://skyzhangyf.github.io/quick-start/roadmap.5.0/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/roadmap.5.0/</guid>
+      <description>功能列表
+
+发布周期
+
+V5.0版本规划（已发布Release） 应用网关 HTTP、TCP服务访问策略管理 HTTP策略支持基于域名、访问路径、请求头、Cookie访问路由控制 配置HTTPs规则、HTTP转HTTPs规则 支持泛域名规则 支持SSL证书管理 支持A/B测试、灰度发布控制 TCP策略支持基于IP、端口访问控制 自定义负载均衡算法，目前支持支持轮询算法，后续测试版本支持一致性Hash算法，Session粘连算法 支持集群部署，高可用与流量均摊，可工作于4层高性能软硬件负载均衡之后。  应用运行时 应用运行时完整重构，提供以应用为核心的控制器抽象 无状态服务部署类型更改为Kubernetes Deployment资源 有状态服务本地存储、共享存储提供更改为动态PV，运行时提供Provider 应用状态维护由集中式更改为分布式，去除单点间歇性故障 有状态服务、无状态服务皆提供自动化滚动升级策略 默认Kubernetes版本升级到1.10版本 Docker版本升级到17.06版本 支持社区版本Kubernetes集群对接  应用构建（CI） Java PHP Python NodeJS Golang .NetCore 各语言可选Runtime版本全面升级 支持UI配置各语言编译参数选项 Java语言支持Gradle源码构建 ，支持War、Jar包部署 Dockerfile支持多阶段构建 支持离线环境下的源码持续构建（离线环境已具有必要的使用语言包仓库）  控制台UI 明确定义 应用/服务 两级抽象 应用Dashboard页面拓扑图应用状态实时刷新 应用Dashboard页面增加快捷创建服务组件的流程 应用Dashboard页面增加应用级启动、停止、升级控制 增加应用网关完整的控制流程页面 服务组件支持（更新升级）操作, 取代原重启操作。 服务组件支持源码构建配置 服务组件支持CI/CD流程分离 拓扑图增加编辑模式，动态编辑服务依赖关系 支持服务组件UI添加配置文件或模版  Windows 支持 node 组件支持windows节点部署，管理windows节点和平台服务 rbd-chao 组件支持windows节点部署，构建windows应用 服务构建调度支持区分windows和linux应用。 服务运行调度，存储支持Windows节点。 数据中心镜像仓库升级支持Windows镜像。  安装与运维 系统安装策略由SaltStack更换为Ansible 新加windowsutil组件支持传统程序或脚本部署为windows服务 支持多配置文件配置节点服务 支持Windows节点下服务守护和健康检查 grctl多个命令升级改造 内置支持安装flannel host-gateway网络  History version V3.</description>
+    </item>
+    
+    <item>
+      <title>平台组件架构</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/component-description/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/component-description/</guid>
+      <description>本文主要介绍完整部署Rainbond所需要的所有服务组件，帮助用户了解Rainbond技术栈与组件架构。
+目前版本，所有服务都通过Systemd进行管理。
+一、服务组件概述 以下是通过一键部署方式将会在服务器安装的Rainbond各服务组件及其版本信息。
+   组件 版本 安装属性 说明     docker 18.06 Master/Worker 应用容器引擎   node 5.x Master/Worker 集群监控与控制服务   kube-apiserver/kube-controller-manager/kube-scheduler v1.10.13 Master 应用编排和管理   kubelet v1.10.13 Master/Worker 节点复用时仅第一个管理节点启用   etcd/etcd-proxy 3.2.25 Master/Worker 管理节点etcd/计算节点etcd-proxy   calico v3.3.1 Master/Worker 集群SDN服务，为应用提供网络支持   rbd-dns 5.x Master Rainbond内部dns服务，可作为集群dns服务使用 源码   rbd-db 5.x Master 云帮数据库服务，支持MySQL，Tidb与CockroachDB   rbd-mq 5.x Master 消息队列服务   rbd-hub 2.</description>
+    </item>
+    
+    <item>
+      <title>软件和硬件环境要求</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/recommendation/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/recommendation/</guid>
+      <description>概述 Rainbond 作为一款开源PaaS平台，可以很好的部署和运行在 Intel 架构服务器环境及主流虚拟化环境，并支持绝大多数的主流硬件网络。
+Linux 操作系统版本要求    Linux发行版本 版本     Red Hat Enterprise Linux 7.4 64位   CentOS 7.4.1708 64位   Ubuntu 16.04 64位   Debian 9 64位   中标麒麟 服务器版V7.4 64位     Rainbond在CentOS 7.4的环境下进行过大量的测试，因此，建议使用CentOS 7.4的Linux操作系统来部署Rainbond 以上 Linux 操作系统可运行在物理服务器以及 VMware、KVM、XEN 主流虚拟化环境上。  服务器要求 Rainbond 支持部署和运行在 Intel x86-64 架构的 64 位通用硬件服务器平台。对于开发测试，及生产环境的服务器硬件配置有以下要求和建议：
+开发测试环境    服务器角色 CPU 内存 本地存储 网络 实例数量     管理节点 4核 8G / 100G</description>
+    </item>
+    
+    <item>
+      <title>组件端口</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/required_ports/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/required_ports/</guid>
+      <description>   Protocol Port Range Purpose Used By     TCP 53,8089 rbd-dns Self   TCP 80,443,6443,10254 rbd-gateway Self   TCP 2379&amp;frasl;23790,2380&amp;frasl;23800,4001&amp;frasl;40010 etcd server client API kube-apiserver, etcd,etcd-proxy   TCP 3228 rbd-chaos Self   TCP 3306 rbd-db Self   TCP 4999 rbd-ops-ui Self   TCP 5000 rbd-hub Self   TCP 6060,8443,8888 rbd-api Self   TCP 6100-6102,6666 node Self   TCP 6300-6301 rbd-mq Self   TCP 6362-6366 rbd-eventlog Self   TCP 6369 rbd-worker Self   TCP 6442,8181 Kubernetes API server All   TCP 7070 rbd-app-ui Self   TCP 7171 rbd-webcli Self   TCP 8081 rbd-repo Self   TCP 9999,3329 rbd-monitor Self   TCP 10250 Kubelet API Self, Control plane   TCP 10251 kube-scheduler Self   TCP 10252 kube-controller-manager Self    </description>
+    </item>
+    
+    <item>
+      <title>重置企业管理员密码</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/reset_enterprise_password/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/reset_enterprise_password/</guid>
+      <description> 开源版本目前可通过如下命令修改企业管理员(默认是第一个注册用户)密码，后续会集成到grctl相关工具里.
+管理节点操作  数据库用户名和数据库密码(cat /opt/rainbond/rainbond-ansible/roles/rainvar/defaults/main.yml | grep &amp;quot;^db_&amp;quot;)
+ docker run -it --rm --network host -e MYSQL_HOST=&amp;lt;数据库地址&amp;gt; -e MYSQL_PORT=3306 -e MYSQL_USER=&amp;lt;数据库用户名&amp;gt; -e MYSQL_PASS=&amp;lt;数据库密码&amp;gt; -e MYSQL_DB=console -e PASSWORD=&amp;lt;新密码&amp;gt; rainbond/tools:reset_password  </description>
+    </item>
+    
+    <item>
+      <title>rbd-repo指南</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/op-repo/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/op-repo/</guid>
+      <description>rbd-repo是基于artifactory-oss实现,rbd-repo源码参见goodrain/rbd-repo
+ 更新自定义版本rbd-repo docker pull docker.bintray.io/jfrog/artifactory-oss docker tag docker.bintray.io/jfrog/artifactory-oss goodrain.me/rbd-repo docker push goodrain.me/rbd-repo node service stop rbd-repo  编辑/opt/rainbond/conf/base.yaml关于rbd-repo部分(先备份base.yaml文件)
+- name: rbd-repo endpoints: - name: REPO_ENDPOINTS protocol: port: 8081 health: name: rbd-repo model: http address: 127.0.0.1:8081/artifactory/ max_errors_num: 3 time_interval: 60 after: - docker type: simple pre_start: docker rm rbd-repo start: &amp;gt;- docker run --name rbd-repo --network host -v /grdata/services/artifactory-&amp;lt;随机id&amp;gt;:/var/opt/jfrog/artifactory -i goodrain.me/rbd-repo stop: docker stop rbd-repo restart_policy: always  目录权限配置</description>
+    </item>
+    
+    <item>
+      <title>如何构建离线安装包</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/offline-package/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/offline-package/</guid>
+      <description>构建离线软件包 install-repo
+git clone https://github.com/goodrain/install-repo.git cd install-repo make build_offline  构建离线镜像包 参考 构建离线镜像
+构建离线安装包 默认rainbond-ansible项目的tgz压缩包</description>
+    </item>
+    
+    <item>
+      <title>web进入容器报错</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/error_dialing_backend/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/error_dialing_backend/</guid>
+      <description> 报错信息 Error from server: error dialing backend: dial tcp: lookup 4c4c4544-0037-4d10-8057-b2c04f564c32 on 10.10.10.10:53: no such host  排查方式  管理节点dns解析发生改变 /etc/resolv.conf,应该是nameserver包含管理节点ip 管理节点能否ping 4c4c4544-0037-4d10-8057-b2c04f564c32 在确定上述都ok下,重启kube-apiserver  </description>
+    </item>
+    
+    <item>
+      <title>创建应用提示Table &#39;region.tenants&#39; doesn&#39;t exist</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/table_region_tenants_not_exist/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/table_region_tenants_not_exist/</guid>
+      <description>错误信息如下:
+CallApiError: {&amp;quot;url&amp;quot;: &amp;quot;https://region.goodrain.me:8443/v2/resources/tenants&amp;quot;, &amp;quot;body&amp;quot;: {&amp;quot;msg&amp;quot;: &amp;quot;get resources error, Error 1146: Table &#39;region.tenants&#39; doesn&#39;t exist&amp;quot;}, &amp;quot;httpcode&amp;quot;: 500, &amp;quot;method&amp;quot;: &amp;quot;POST&amp;quot;, &amp;quot;apitype&amp;quot;: &amp;quot;Not specified&amp;quot;}  排查方式  外部数据库类似.
+  检查数据库是否有相关表 docker exec rbd-db mysql -e &amp;quot;use region;show tables;&amp;quot; 重建数据库相关表
+docker exec rbd-db mysql -e &amp;quot;drop database console;drop database region;&amp;quot; /opt/rainbond/.init/updatedb.sh prepare docker exec rbd-app-ui python /app/ui/manage.py migrate docker cp /opt/rainbond/.init/init.sql rbd-db:/root docker cp /opt/rainbond/.init/region_info.sql rbd-db:/root docker exec rbd-db mysql -e &amp;quot;use console;truncate table console_sys_config&amp;quot; docker exec rbd-db mysql -e &amp;quot;use console;source /root/init.</description>
+    </item>
+    
+    <item>
+      <title>控制台异常排查</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/console_error/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/console_error/</guid>
+      <description> 控制台[goodrain/rainbond-console](https://github.com/goodrain/rainbond-console/issues/new)反馈建议 控制台UI[goodrain/rainbond-ui](https://github.com/goodrain/rainbond-ui/issues/new)兼容性等问题反馈建议  控制台异常排查  首先需要确定是哪个接口报异常(通过浏览器DevTools来确定是哪个接口报异常了) 确定是rbd-app-ui服务有问题还是数据中心服务有问题(确定rbd-app-ui服务日志/opt/rainbond/logs/rbd-app-ui/goodrain.log) 如果数据中心无明显错误，请确定rbd-api是否有明显报错(使用journalctl/systemctl/docker logs来查看rbd-api的日志)  </description>
+    </item>
+    
+    <item>
+      <title>快速部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/online_install/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/online_install/</guid>
+      <description>一、操作系统准备和检查 1.1 检查操作系统，目前版本支持以下操作系统    系统 版本 说明     CentOS 7.3及以上 64位，推荐安装(7.4.1708)   Debian 9.6及以上 64位   Ubuntu 16.04 64位   中标麒麟 服务器版V7.4 64位    更多关于软硬件要求请参考 软件和硬件环境要求
+1.2 下载系统安装工具 wget https://pkg.rainbond.com/releases/common/v5.1/grctl chmod +x ./grctl  二、初始化数据中心 数据中心 是Rainbond资源集合的核心抽象。初始化数据中心操作需要在第一台服务器上执行安装命令。
+ 初始化安装第一个节点(配置最低2核4G内存40G磁盘)  快速安装无需设置过多的参数，重点注意IP地址的设定。若当前机器存在多个内网IP地址时需要请务必指定内网IP地址(iip);
+ 若当前机器同时具备内网和公网 IP地址时，务必指定公网IP地址(eip)，若无则无需指定;
+ 如果想跳过系统配置检查，安装时指定--enable-check disable,如果配置过低可能会无法正常安装部署;
+ 支持对接外部数据库; 更多参数说明请阅读节点初始化重要参数说明   # 建议使用root执行安装操作 ./grctl init --iip 内网ip --eip 公网ip  安装过程需要下载和处理大约2G的文件，需要一定时间，请耐心等待。若遇到无法解决的错误请于Rainbond社区留言。</description>
+    </item>
+    
+    <item>
+      <title>阿里云部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/install-base-alicloud/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/install-base-alicloud/</guid>
+      <description>一、部署说明 通过阿里云相关产品快速部署Rainbond,主要使用阿里云ECS和NAS,弹性IP,NAT网关,负载均衡SLB可以选用。
+机器资源准备 我们在阿里云有大量生产实践经验，如下配置为推荐配置，建议参考
+ 操作系统推荐,经过我们线上验证推荐
+    操作系统 版本     CentOS 7.4(推荐)   Debian 9.6   Ubuntu 16.04     单台服务器最低配置要求
+    服务器角色 CPU 内存     管理节点 4核 8G   计算节点 16核 64G     单台服务器磁盘配置
+ 管理节点: / 100G /cache 50G-100G #源码构建cache /opt/rainbond/data 100G #etcd,数据库等相关数据持久化目录 (推荐使用SSD) /var/lib/docker 100G+ (至少100G起) 计算节点: / 100G /var/lib/docker 100G+ /var/lib/docker  磁盘推荐都使用SSD云盘</description>
+    </item>
+    
+    <item>
+      <title>高可用部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/install-base-ha/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/install-base-ha/</guid>
+      <description>一、集群高可用说明 在生产环境下，可以调整Rainbond的部署结构，来提高其高可用性。Rainbond高可用性可以从以下几个层面提升：
+ 存储高可用：选择合适的分布式存储系统作为集群的共享存储。
+ 网络高可用：为集群选择合适的SDN网络。
+ 管理节点集群： 部署多个管理节点，实现Rainbond管理功能高可用。
+ 计算节点集群： 分布式部署多个计算节点，实现计算资源高可用。
+ 网关节点集群： 部署多个网关节点，提供多个应用访问入口。
+  二、机器资源准备 2.1 机器资源要求与规划  操作系统要求
+    操作系统 版本     CentOS 7.4.1708(建议安装此版本)     单台服务器计算资源配置要求
+    服务器角色 CPU 内存     管理节点 16核 32G   计算节点 16核 64G   网络节点 8核 16G   存储节点 4核 8G   网关节点 4核 8G     管理节点磁盘分区</description>
+    </item>
+    
+    <item>
+      <title>基于已有Kubernetes集群部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/install-base-kubernetes/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/install-base-kubernetes/</guid>
+      <description>Rainbond与Kubernetes集群的关系 Kubernetes是Rainbond调度和运行应用的基础平台，5.0版本开始Rainbond与Kubernetes进行了完全的解耦合以支持更多的Kubernetes版本。
+Kubernetes集群要求  Kubernetes版本必须 &amp;gt;=1.10 Kubernetes集群必须正常工作 Kube-APIServer 开启了RBAC,支持ServiceAccount、NamespaceLifecycle、LimitRanger  Rainbond将对Kubernetes集群做的修改  创建多个Namespace（每个租户创建一个Namespace） 创建名为rainbondsssc 和 rainbondslsc 的StorageClass 应用创建后创建在所在租户空间内创建各类资源  由Rainbond创建的资源都携带Creater=Rainbond 标签，由Rainbond自动管理，你在未完全了解Rainbond工作机制的情况下请勿自行操作Kubernetes资源。  安装Rainbond 1. 准备Rainbond需要的Kubernetes的相关文件  当前节点路径下有/usr/bin/kubectl文件
+admin.kubeconfig,Kube-Apiserver admin用户权限的配置文件
+kube-proxy.kubeconfig,用于Slave节点Kube-Proxy的配置文件,一般用户名为kube-proxy
+ 需要将这个文件拷贝到/opt/rainbond/etc/kubernetes/kubecfg目录下
+# 查看是否复制成功 ls /opt/rainbond/etc/kubernetes/kubecfg admin.kubeconfig kube-proxy.kubeconfig   通过kubeadm安装的k8s集群相关文件获取方式
+  admin.kubeconfig文件，在master节点获取/etc/kubernetes/admin.conf或者$HOME/.kube/config
+kube-proxy.kubeconfig文件，示例如下
+ # kube-proxy.kubeconfig apiVersion: v1 kind: Config clusters: - cluster: certificate-authority: &amp;lt;base64 ca.crt证书内容&amp;gt; server: &amp;lt;kube api https地址&amp;gt; name: default contexts: - context: cluster: default namespace: default user: default name: default current-context: default users: - name: default user: token: &amp;lt;token&amp;gt; # ca.</description>
+    </item>
+    
+    <item>
+      <title>离线部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/offline_install/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/offline_install/</guid>
+      <description>目前我们仅提供CentOS 7.4.1708版本的离线包，其他版本离线包制作请参考[离线包制作文档](/user-operations/op-guide/offline-package/)  软硬件要求  检查操作系统，目前离线版本仅支持CentOS 7.4.1708版本 确保机器重启，服务器IP地址和nameserver不发生改变，推荐配置静态ip 多节点部署时，需要确保所有机器间时间要同步(很重要) 多节点时，机器间网络访问没有限制 支持使用root执行安装操作  更多关于软硬件要求请参考 软件和硬件环境要求,安装前请务必确定是否满足条件。
+同步离线包 # 有网环境下载离线包并同步到离线环境 wget https://pkg.rainbond.com/offline/dev/offline.2019-05-20-5.1.4.tgz  离线安装操作 准备工作 # 需要移除默认源 mv /etc/yum.repos.d/*.repo /tmp/ # 解压离线包 tar xf &amp;lt;离线包&amp;gt; # 进入解压目录下 cd offline # 执行准备工作 ./offline.sh # 安装前检查工作 yum makecache # 确定上述文件都存在后执行后续安装操作  初始化数据中心 离线情况下，初始化数据中心必须指定参数要求： 必须指定install-type为offline 可选参数要求： 1. 如果是多网卡情况下，需要指定iip 2. 离线情况下，默认使用`pass.grapps.cn`域名，需要自行指定离线域名，并需要配置相关解析工作如`*.pass.grapps.cn`解析到数据中心节点 3. role身份,赋予当前节点身份属性,默认为管理和计算节点复用;若role指定为manage，则表示当前节点仅具有管理节点属性  # 当前节点仅具有管理属性 ./grctl init --install-type offline --iip &amp;lt;当前机器内网ip&amp;gt; --domain &amp;lt;自定义域名&amp;gt; [--role manage]   安装完成后检查, 当所有服务和节点皆处于健康状态时平台即可正常使用。  # 集群整体状态 grctl cluster # 集群节点状态 grctl node list # 控制台访问地址 http://&amp;lt;节点IP地址&amp;gt;:7070  如果集群状态是不健康的，参考节点健康检测 文档解决故障。</description>
+    </item>
+    
+    <item>
+      <title>自定义部署方案</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/custom-install/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/custom-install/</guid>
+      <description>如何自定义安装部署方案  step 1: fork rainbond-ansible项目 step 2: 通过修改fork后的rainbond-ansible项目来自定义自己的需求 step 3: 安装时指定rainbond-version(分支名或tag),rainbond-repo(rainbond-ansible fork项目路径)  简析rainbond-ansible结构 |-- addmaster.yml # 添加管理节点ansible-playbook |-- addnode.yml # 添加计算节点ansible-playbook |-- ansible.cfg |-- callback_plugins |-- inventory | |-- hosts |-- log |-- roles | |-- bootstrap # 系统配置 | |-- db # 数据库rbd-db | |-- docker # 安装docker | |-- etcd # 管理节点配置etcd | |-- etcd-proxy # 计算节点配置etcd-proxy | |-- health # 服务health检查配置 | |-- image # 下载离线镜像包 &amp;amp; 解压镜像包 &amp;amp; 加载镜像 | |-- kube-master # k8s管理节点 | |-- kube-worker # k8s计算节点 | |-- lb # 网关服务rbd-gateway | |-- master # Rainbond核心组件配置 | |-- network_plugin # 集群网络插件calico等 | |-- node # node服务配置 | |-- nodeinit # 初始化数据中心，仅在第一个节点执行 | |-- nodeup # 上线节点, 仅在第一个节点执行 | |-- prepare # 准备工作 | |-- rainvar # 全局配置(setup.</description>
+    </item>
+    
+    <item>
+      <title>节点管理(添加,删除,重置)</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/node/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/node/</guid>
+      <description>添加节点 1. 安装节点时，请勿使用之前wget下载的grctl工具即(./grctl)，直接使用grctl命令。 2. 管理节点不支持批量扩容操作，只能依次扩容。 3. 管理节点数目推荐为奇数1,3,5,7，两个节点无法保证高可用。 4. 支持使用root执行安装操作  # 添加管理节点 grctl node add --host &amp;lt;managexx&amp;gt; --iip &amp;lt;管理节点内网ip&amp;gt; -p &amp;lt;root密码&amp;gt; --role manage ## 法2默认已经配置ssh信任登陆 grctl node add --host &amp;lt;managexx&amp;gt; --iip &amp;lt;管理节点内网ip&amp;gt; --key /root/.ssh/id_rsa.pub --role manage # 添加计算节点 grctl node add --host &amp;lt;gatewayxx&amp;gt; --iip &amp;lt;网关节点内网ip&amp;gt; -p &amp;lt;root密码&amp;gt; --role gateway ## 法2默认已经配置ssh信任登陆 grctl node add --host &amp;lt;gatewayxx&amp;gt; --iip &amp;lt;网关节点内网ip&amp;gt; --key /root/.ssh/id_rsa.pub --role gateway # 添加计算节点 grctl node add --host &amp;lt;computexx&amp;gt; --iip &amp;lt;计算节点内网ip&amp;gt; -p &amp;lt;root密码&amp;gt; --role compute ## 法2默认已经配置ssh信任登陆 grctl node add --host &amp;lt;computexx&amp;gt; --iip &amp;lt;计算节点内网ip&amp;gt; --key /root/.</description>
+    </item>
+    
+    <item>
+      <title>Rainbond组件运维</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/component-op/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/component-op/</guid>
+      <description>目前Rainbond绝大多数组件都是由node维护，即由node生成服务的配置文件并启动。目前所有关于rainbond服务(除node外)的配置文件目录：/opt/rainbond/conf
+服务配置说明    配置文件 节点类型 具体组件 说明     base.yaml 管理节点* rbd-repo,rbd-hub 基础服务组件   db.yaml 管理节点 rbd-db 数据库组件   dns.yaml 管理节点/计算节点 rbd-dns dns组件   etcd.yaml 管理节点* etcd etcd组件   etcd-proxy.yaml 计算节点* etcd-proxy etcd-proxy组件   health.yaml 管理节点/计算节点  系统健康检查组件，如存储等   k8s-master.yaml 管理节点* kube-controller-manager,kube-scheduler,kube-apiserver k8s master组件   k8s-worker.yaml 计算节点*/复用的管理节点(仅第一个管理节点) kubelet k8s worker组件   master.yaml 管理节点*  Rainbond管理节点组件   network.</description>
+    </item>
+    
+    <item>
+      <title>应用域名运维</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/domain/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/domain/</guid>
+      <description>  Rainbond平台上运行起来的应用，如果需要外部访问，都需要一个域名与之对应。这个域名是应用的标示，同时也是平台负载均衡区分后端服务的方法。Rainbond在线安装未指定自定义域名时，默认会自动注册一个*.&amp;lt;random&amp;gt;.grapps.cn的泛域名并进行dns的解析工作
+ 自定义域名 离线安装环境，如果未指定自定义域名，默认域名为pass.example.com或者pass.grapps.cn
+安装完成后修改自定义域名 需要编辑/opt/rainbond/conf/master.yaml文件中关于EX_DOMAIN的值,示例
+sed -i &amp;quot;s#&amp;lt;默认域名&amp;gt;#&amp;lt;自定义域名&amp;gt;#g&amp;quot; /opt/rainbond/conf/master.yaml  更新完成后需要更新服务
+node service update  更新数据库相关值 docker exec rbd-db mysql -e &#39;use console;update region_info set httpdomain=&amp;quot;自定义域名&amp;quot;&#39;  自定义域名需要泛解析到当前管理节点。如自定义域名(www.a.com),管理节点ip(1.1.1.1),需要在域名解析记录里添加如下A记录
+*.www.a.com A 1.1.1.1  调整已有域名解析  只支持默认分配的grapps.cn域名,示例将默认域名解析记录有内网改为外网
+ domain-cli -newip &amp;lt;公网ip&amp;gt;/grctl domain --ip &amp;lt;公网ip&amp;gt; #两者都可以 # 更新成功后，稍等几分钟。如果没生效，请检查dns。 docker exec -it rbd-db mysql -e &amp;quot;update console.region_info set wsurl=&#39;ws://&amp;lt;公网ip&amp;gt;:6060&#39;,tcpdomain=&#39;&amp;lt;公网ip&amp;gt;&#39;;&amp;quot; # 特别说明一下：如果已经修改过域名解析，需要再次修改域名解析请使用domain-cli domain-cli -newip &amp;lt;newip&amp;gt; -oldip &amp;lt;oldip&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>自定义节点Pod CIDR</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/reset-pod-cidr/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/reset-pod-cidr/</guid>
+      <description>  主要是针对calico网络而言
+ 安装前自定义 grctl init --pod-cidr 192.168.0.0/16  如果不自定义的话,默认会根据宿主机ip段选择对应的pod的cidr. calico 宿主机(`192.168.0.0/16`)则pod的cidr为`10.0.0.0/16`,否则pod的cidr为`192.168.0.0/16` flannel 默认pod cidr为`10.244.0.0/16`  安装后自定义 这里以调整为 172.16.0.0/16为例，请注意，此调整将重启所有应用：
+ 1. 调整所有节点的calico启动参数  vi /opt/rainbond/conf/network.yaml 将： -e CALICO_IPV4POOL_CIDR=192.168.0.0/16 更改为： -e CALICO_IPV4POOL_CIDR=172.16.0.0/16    调整所有节点的calico启动参数
+ETCDCTL_API=3 etcdctl del /calico --prefix    重启calico服务
+node service update    重启所有应用分配ip   </description>
+    </item>
+    
+    <item>
+      <title>扩容网关节点</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/add-lb-node/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/add-lb-node/</guid>
+      <description>5.1.4版本之后支持扩容网关节点(具体可参考节点管理部分),历史版本只能手动扩容添加网关节点  手动添加网关节点 1. 准备工作  生成node的systemd文件  cat &amp;gt; /etc/systemd/system/node.service &amp;lt;&amp;lt;EOF [Unit] Description=Goodrain Rainbond node After=network.target [Service] Type=simple User=root LimitCORE=infinity LimitNOFILE=102400 LimitNPROC=102400 EnvironmentFile=-/opt/rainbond/envs/node.sh PermissionsStartOnly=true ExecStart=/opt/rainbond/scripts/start-node.sh Restart=always RestartSec=10 [Install] WantedBy=multi-user.target EOF   生成node启动脚本  cat &amp;gt; /opt/rainbond/scripts/start-node.sh &amp;lt;&amp;lt;EOF #!/bin/bash NODE_OPTS=&amp;quot;--log-level=info --auto-scheduler=true --kube-conf=/opt/rainbond/etc/kubernetes/kubecfg/admin.kubeconfig --etcd=http://&amp;lt;etcd地址&amp;gt; --hostIP=&amp;lt;新增网关节点ip&amp;gt; --run-mode master --noderule manage&amp;quot; exec /usr/local/bin/node $NODE_OPTS EOF   生成node的uuid  cat &amp;gt; /opt/rainbond/etc/node/node_host_uuid.conf &amp;lt;&amp;lt;EOF host_uuid=&amp;lt;node_uuid, 可以用uuidgen生成&amp;gt; EOF   从管理节点同步文件
+ 从第一个管理节点同步/opt/rainbond/conf目录下的network.yaml,lb.yaml文件到新增网关节点同样目录下 从第一个管理节点同步/opt/rainbond/etc/kubernetes/kubecfg目录到新增网关节点同样目录下 从第一个管理节点同步/opt/rainbond/health目录到新增网关节点同样目录下 从第一个管理节点同步/opt/rainbond/etc/tools/bin/node到新增网关节点/usr/local/bin/node  编辑新增网关节点 /opt/rainbond/conf/network.</description>
+    </item>
+    
+    <item>
+      <title>对接GlusterFS</title>
+      <link>http://skyzhangyf.github.io/user-operations/storage/glusterfs/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/storage/glusterfs/</guid>
+      <description>存储节点部署示例环境，仅供参考
+   主机名 IP 系统     gfs01 10.10.10.13 CentOS 7.4.1708   gfs02 10.10.10.14 CentOS 7.4.1708    一、GlusterFS的安装 1.1 存储节点配置hostname解析 所有节点都需要配置存储节点hostname解析
+# gfs01节点更新hostname hostname gfs01 echo &amp;quot;gfs01&amp;quot; &amp;gt; /etc/hostname # gfs02节点更新hostname hostname gfs02 echo &amp;quot;gfs02&amp;quot; &amp;gt; /etc/hostname # gfs01/gfs02配置hosts解析 [root@gfs01 ~]# cat /etc/hosts 10.10.10.13 gfs02 10.10.10.14 gfs01  配置完成后确定存储节点可以正常ping通gfs01和gfs02
+1.2 格式化磁盘、创建目录并挂载 # 查看可用磁盘 fdisk -l # 分区并格式化 mkfs.xfs /dev/vdb1 mkdir -p /data echo &amp;quot;/dev/vdb1 /data xfs defaults 1 2&amp;quot; &amp;gt;&amp;gt;/etc/fstab # 挂载 mount -a  gfs01和gfs02节点都需要执行如上操作。</description>
+    </item>
+    
+    <item>
+      <title>监控</title>
+      <link>http://skyzhangyf.github.io/user-operations/monitor/monitor/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/monitor/monitor/</guid>
+      <description>概述 本节主要介绍的是Raibond监控体系中对Node机器监控，各服务组件监控及容器监控。监控服务由Rainbond组件rbd-monitor完成，在monitor组件中采用Sidecar设计模式思想整合Prometheus服务，并基于ETCD动态发现需要监控的targets，自动配置与管理Prometheus服务。monitor会定期到每个targets刮取指标数据，并将数据持久化在本地，提供灵活的PromQL查询与RESTful API查询。通过Granfana将监控数据可视化。在Rainbond资源管理后台与控制台中，基于monitor组件刮取的监控数据对应用与容器实现资源可视化等。monitor组件支持自定义报警规则，对接Alertmanager向用户发送报警信息。
+当前rbd-monitor是冗余的工作模式，即对集群中所有节点的监控数据进行收集，当节点数量或监控数据量庞大时，对监控服务务必带来很大的压力。在后面的版本中我们会持续优化监控体系，支持多点部署、分布式数据采集、查询汇总等。
+rbd-monitor提供Prometheus服务，在浏览器中访问管理节点的9999端口即可。Prometheus默认保存七天的数据，如果你需要更改配置，在/opt/rainbond/conf/master.yaml文件中的rbd-monitor配置中修改启动参数对应的值即可。
+Node资源监控 有许多第三方组件提供导出现有的Prometheus指标供Prometheus拉取。Prometheus社区提供的NodeExporter项目可以对于主机的关键度量指标状态监控，Rainbond整合实现了NodeExporter并暴露在Node端口6100上，Prometheus可以通过http://node_ip:6100/metrics刮取本节点的主机监控指标及数据。
+在Rainbond的monitor组件中，通过etcd中注册的node信息来发现各节点，将各节点主机监控的Metrics地址配置到Prometheus配置文件，Prometheus按配置的间隔时间定时到所有Node拉取指标数据，存储数据并可用PromQL提供丰富的查询。你可以使用Prometheus的查询语句查询各资源使用情况，或者配置Granfana模版更加直观展示主机的监控信息，在下面会详细介绍如何在Granfana配置Noed监控模版。
+服务组件监控 我们在Rainbond的各服务组件中自定义了Prometheus的Exporter，定义组件健康与工作等一些指标，并将指标与数据生成Prometheus可以识别的格式，通过metrics地址供Prometheus刮取。
+在Prometheus的Targets中你可以看到这些服务组件，并可以查询这些服务组件暴露的指标及数据。
+容器监控 Cadvisor是google开源的监控项目，Cadvisor对Node机器上的资源及容器进行实时监控和性能数据采集，包括CPU使用情况、内存使用情况、网络吞吐量及文件系统使用情况。
+CAdvisor 启动通过调用 Linux 系统 inotify 监测 cgroup docker 目录的文件变化判断 docker 的创建和删除。找出Container对应的系统文件读取监控数据。
+Kubernetes的生态中，cAdvisor是作为容器监控数据采集的Agent，cAdvisor集成在Kubelet中，其部署在每个计算节点上的kubelet启动时会自动启动cAdvisor，一个cAdvisor仅对一台Node机器进行监控，默认端口为4194，在URLhttp://node_ip:4194/metrics 提供监控指标及数据供Prometheus刮取，默认的刮取间隔为15s一次。
+在Rainbond的monitor组件中通过etcd发现计算节点，将该节点CAdvisor提供的metrics地址配置Prometheus的配置文件，通过Prometheus指标丰富的label对容器及pod进行分类查找。并可实现对Rainbond应用的资源监控等。具体的监控项可在Granfana中配置模版，下面会详细说明如何在Granfana中配置容器监控模版。
+应用异常事件监控 应用异常事件监控是捕捉并记录在RainBond中部署应用的OOM，运行异常情况等事件。便于发现并调整存在异常的应用，避免由于应用的持续异常影响资源及各服务的正常工作。
+实现机制 Rainbond实现的worker组件中，对应用实例出的pod进行状态观察，当pod发生异常退出时触发事件来处理pod的退出信息，并将错误类型、错误原因、触发次数、最后出现时间等信息记录在数据库中供我们查询。
+具体处理流程参考文档应用异常处理
+使用Granfana 可视化监控 grafana是用于可视化大型测量数据的开源程序，他提供了强大和优雅的方式去创建、共享、浏览数据。dashboard中显示了你不同metric数据源中的数据。使用它可以快速搭建起主机及容器监控的可视化仪表盘，直观优雅的展示监控数据。通过每个仪表盘定义的Prometheus查询语句获取结果后渲染出可视化图形，还可以根据定义的标签对查询条件灵活的切换。
+Grafana安装 当安装Rainbond时，默认不安装Grafana服务。如你想安装自己的Grafana，可参阅文档安装。
+创建Prometheus数据源  单击Grafana徽标以打开侧边栏菜单。 单击侧栏中的设置图标，点击Data Sources。 单击“Add data source”。 选择“Prometheus”作为类型。 设置适当的Prometheus服务器URL（例如，http://localhost:9090/） 根据需要调整其他数据源设置（例如，关闭代理访问）。 单击“添加”以保存新数据源。  导入Node主机监控模版 Grafana支持通过json文件快速导入你需要的仪表盘模版。点击这里获取Node Exporter的json文件，点击左侧菜单栏的加号，选择Import，将json数据复制粘贴到Or paste JSON一栏中，点击load按钮，输入名称，选择刚才添加的Prometheus数据源，点击Import即可添加模版或者输入我们提供的基础资源可视化Dashboard id(10014)
+ 效果展示如下，可选择Host标签切换节点
+ 导入容器监控模版 容器监控模版的导入方法与上面Node主机监控的导入方法一致，点击这里获取json文件。导入后可根据标签pod_name来查看某一个pod中容器的监控情况。Node标签可切换节点，interval可切换间隔时间。
+自定制 你可以点击每个仪表盘的名字，选择Edit进入编辑页面，在这里你可以看到该仪表盘对应的Prometheus查询语句，该语句查询的数据结果渲染出该仪表盘。你可以根据自己的需求修改这些参数及设置等。
+你也可以点击上方的设置按钮，来编辑整个模版的信息，添加Variables标签等。修改后记得点击Save保存更改哦。</description>
+    </item>
+    
+    <item>
+      <title>监控报警配置项说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/monitor/monitor-alter-items/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/monitor/monitor-alter-items/</guid>
+      <description>监控组件说明  rbd-monitor组件基于Prometheus，默认监听端口9999
+具体支持监控报警请访问 http://&amp;lt;rbd-monitor所在节点ip&amp;gt;:9999
+以下仅作为参考
+ 监控项说明 节点资源监控项    监控项 所属组件 说明     cadvisor_version_info cadvisor 计算节点系统信息   machine_memory_bytes cadvisor 当前主机内存大小   machine_cpu_cores cadvisor 当前节点CPU数目   node_filesystem_size node 存储   node_load1 node 负载1m   node_load5 node 负载5m   node_load5 node 负载15m   node_memory_MemTotal node 节点内存total   node_memory_MemFree node 节点内存free   node_uname_info node 节点信息    Rainbond服务组件监控项    监控项 所属组件 说明     acp_mq_dequeue_number rbd-mq    acp_mq_enqueue_number rbd-mq    acp_mq_exporter_health_status rbd-mq    acp_mq_exporter_last_scrape_error rbd-mq    acp_mq_exporter_scrapes_total rbd-mq    builder_exporter_builder_task_error rbd-chaos    builder_exporter_builder_task_number rbd-chaos    builder_exporter_health_status rbd-chaos 1   event_log_exporter_chan_cache_size rbd-eventlog    event_log_exporter_collector_duration_seconds rbd-eventlog    event_log_exporter_container_log_store_cache_barrel_count rbd-eventlog    event_log_exporter_container_log_store_log_count rbd-eventlog    event_log_exporter_event_store_barrel_count rbd-eventlog    event_log_exporter_event_store_cache_barrel_count rbd-eventlog    event_log_exporter_event_store_log_count rbd-eventlog    event_log_exporter_health_status rbd-eventlog    event_log_exporter_last_scrape_error rbd-eventlog    event_log_exporter_monitor_store_barrel_count rbd-eventlog    event_log_exporter_monitor_store_log_count rbd-eventlog    event_log_exporter_scrapes_total rbd-eventlog    gateway_request_duration_seconds_bucket rbd-gateway 在规定请求时间(bucket)内, 客户端请求的数量   gateway_request_duration_seconds_count rbd-gateway 客户端请求的总数   gateway_request_duration_seconds_sum rbd-gateway 客户端请求时间的总数   gateway_request_size_bucket rbd-gateway 在规定出请求大小(bucket)内, 满足条件的请求的数量   gateway_request_size_count rbd-gateway 客户端请求的总数   gateway_request_size_sum rbd-gateway 客户端请求大小的总数   gateway_requests rbd-gateway 客户端访问的次数   gateway_response_duration_seconds_bucket rbd-gateway 在规定响应时间(bucket)内, 响应的次数   gateway_response_duration_seconds_count rbd-gateway 响应的总次数   gateway_response_duration_seconds_sum rbd-gateway 响应的总时间   gateway_response_size_bucket rbd-gateway 在规定出响应大小(bucket)内, 满足条件的响应的次数   gateway_response_size_count rbd-gateway 响应的总次数   gateway_response_size_sum rbd-gateway 响应的总大小   gateway_upstream_latency_seconds rbd-gateway 在规定出延迟时间(bucket)内, 满足条件的延迟的次数   gateway_upstream_latency_seconds_count rbd-gateway 延迟的总次数   gateway_upstream_latency_seconds_sum rbd-gateway 延迟时间的总和   worker_exporter_health_status rbd-worker    worker_exporter_worker_task_number rbd-worker    worker_exporter_collector_duration_seconds rbd-worker    worker_exporter_last_scrape_error rbd-worker    worker_exporter_scrapes_total rbd-worker    worker_exporter_worker_task_error rbd-worker    worker_exporter_worker_task_number rbd-worker    worker_up rbd-worker    scrape_samples_scraped     scrape_samples_post_metric_relabeling     scrape_duration_seconds     statsd_exporter_build_info     statsd_exporter_events_total     statsd_exporter_lines_total     statsd_exporter_loaded_mappings     statsd_exporter_samples_total     statsd_exporter_tag_errors_total     statsd_exporter_tags_total     statsd_exporter_tcp_connection_errors_total     statsd_exporter_tcp_connections_total     statsd_exporter_tcp_too_long_lines_total     statsd_exporter_udp_packets_total     up  组件状态    k8s集群监控项    监控项 所属组件 监控值 说明     etcd* etcd etcd监控项     应用级监控项    监控项 说明     app_resource_appmemory 应用内存，根据service_id,tenant_id筛选   app_resource_appfs 应用   app_resource_appmemory 应用   app_client_request 应用   app_client_requesttime 应用   app_request 应用   app_request_unusual 应用   app_requestclient 应用   app_requesttime 应用    应用级基于CAvisor获取典型监控指标</description>
+    </item>
+    
+    <item>
+      <title>对接阿里云NAS</title>
+      <link>http://skyzhangyf.github.io/user-operations/storage/alinas/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/storage/alinas/</guid>
+      <description>阿里云文件存储（Network Attached Storage，简称 NAS）是面向阿里云 ECS 实例、HPC 和 Docker 等节点的文件存储服务，提供标准的文件访问协议，即可使用具备无限容量及性能扩展、单一命名空间、多共享、高可靠和高可用等特性的分布式文件系统。
+本文默认已创建了文件系统，如果未创建，请参考阿里云NAS文档
+快速配置指南 提前准备好NAS，安装时指定存储类型为nas,具体示例如下：
+./grctl init --storage nas --storage-args &amp;quot;82b554a292-rvg38.cn-huhehaote.nas.aliyuncs.com:/ /grdata nfs vers=3,nolock,noatime 0 0&amp;quot;  手动对接NAS 安装配置NFS客户端程序 # Debian/Ubuntu apt-get update apt-get install nfs-common # CentOS yum install nfs-utils  配置NFS请求数量 cat /proc/sys/sunrpc/tcp_slot_table_entries  {{site.data.alerts.callout_danger}} Linux NFS 客户端对于同时发起的NFS请求数量进行了控制，若该参数配置较小，会降低 IO 性能。默认编译的内核中该参数最大值为256。您可以使用root用户执行以下命令来提高该参数的值，取得较好的性能。 {{site.data.alerts.end}}
+echo &amp;quot;options sunrpc tcp_slot_table_entries=128&amp;quot; &amp;gt;&amp;gt; /etc/modprobe.d/sunrpc.conf echo &amp;quot;options sunrpc tcp_max_slot_table_entries=128&amp;quot; &amp;gt;&amp;gt; /etc/modprobe.d/sunrpc.conf sysctl -w sunrpc.tcp_slot_table_entries=128  参数修改完成后，请重启系统。
+节点挂载NFS文件系统  推荐使用NFS v3协议</description>
+    </item>
+    
+    <item>
+      <title>Calico网络</title>
+      <link>http://skyzhangyf.github.io/user-operations/network/calico/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/network/calico/</guid>
+      <description>一、Calico介绍 Rainbond默认使用Calico定义容器虚拟网络。
+Calico是一个纯3层的数据中心网络方案。能够提供可控的VM、容器、裸机之间的IP通信。
+通过将整个互联网的可扩展IP网络原则压缩到数据中心级别，Calico在每一个计算节点利用Linux Kernel实现了一个高效的vRouter来负责数据转发，而每个vRouter通过BGP协议负责把自己上运行的workload的路由信息像整个Calico网络内传播——小规模部署可以直接互联，大规模下可通过指定的BGP route reflector来完成。
+这样保证最终所有的workload之间的数据流量都是通过IP路由的方式完成互联的。
+Calico节点组网可以直接利用数据中心的网络结构（无论是L2或者L3），不需要额外的NAT，隧道或者Overlay Network。
+如上图所示，这样保证这个方案的简单可控，而且没有封包解包，节约CPU计算资源的同时，提高了整个网络的性能。
+此外，Calico基于iptables还提供了丰富而灵活的网络Policy，保证通过各个节点上的ACLs来提供Workload的多租户隔离、安全组以及其他可达性限制等功能。
+1.1 Calico 架构  Felix，Calico Agent,跑在每台需要运行Workload的节点上，主要负责配置路由及ACLs等信息来确保Endpoint的连通状态；
+ etcd，分布式键值存储，主要负责网络元数据一致性，确保Calico网络状态的准确性；
+ BGP Client（BIRD）, 主要负责把Felix写入Kernel的路由信息分发到当前Calico网络，确保Workload间的通信的有效性；
+ BGP Route Reflector（BIRD），大规模部署时使用，摒弃所有节点互联的 mesh 模式，通过一个或者多个BGP Route Reflector来完成集中式的路由分发；
+  二、对接Rainbond 2.1 Rainbond-Calico架构图 2.2 Calico在Rainbond实现的功能  容器网络的互连  Calico在每一个计算节点利用Linux Kernel实现了一个高效的vRouter来负责数据转发，而每个vRouter通过BGP协议负责把自己上运行的workload的路由信息像整个Calico网络内传播——小规模部署可以直接互联，大规模下可通过指定的BGP route reflector来完成。 这样保证最终所有的workload之间的数据流量都是通过IP路由的方式完成互联。
+ 隔离租户  Calico基于iptables提供了丰富而灵活的网络Policy，保证通过各个节点上的ACLs来提供Workload的多租户隔离、安全组以及其他可达性限制等功能。
+2.3 k8s结合calico的使用  k8s与calico流程架构图   通过k8s创建启动网络容器，通过calico-cni插件根据cni的配置然后分配calico的网络。
+ CNI配置文件介绍
+  cat /opt/rainbond/etc/cni/10-calico.conf { &amp;quot;name&amp;quot;: &amp;quot;calico-k8s-network&amp;quot;, ##网络的名字 &amp;quot;cniVersion&amp;quot;: &amp;quot;0.</description>
+    </item>
+    
+    <item>
+      <title>平台问题排查FAQ</title>
+      <link>http://skyzhangyf.github.io/user-operations/trouble-shooting/pt-faq/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/trouble-shooting/pt-faq/</guid>
+      <description> 当安装使用 Rainbond 遇到问题时，请先参考本篇文档快速索引部分。如果问题未解决，请按要求收集必要的信息通过[社区(用户帮助)](https://t.goodrain.com/)或者[Github](https://github.com/goodrain) 提供给Rainbond开发者。尽可能提供具体信息，方便排查问题。 ```yaml # 参考模板 Rainbond版本(grctl version/docker run --rm goodrain.me/rbd-api:5.1.1 version): 操作系统/内核版本: 节点配置(CPU核数,内存大小,硬盘类型(SSD/机械硬盘),网络类型,网络拓扑): 安装类型(是否离线或者对接已有集群): 集群状态(是否health，是否有计算节点，是否多管理节点): 如何复现(什么操作导致的): 尝试解决(重启相关组件): 相关截图(具体日志部分截图): ```  安装指南  安装问题建议反馈至 rainbond-ansible
+  安装如何自定ssh port
+# 目前不支持多节点的SSH端口都不同 export INSTALL_SSH_PORT=12306 ./grctl init   使用指南  企业管理员密码忘记如何处理 对接自己私有Artifactory指南 控制台报系统等错误服务排查 web容器管理报错 创建应用提示Table &amp;lsquo;region.tenants&amp;rsquo; doesn&amp;rsquo;t exist  </description>
+    </item>
+    
+    <item>
+      <title>应用问题排查FAQ</title>
+      <link>http://skyzhangyf.github.io/user-operations/trouble-shooting/app-faq/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/trouble-shooting/app-faq/</guid>
+      <description> 当安装使用 Rainbond 遇到问题时，请先参考本篇文档快速索引部分。如果问题未解决，请按要求收集必要的信息通过[社区(用户帮助)](https://t.goodrain.com/)或者[Github](https://github.com/goodrain) 提供给Rainbond开发者。尽可能提供具体信息，方便排查问题。 ```yaml # 参考模板 1. 集群是否正常（grctl node list） 2. 应用是否正常 (grctl service get ) 3. 应用监听端口是否正确，是否开启了健康检测，持久化目录是否设置正确 4. 应用构建失败报错 5. 应用日志是否有明显报错 6. rbd-repo服务是否正常 ```  使用指南  源码构建失败提示gzip stdin not in gzip format 应用状态处于启动中排查  </description>
+    </item>
+    
+    <item>
+      <title>团队介绍和创建方式</title>
+      <link>http://skyzhangyf.github.io/user-manual/manage-team/create-team/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/manage-team/create-team/</guid>
+      <description> 什么是Rainbond团队 通常的意义是由若干个用户组成的组织就叫做团队，在Rainbond中，团队是一个资源集合的概念，这个资源集合包括了用户、应用、插件等。每一个团队会在某个数据中心开通一个租户空间，一个团队可在此租户空间内创建和使用允许的各类资源。
+为什么要创建团队  Rainbond平台的宗旨是以应用为核心，应用只属于团队。 Rainbond在企业使用过程中可能需要被不同的开发人员和团队、运维人员和团队、测试人员和团队使用。Rainbond平台的团队概念可以与企业内部的组织架构相呼应。 某个团队在一个数据中心下开通一个租户来使用资源，只有创建团队才能使用资源  团队的创建 平台管理员新建团队 平台管理员注册完毕后，可以新建团队。 团队重命名 数据中心  如果您具有开通数据中心权限，才可以执行开通数据中心操作。 开通数据中心是团队级别的，添加数据中心是企业级别的。 平台的核心是应用定义一切，但是团队和数据中心是平台的基础。  </description>
+    </item>
+    
+    <item>
+      <title>成员和角色管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/manage-team/manage-user/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/manage-team/manage-user/</guid>
+      <description>成员管理 为了让用户能够更好的管理团队及分配相关功能，我们设计了基于角色的权限系统。该系统基于角色来控制成员的行为，并支持用户自定义团队中的角色，平台默认设置了三个角色，分别为：
+ Admin：团队管理员 Developer：开发者 Viewer：观察者  权限系统拥有灵活定制性的同时也使权限控制的粒度更加细腻。
+添加团队成员 如果您在本团队拥有的角色中包含团队权限设置这一权限，那么您可以在团队管理中的团队成员一栏中查看您当前团队下的所有成员，并点击添加成员可以为团队新添加一个成员，并给该成员授予一个您当前团队中存在的角色，这样该成员就拥有该角色所对应的所有权限操作了。
+
+删除团队成员 如果您在本团队拥有的角色中包含团队权限设置这一权限，那么您可以在团队管理中的团队成员一栏中点击您想要删除成员后方的删除按钮，再次确认后即可将此成员在本团队中移除。
+
+修改成员角色 如果您在本团队拥有的角色中包含团队权限设置这一权限，那么您可以在团队管理中的团队成员一栏中点击您想要修改的成员后方的修改角色按钮，给该成员选择一些您团队中已经存在的角色，点击确认即可修改该成员在此团队中的角色。
+
+角色管理 添加角色 如果您是团队的owner(创建者)或者admin(管理员)，您可以在团队管理中的角色管理一栏中点击添加角色来为本团队新添加一个角色，同时为这个角色绑定您需要的权限选项。
+- 如果您想定义一个角色来参与团队或者应用的相关操作，那请您务必赋予这个角色一些基本的权限，比如`登入团队`，`查看应用信息`。 - 您添加的角色名称不可以与系统默认的角色名称相同 - 角色名称是三十个字符内的数字/字母/中文字符/下划线/中划线的任意组合  
+删除角色 您可以删除团队中自定义的角色，但您在本团队中的角色必须是owner(创建者)或者admin(管理员)才可以进行删除自定义角色的操作。您可以在团队管理中的角色管理一栏中点击想要删除角色后方的删除`按钮，再次点击确认后即可删除本角色。
+- 如果您的团队中已经有成员拥有此角色，那您不能直接删除该角色  
+编辑角色 您可以修改自定义角色的名称以及这个角色对应的权限选项。但您在本团队中的角色必须是owner(创建者)或者admin(管理员)才可以进行修改自定义角色的操作。您可以在团队管理中的角色管理一栏中点击想要修改的角色后方的修改按钮，修改角色名称以及对应的权限选项，确认无误后点击确认即可完成对次角色的修改，
+
+参考： 团队权限管理</description>
+    </item>
+    
+    <item>
+      <title>团队开通数据中心管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/manage-team/manage-datacenter/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/manage-team/manage-datacenter/</guid>
+      <description> 团队开通数据中心管理 什么是Rainbond数据中心 数据中心是由Rainbond定义的一个抽象模型，它实际上是由一个Rainbond集群构成，对外提供标准的Restful API服务。当前企业能够开通的数据中心列表由资源管理后台维护，团队可以由团队管理员选择开通多个数据中心，开通一个数据中心的实质是在数据中心内创建一个租户空间，并允许当前团队创建和使用相应的分配的可用资源池。
+ 提示：数据中心的维护管由企业版的管理后台完成，开源版通过命令行进行管理。
+ 开通数据中心 </description>
+    </item>
+    
+    <item>
+      <title>权限管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/manage-team/manage-permision/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/manage-team/manage-permision/</guid>
+      <description> 权限管理 什么是权限 权限与可执行的操作对应，具备某个权限的意思就是运行进行某项操作。Rainbond的权限系统设计为两级控制，团队级控制和应用级控制。他们是继承关系。Rainbond可选的权限是确定的，随着版本的变化而改变。用户可以管理的是角色和权限的关系，即某个角色具备哪些权限。
+ 如果您在团队管理中新建一个团队角色，并给这个角色绑定了一个应用相关的权限，那么这些应用相关的权限在所有的应用中都有效。 在某一应用中添加一个应用成员并赋予一些应用相关的权限，并不会覆盖掉该成员在团队的中角色所对应的那些应用相关的权限，而是取两者的权限并集。 如果您想让一个成员查看到应用组的信息总览，那么请您给该成员团队中的角色添加查看应用信息的权限。  权限功能说明    权限功能 说明     登入团队 该权限控制一些团队信息的获取，如果您定义的角色是为了使用该团队，那么请您务必选择该权限   开通数据中心 控制该角色能否为团队开通数据中心   团队权限设置 为团队添加团队成员，删除团队成员，修改团队成员角色   自定义角色 能否在团队中添加自定义角色，删除自定义角色，修改自定义角色对应的权限。目前只有团队的owner与admin拥有此权限   应用导入导出 控制云市应用的导入和导出操作   查看插件信息 团队中我的插件板块的查看权限   插件管理 在团队中新建插件，删除插件，安装插件，管理插件等操作权限   应用组管理 新建应用(组)，删除应用(组)，应用(组)内应用的移动   应用组分享 应用(组)分享的权限   创建应用 创建服务的权限   删除应用 删除一个服务的权限   查看应用信息 应用(组)总览信息查看，应用的信息获取和查看   部署应用 服务的构建和部署权限   启动应用 启动一个服务的权限   关闭应用 关闭一个服务的权限   重启应用 重启一个服务的权限   回滚应用 回滚一个服务的权限   应用容器管理 获取容器节点与进入容器   应用伸缩管理 服务伸缩板块的操作权限   应用扩展管理 服务扩展板块的操作权限   应用配置管理 服务依赖，存储，端口，特性，环境变量，健康监测，自动部署等应用的配置操作权限   应用权限设置 在一个服务中添加应用成员，删除服务成员，修改应用成员在本服务中的权限   查看访问控制 查看访问控制的权限   访问证书管理 查看证书管理的权限   访问控制操作 对策略操作(增加、删除、编辑)的权限   证书管理操作 对证书操作(增加、删除、编辑)的权限    </description>
+    </item>
+    
+    <item>
+      <title>服务创建方式</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/service_create/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/service_create/</guid>
+      <description>这篇文章将会为你介绍Rainbond的服务的创建方式.
+应用的定义中已经提到,应用是由各个不同的服务组件构成,那么应用的创建就离不开服务组件的创建.服务组件创建的方式有4种,分别是:从源码创建,从Docker镜像创建,从应用市场安装和创建第三方服务。
+从源码创建 Rainbond支持多种流行的编程语言的源码创建,同时也支持通过Dockerfile进行创建，从源代码创建和持续部署服务是Rainbond最常用的创建方式，其是DevOps流程中最关键的一环。
+Rainbond目前支持的语言有:
+ Java源码创建服务 PHP源码创建服务 Python源码创建服务 Node.js源码创建服务 Golang源码创建服务 .Net源码创建服务 Html静态源码创建服务 Dockerfile源码创建服务  通过源码的方式创建服务组件,需要把源码托管在版本控制系统上,Rainbond目前支持的版本控制系统有*Git*和SVN,也是目前大家常用的版本控制系统。相应的源码必须符合Rainbond的源码支持规范，当然定义的规范都是与各语言推荐规范一致。 需要注意的是对于一些聚合工程,我们想要构建服务所需的源码,可能位于仓库下的某一个子目录下，获取对应子目录下的源码的方式如下：
+ Git:使用dir请求参数指定源码主目录。例如： 源码仓库地址为: https://github.com/demo/demo.git, 所需源码位于子目录/subdir1/subdir2下，则构建应用使用的仓库地址为: https://github.com/demo/demo.git?dir=subdir1/subdir2   我们不推荐使用子目录的方式对项目进行区分,应该尽可能地给每个项目建立独立的Git仓库.这样可以使代码的结构更加地清晰,不至于太臃肿,方便管理。
+  SVN:svn原生支持处理子目录，例如：  源码仓库地址为:http://svn.demo.net/trunk/subdir, 则构建应用使用仓库地址为: http://svn.demo.net 分支选择为子目录路径:trunk/subdir
+从Docker镜像创建 从标准的Docker镜像创建一些中间价或其他开源项目服务是最便捷的途径，但是对于企业自研的业务系统要求用户必须掌握容器化相关知识。
+你可以将项目的代码,运行时环境,依赖库,配置等资源或信息通过Dockerfile打包成一个或多个镜像,上传到DockerHub或其他公有镜像仓库中,或是自己的私有仓库。对于项目中所需要的数据库,消息队列等中间件,或者ElasticSearch,Kibana,Grafana等日志收集工具,你甚至可以直接在DockerHub找官方制作好的镜像,不需要自己去制作.然后,你可以通过镜像的名字,DockerRun命令,或者DockerCompose,将的镜像直接跑在Rainbond平台。
+从Docker镜像创建和持续构建服务也是DevOps流程中使用较为广泛的方式，特别是对于已经搭建了CI流程的企业，通过第三方的CI系统（比如Jenkins）将代码处理完成打包为Docker镜像存储于私有镜像仓库中。Rainbond完成后续的CD流程，将镜像转化为集群服务与应用中其他组件进行架构关联，调度运行，生命周期管理等。
+以下的镜像不能安装:  发行版及软件包镜像：Debian,Ubuntu,Centos,Fedora,FreeBSD 编程语言或其他基础运行环境镜像：Golang,Ruby,Openjdk 命令行工具类软件镜像:Docker,HomebrewBottles  指定镜像 Rainbond可以通过直接拉取Docker官方或者第三方Docker镜像的方式创建服务,但需要注意的是,第三方Docker仓库一定要支持HTTPS协议,否则需要就修改管理节点的Docker配置,使其支持非HTTPS的Docker仓库.
+指定DockerRun命令 使用DockerRun命令创建是Rainbond支持Docker镜像基础上提供的一项便捷操作,Rainbond会解析出DockerRun命令中的镜像,端口,环境变量，内存和存储等服务属性信息,然后生成Rainbond应用（服务）抽象。因此此过程的体验效果与你在单机上运行DockerRun命令可以直接运行容器一样，直接在集群下快捷创建并启动一个服务。
+ Rainbond支关心镜像,端口,环境变量，内存和持久化挂载等信息,其它信息将会被忽略。此方式支持大多数Dockerhub上提供的镜像运行方式执行。
+ 指定DockerCompose 对DockerCompose的支持是在对DockerRun命令的基础上进一步升级，用户在单机环境下可以基于DockerCompose快捷部署多个容器，在Rainbond平台一样，基于Docker Compose配置可以便捷生成多个服务（通常是一个完整的应用抽象），直接在集群环境下运行。Rainbond提供的服务间通信机制可以完美支持常用的DockerCompose配置，目前支持的DockerCompose版本有：
+&amp;ldquo;1&amp;rdquo;, &amp;ldquo;1.0&amp;rdquo;, &amp;ldquo;2&amp;rdquo;, &amp;ldquo;2.0&amp;rdquo;, &amp;ldquo;2.1&amp;rdquo;, &amp;ldquo;2.2&amp;rdquo;, &amp;ldquo;2.3&amp;rdquo;, &amp;ldquo;2.4&amp;rdquo; &amp;ldquo;3&amp;rdquo;, &amp;ldquo;3.0&amp;rdquo;, &amp;ldquo;3.1&amp;rdquo;, &amp;ldquo;3.2&amp;rdquo;, &amp;ldquo;3.3&amp;rdquo;, &amp;ldquo;3.4&amp;rdquo;, &amp;ldquo;3.5&amp;rdquo;, &amp;ldquo;3.</description>
+    </item>
+    
+    <item>
+      <title>服务创建流程</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/creation-process/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/creation-process/</guid>
+      <description>本节内容就上文提到的三种创建方式在Rainbond平台上如何操作提供指南。
+从源码创建 下面将会以Java源码创建服务为例, 介绍在Rainbond上用源码创建服务流程。 &amp;gt; 源码地址: https://github.com/goodrain/java-maven-demo.git
+服务的创建目前有两个入口，分别是左部导航的创建应用入口和应用管理的添加服务组件入口，创建流程一致。
+ Step 1: 提供服务名称和所属应用，最关键的是提供构建源信息，源码构建即提供代码仓库地址，授权等信息。
+ Step 2: 等待Rainbond对源代码进行检测，这个过程Rainbond将根据代码源信息获取源代码并进行语言类型、语言规范等检测，并从rainbondfile文件中读取服务属性。
+ Step 3: 如果检测结果通过即会根据检测回的服务属性创建服务，如果不通过用户需要根据提示更改相关信息。
+ Step 4: 检测完成后用户可以选择构建启动或进行高级设置，设置更多服务属性。若选择构建启动Rainbond将再次获取源代码根据代码检测的语言类型进行源码构建。请注意，源码类型只会在源码检测中读取，因此后续的开发过程如果更改了语言类型，需要触发重新代码检测。
+ Step 5: 服务构建完成后即可通过端口绑定的默认域名进行访问。后续的管理维护流程参阅 服务管理文档
+  其他语言源码支持参阅下述文档  Java源码创建服务 PHP源码创建服务 Python源码创建服务 Node.js源码创建服务 Golang源码创建服务 .Net源码创建服务 Html静态源码创建服务 Dockerfile源码创建服务  Git 和 SVN 的使用 在创建服务时，根据代码仓库的类型选择 Git 或 SVN, 并正确填写该应用的代码仓库地址以及要使用的代码分支或 tag. Git的默认分支是 master, SVN 的默认 tag 是 trunk.
+ 账号密码连接代码仓库  如果需要用账号密码连接代码仓库, 则点击填写仓库账号密码, 正确填写你的登陆用户名及密码即可.
+ SSH 连接代码仓库  如果需要用 SSH 秘钥连接代码仓库, 则点击下方的配置授权 Key, 会为你生成一段秘钥, 然后把这段秘钥添加到你代码仓库的部署秘钥中.</description>
+    </item>
+    
+    <item>
+      <title>DockerCompose支持规范</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/image-support/docker-compose/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/image-support/docker-compose/</guid>
+      <description> 支持原理 DockerCompose是Docker生态中的一个子项目，它提出了定义多个容器服务守护启动参数或构建方式的一种规范，它主要应用于单机容器化环境场景，类似于容器环境下的systemd。使用DockerCompose定义的多组件服务从通信方式、依赖关系上限制了只能单机部署，这与Kubernetes对服务的处理方式有一定区别。如何让DockerCompose定义的所有服务能够运行于Kubernetes集群中，这就是Rainbond提供的基于DockerCompose创建服务提供的功能。
+用户提供可以正常运行的DockerCompose定义文件，Rainbond将解析此文件并分别读取内部的所有服务的关键配置，包括：服务名称、镜像名称及仓库地址、环境变量、依赖关系（启动顺序）、持久化存储、服务端口。基于这些属性创建Rainbond服务抽象，再通过Rainbond的服务抽象模型的管理运行机制部署于底层的Kubernetes集群。从而实现DockerCompose到Kubernetes的转化。
+其中较为关键的是依赖关系、DockerCompose中服务之间建立依赖关系使用的是Docker的同网络空间原理，结合Docker默认的DNS服务对依赖服务别名进行域名解析从而实现服务间通信。这种模式在Kubernetes场景中无法直接实现，但是基于Rainbond的默认ServiceMesh机制，就实现了一直的效果，Rainbond dns服务将解析服务别名到127.0.0.1, 服务通过别名访问其他服务时，实际就是访问服务本地的代理，本地的ServiceMesh Sidecar容器完成服务动态发现和负载均衡。 从效果上看与单机运行的DockerCompose是一致的，但是实际上整个应用已经是在集群环境下分布式运行，每一个服务都可以运行多个实例。
+创建方式及注意事项 通过导航-创建应用-从Docker镜像创建-选择DockerCompose即可进入DockerCompose创建流程。由于DockerCompose创建出一个完整应用（包含N个服务组件），因此创建时必须创建并指定一个新的应用。
+有以下几点注意事项
+ 如果DockerCompose配置中设置有需要读取环境变量的信息，请先手动完成更改。Rainbond不支持动态基于环境变量渲染DockerCompose配置。 确保yaml格式的DockerCompose配置正常，否则无法通过检测。 检测过程中Rainbond将通过镜像信息解析镜像仓库地址并发生验证镜像是否存在请求，只有通过所有验证检测才会通过。在5.1.3以前版本中，验证方式是直接pull镜像，因此检测过程时间比较长。 5.1.3及以后版本中Rainbond只会从DockerCompose配置中读取属性，不再从镜像从解析属性。尽量将有用的属性信息（环境变量、端口、存储）显式配置。  镜像仓库账号密码设置  整体设置  在DockerCompose表单设置中可以添加镜像仓库账号密码，此设置将在此DockerCompose中的所有镜像生效，如果个别镜像不需要账号密码或账号不同，请使用分别设置方式。
+ 分别设置  分别设置是指在DockerCompose配置中为每个服务增加特殊的环境变量来定义当前服务镜像的镜像仓库账号密码。设置方式是：
+HUB_USER 设置账号
+HUB_PASSWORD设置密码
+ 注意：当两种方式同时存在时，分别设置的优先级高于整体设置。
+ </description>
+    </item>
+    
+    <item>
+      <title>Dockerfile</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/dockerfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/dockerfile/</guid>
+      <description>Dockerfile类型识别策略 代码主目录下有 Dockerfile 文件，Rainbond会识别代码语言类型为Dockerfile，此策略优先级最高，当代码同时符合其他语言类型识别策略时，依然以Dockerfile为主。
+编译原理 识别为Dockerfile类型的源码将使用类似于docker build -t xxx/xxx .的命令进行镜像构建，因此此方式是灵活性最高的源码编译方式，理论上可以应用于所有开发语言的支持（如果Docker支持）。
+构建过程支持 docker multi-stage(多阶段构建)和 ARG参数指定。
+Dockerfile规范 Dockerfile 是由一系列命令和参数构成的脚本，这些命令应用于基础镜像并最终创建一个新的镜像。
+Rainbond在源码检测阶段会读取Dockerfile定义的如下参数：
+   参数类型 名称 说明     ENV 环境变量 识别为服务可设置的环境变量配置   ARG 构建参数 识别为构建可设置的参数配置   EXPOSE 暴露端口 识别为服务的端口配置   VOLUME 持久化存储 识别为服务的共享持久化存储配置    Dockerfile的定义方式详见官方文档： https://docs.docker.com/engine/reference/builder/
+在此给出Dockerfile编译部署Golang源码的用例：
+FROM muninn/glide:alpine AS build-env ADD . /go/src/app WORKDIR /go/src/app RUN glide install RUN go build -v -o /go/src/app/app-server FROM alpine RUN apk add -U tzdata RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime COPY --from=build-env /go/src/app/app-server /usr/local/bin/app-server EXPOSE 80 CMD [&amp;quot;app-server&amp;quot;]  完整示例代码  https://github.</description>
+    </item>
+    
+    <item>
+      <title>Java</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java/</guid>
+      <description>Rainbond 可以快速将 Java 源码程序轻松部署到平台，并提供灵活伸缩的高可用特性。您可以部署标准的基于 Tomcat 或 Jetty 的Web应用，同时也支持 SpringBoot 等框架构建的应用程序。我们致力于在不改变开发习惯情况下将您的 Java 应用在云端快速部署、运行、灵活伸缩！
+Rainbond支持以下几种程序部署类型：
+部署Java Maven源码项目
+
+部署Java Gradle源码项目
+
+直接部署Java Jar包
+
+直接部署Java War包</description>
+    </item>
+    
+    <item>
+      <title>Python</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/python/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/python/</guid>
+      <description>Python语言识别策略 平台默认会根据源码根目录是否有requirements.txt文件来识别为Python项目.
+平台编译运行机制  预编译处理会探测是否定义了启动命令配置文件Procfile,如果未定义会生成默认Flask/Django启动配置文件; 预编译处理完成后,会根据语言类型选择Python的buildpack去编译项目.在编译过程中会安装定义的Python版本以及相关Python依赖; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  Python项目源码规范 在此步骤中，你需要提供一个可用的Python源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行部署的Python程序
+ 项目可以托管到git仓库
+ 项目根目录下必须存在requirements.txt,用来管理Python项目的依赖,也是Rainbond识别为Python语言的必要条件
+ 项目根目录下需要定义Procfile,用来定义程序启动方式 项目根目录下存在runtime.txt,用来定义当前项目的Python使用版本
+  requirements.txt 规范 若程序没有依赖关系，可使requirements.txt为空文件。 若无requirements.txt可用如下命令生成
+pip freeze &amp;gt; requirements.txt  Procfile规范 如果项目未定义Procfile文件,平台默认会生成默认Procfile来运行War包。
+web: gunicorn app:app --log-file - --access-logfile - --error-logfile -  上述是默认Procfile,如果需要扩展更多启动参数,可以自定义Procfile。
+1. `web:`和`gunicorn`之间有一个空格 2. 文件结尾不能包含特殊字符  编译运行环境设置 配置Python版本 推荐使用runtime.txt来定义Python版本,若未定义,Rainbond将会默认使用python-3.6.6版本。
+$ cat runtime.txt python-3.6.6  推荐的python版本
+ Python-2.7.15 Python-3.6.6  默认支持python版本
+# python 2.7.x python-2.7.9 python-2.7.10 python-2.7.13 python-2.7.14 python-2.</description>
+    </item>
+    
+    <item>
+      <title>PHP</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php/</guid>
+      <description>PHP语言识别策略 平台默认会根据源码根目录是否有index.php 文件或者 composer.json来识别为PHP项目.
+平台编译运行机制  预编译处理会探测是否定义了启动命令配置文件Procfile,如果未定义会生成默认War包启动配置文件; 预编译处理完成后,会根据语言类型选择PHP的buildpack去编译项目.在编译过程中会安装定义的PHP版本,安装相关依赖包; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  # 安装依赖包，解决依赖关系 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction  PHP项目源码规范 在此步骤中，你需要提供一个可用的PHP源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的PHP程序 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根目录下必须需要存在php文件 源码程序根目录下必须存在composer.json,用来管理PHP项目的依赖,也是Rainbond识别为PHP语言的必要条件,同时文件中必须定义项目需要的php版本，定义方式见下文。 源码程序项目根目录下必须存在composer.lock文件
+ 源码程序项目根目录下需要定义Procfile,用来定义程序启动方式  Procfile规范 如果项目未定义Procfile文件,平台默认会生成默认Procfile来运行PHP。
+# apache (默认) web: vendor/bin/heroku-php-apache2 # nginx web: vendor/bin/heroku-php-nginx  上述是默认Procfile,如果需要扩展,可以自定义Procfile。
+Composer文件 默认源码根目录需要存在composer.json和composer.lock文件, 即使应用程序没有Composer依赖项，它也必须至少包含一个空（{}）。composer.lock其中可以通过如下命令生成
+composer update --ignore-platform-reqs  PHP应用程序可以使用Composer安装的依赖项,通常会将依赖项安装到`vendor/`目录，但是部分项目会重新定义这个目录，执行`composer config vendor-dir`配置正确的路径。大多数情况下避免本地安装影响，通常需要将Composer `vendor`目录添加到你的`.gitignore` 当在composer.json中定义了verndor-dir时需注意,需要自行定义Procfile否则会导致应用无法正常运行，Procfile格式类似`web: /heroku/heroku-buildpack-php/bin/heroku-php-apache2` ```json &#34;config&#34; : { &#34;vendor-dir&#34;: &#34;lib/composer&#34;, &#34;optimize-autoloader&#34;: true }, ```  编译运行环境设置 平台提供了不同的PHP版本，您可以使用PHP，HHVM(PHP代码编译器)，或者同时使用二者，通过HHVM提高PHP性能。</description>
+    </item>
+    
+    <item>
+      <title>.NetCore</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/netcore/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/netcore/</guid>
+      <description>.NetCore语言类型识别策略 代码主目录中包含以.sln或者.csproj结尾的文件并且不包含Dockerfile文件时，平台识别项目语言类型为.NetCore
+目前仅支持单项目代码维护形式，如果你一个代码仓库维护了多个 Project, 例如一个微服务架构，那么首先建议你将每个 Project 分离到不同仓库或同个仓库不同二级目录下。  代码规范 源码主目录必须具有Procfile 文件定义服务启动方式，详见项目运行部分
+编译原理 对于.NetCore语言的支持与Dockerfile一样将构建出镜像而不是slug程序包，因此.NetCore不能使用Procfile文件定义。
+NetCore语言构建过程默认使用`microsoft/dotnet:2.2-sdk-alpine` 编译镜像和`microsoft/dotnet:2.2-aspnetcore-runtime`运行环境镜像，若设置其他版本同理。若你未提前下载镜像在构建过程容易出现拉取镜像失败的错误。强烈建议先在Rainbond管理节点提前手动获取上诉镜像。  如果你的源码对系统环境有依赖，需要单独安装系统类库，目前无法直接使用Rainbond提供的默认编译环境编译，你可以采用直接定义[Dockerfile](../dockerfile)的方式支持。  编译环境选择 当前版本平台默认使用 microsoft/dotnet:2.2-sdk-alpine 镜像环境进行源码编译。你可以根据需要设置编译环境版本，可选版本目前还包括包括：
+ 3.0-sdk 2.1-sdk  设置服务环境变量 BUILD_DOTNET_SDK_VERSION=3.0-sdk 即可选择构建环境版本。
+编译方式设置 默认编译方式如下：
+dotnet restore dotnet publish -c Release  若需要在dotnet restore之前执行的命令可以通过 BUILD_DOTNET_RESTORE_PRE环境变量指定。
+若需要改变默认的 dotnet restore命令可以通过BUILD_DOTNET_RESTORE 环境变量指定。比如设置如下环境变量：
+BUILD_DOTNET_RESTORE_PRE=dotnet restore --ignore-failed-sources  关于环境变量的设置参考 服务环境变量
+项目运行 运行环境选择 通常情况下运行环境与编译环境版本一致，当前版本默认提供的运行环境是microsoft/dotnet:2.2-aspnetcore-runtime，可选的运行环境版本为：
+ 3.0-aspnetcore-runtime
+ 2.1-aspnetcore-runtime
+  通过设置环境变量BUILD_DOTNET_RUNTIME_VERSION 设置你需要的版本
+编译的结果文件存放于运行环境的/app目录下。由于平台咱无法很好的感知项目的入口运行文件，需要在源码主目录中定义rainbondfile定义项目的运行启动方式，例如：
+ports: - port: 5000 procotol: http cmd: dotnet aspnetapp.</description>
+    </item>
+    
+    <item>
+      <title>Golang</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/golang/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/golang/</guid>
+      <description>Golang语言识别方式 平台默认会根据源码根目录是否有go.mod或Gopkg.lock或glide.yaml或src目录含有go文件来识别为Golang项目.
+编译原理  预编译处理完成后,会根据语言类型选择Go的buildpack去编译项目.在编译过程中会安装定义的Golang版本; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  Golang项目源码规范 在此步骤中，你需要提供一个可用的Go源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的go build,go run 源码程序必须托管在gitlab等相关git或者svn服务上 在根目录的/Godeps目录下有Godeps.json文件，标识应用由godep管理;在根目录的/vendor目录下有Govendor.json文件，标识应用由govendor管理;在根目录的/src目录下包含&amp;lt;文件名&amp;gt;.go文件，标识应用由gb管理。  Procfile规范 必须定义Procfile
+web: hello  1. `web:`和`hello`之间有一个空格 2. 文件结尾不能包含特殊字符 3. `hello`为编译后的二进制  编译运行环境设置 配置Golang版本 主流支持版本 go1.10.5,go1.11.2，云帮默认版本 go1.11.2。
+#支持版本 go1.9.7 go1.8.7 go1.11.2 go1.11 go1.11.1 go1.10.5 go1.10.4  Go Tools版本  Dep 默认支持版本v0.4.1 Glide 默认支持版本v0.12.3 Govendor 默认支持版本v1.0.8 GB 默认支持版本 0.4.4 PkgErrors 默认支持版本 0.8.0 HG 默认支持版本3.9 TQ 默认支持版本v0.5 MattesMigrate 默认支持版本v3.0.0  示例demo程序 示例https://github.com/goodrain/go-demo</description>
+    </item>
+    
+    <item>
+      <title>静态HTML</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/html/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/html/</guid>
+      <description> 静态HTML识别策略 平台默认会根据源码根目录是否有index.html文件来识别为静态语言项目.
+编译原理  预编译处理完成后,会根据语言类型选择static的buildpack去编译项目.在编译过程中会安装定义的Web服务Nginx或者Apache; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  静态语言项目源码规范  源码程序必须托管在gitlab等相关git或者svn服务上 源码根目录需要存在index.html文件  Procfile规范 如果未定义Procfile，会生成如下默认Procfile
+web: sh boot.sh  Web服务支持  默认使用最新稳定版本Nginx
+ 自定义Nginx配置 需要在源码根目录定义nginx配置文件：web.conf,默认配置文件为
+server { listen 80; location / { root /app/www; index index.html index.htm; } }  示例代码  静态Html示例代码  </description>
+    </item>
+    
+    <item>
+      <title>Node.JS</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs/</guid>
+      <description>Rainbond 5.1版本已支持源码部署NodeJS前端类项目，你可以直接在Rainbond发布Vue, React, Angular等项目 查看文档： 部署NodeJS前端项目到Rainbond  NodeJS语言识别规范 平台默认会根据源码根目录是否有package.json来识别为NodeJS项目.
+平台编译运行机制  预编译处理会探测是否定义了启动命令配置文件Procfile,如果未定义会读取package.json文件中的script.start值来生成启动配置文件; 预编译处理完成后,会根据语言类型选择nodejs的buildpack去编译项目.在编译过程中会安装定义的Node版本以及Nodejs相关依赖; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  NodeJS项目源码规范 在此步骤中，你需要提供一个可用的NodeJS源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的NodeJS项目 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根路径下必须存在package.json,用来管理NodeJS项目的依赖,也是Rainbond识别为NodeJS语言的必要条件  Procfile规范 如果项目未定义Procfile文件,平台会根据package.json文件中的script.start值来生成默认Procfile。
+web: npm start  上述是默认Procfile,如果需要扩展更多启动参数,可以自定义Procfile。
+1. `web:`和`npm`之间有一个空格 2. 文件结尾不能包含特殊字符  编译运行环境设置 Node版本支持 当前Rainbond支持Node如下版本为：
+4.9.1 5.12.0 6.14.4 7.10.1 8.12.0 9.11.2 10.13.0 11.1.0  平台默认版本使用8.12.0。可以在 package.json 里使用 engines 指定版本：
+{ &amp;quot;name&amp;quot;: &amp;quot;myapp&amp;quot;, &amp;quot;description&amp;quot;: &amp;quot;a really cool app&amp;quot;, &amp;quot;version&amp;quot;: &amp;quot;0.0.1&amp;quot;, &amp;quot;engines&amp;quot;: { &amp;quot;node&amp;quot;: &amp;quot;4.8.7&amp;quot; } }  0.8.5 之后的版本包括 0.</description>
+    </item>
+    
+    <item>
+      <title>NodeJS前端语言</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs-static/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs-static/</guid>
+      <description>NOdeJS前端项目识别方式 平台默认会根据源码根目录是否有package.json和nodestatic.json文件来识别为NodeJS前端类项目.
+编译原理  预编译处理完成后,会根据语言类型选择nodejstatic的buildpack去编译项目.在编译过程中会安装定义的Node版本以及Nodejs相关依赖,安装默认web服务nginx; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  NodeJS前端项目源码规范 在此步骤中，你需要提供一个可用的NodeJS源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的NodeJS项目 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根路径下必须存在package.json,用来管理NodeJS项目的依赖,是Rainbond识别为NodeJS前端类语言的必要条件 代码的根目录下必须有nodestatic.json文件，是Rainbond识别为NodeJS前端类语言的必要条件  nodestatic.json规范 用于定义NodeJS编译后文件路径。
+# cat nodestatic.json {&amp;quot;path&amp;quot;:&amp;quot;&amp;lt;编译后路径&amp;gt;&amp;quot;}  Procfile规范 如果未定义Procfile，会生成如下默认Procfile
+web: sh boot.sh  上述是默认Procfile,如果需要扩展更多启动参数,可以自定义Procfile。
+1. `web:`和`sh`之间有一个空格 2. 文件结尾不能包含特殊字符  编译运行环境设置 Node版本支持 当前Rainbond支持Node如下版本为：
+4.9.1 5.12.0 6.14.4 7.10.1 8.12.0 9.11.2 10.13.0 11.1.0  平台默认版本使用8.12.0,具体配置参考NodeJS源码构建
+Web服务支持 Web默认支持Nginx,目前Nginx版本为1.14.2。如果需要自定义配置Nginx，需要在源代码根目录添加web.conf或者www/web.conf(需要符合Nginx配置文件语法)。
+默认配置文件web.conf
+server { listen 80; location / { root /app/www; index index.html index.htm; } }  示例demo程序 示例https://github.com/goodrain/rainbond-ui</description>
+    </item>
+    
+    <item>
+      <title>基础操作</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-manage/operation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-manage/operation/</guid>
+      <description> 支持的基础操作    操作类型 条件 说明     启动 当前应用下服务处于关闭状态 启动当前应用的内置服务   停止 当前应用全部处于运行中状态 关闭当前应用的所有服务   构建 - 为应用下的所有服务构建新版本并升级    应用级的基础操作与服务的批量操作有如下区别：
+   对比项 服务批量操作 应用基础操作     启动控制 批量无序启动 根据依赖关系顺序启动   操作目标 用户指定的服务 应用下的所有服务   支持的操作类型 关闭、重启、启动、移动、删除 构建、启动、停止    应用的其他操作  备份、恢复与迁移 详细文档 发布到应用市场 详细文档 添加服务组件 详细文档  </description>
+    </item>
+    
+    <item>
+      <title>添加服务组件</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-manage/add-service/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-manage/add-service/</guid>
+      <description>添加服务组件说明 应用由一个或多个服务组件组成，一般在创建第一个服务组件的过程中创建了应用。后续的应用组装过程中，直接为应用添加组件将是最便捷的途径。添加服务组件分为两类：
+ 添加内置服务  添加服务的流程与服务创建流程完全一致，同样支持基于源代码、Docker镜像和云市应用三种途径。唯一的不同是不提供基于DockerCompose创建多个服务的方式。
+ 添加第三方服务  添加第三方服务 便捷的添加运行于集群外的服务，同样支持添加静态服务和动态服务。
+
+流程演示
+处理依赖关系 添加的服务一般需要被其他服务依赖或依赖其他服务，只需要进入拓扑图的编辑模式 ，将服务直接单向连线即可快捷建立依赖关系。
+关于为什么需要建立依赖关系，查看文档 服务依赖关系
+开启外网访问 如果添加的服务需要被外网访问，添加成功后有两种方式，第一种是通过 拓扑图的编辑模式将外网云朵模型与服务建立连线即可。第二种是通过应用网关 访问策略管理 添加访问策略。</description>
+    </item>
+    
+    <item>
+      <title>服务基础属性说明</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-properties/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-properties/</guid>
+      <description>本文讲解与应用相关的属性及名词，从而让你更清晰的了解应用的概念。
+应用的状态 应用一旦创建，就进入到应用的生命周期，在整个生命周期中会有一系列的状态，下文对各个状态进行解释：
+   应用状态 说明 可进行的操作     创建中  新创建的应用，正处于设置阶段 进行创建流程   部署中  新创建的应用设置完成，正在进行第一次应用版本构建 重新部署   启动中  应用正在启动，暂时不能访问，启动分为两个阶段，进程启动和业务启动，如果未配置启动时健康检查，只要进程启动完成则认 为应用启动完成   运行中  应用所有运行实例处于运行状态，正常来说处于运行中的应用可以被访问，也可能由于业务启动缓慢应用暂时不能访问 访问，重启，关闭，重新部署   运行异常  应用运行正常的实例少于总实例即标识应用运行异常，对于多实例的应用，处于异常态的应用只要还有正常的实例即可提供服务。
+实例异常大多数情况是由于应用本身异常退出或因为内存不足发生 OOM 退出。
+平台会自动尝试重启异常的实例。
+可通过查看应用日志，或通过命令行工具查看更多应用信息 关闭，重启，重新部署   升级中 应用正处于滚动更新过程中，多个节点处于当前状态的应用可以正常访问 关闭   已关闭 应用已经停止运行，持久化数据依然存在 启动，重新部署   未知 应用处于此状态可能由于网络受阻，请求后端服务获取应用状态失败，或后端服务异常
+可以尝试刷新页面，如果不能解决，请联系运维同事。     应用的版本 针对不同类型的应用，版本的标示也有所不同：
+   应用类型 版本信息 示例     源码构建 从代码仓库拉取代码构建应用的时间戳 20180803171811   Docker镜像 镜像tag信息 1.</description>
+    </item>
+    
+    <item>
+      <title>服务基础操作</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/basic-operation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/basic-operation/</guid>
+      <description>服务基本操作 先就服务可进行的操作进行基础说明：
+   基础操作 说明     构建 构建操作将触发服务从构建源获取最新的代码或镜像构建服务的新版本，默认情况下构建成功后将触发滚动升级。   更新（滚动升级） 更新操作将以最新的服务属性配置对集群中运行的服务实例进行滚动升级   启动 具有至少一个可用构建版本的服务可以启动   停止 服务停止即释放所有集群资源   访问 运行中的服务可进行访问，如是HTTP服务将跳转访问网址，非HTTP   管理容器 运行中的服务可进行管理容器操作，选择需要操作的容器实例即可进入容器Web终端控制   重启 运行中的服务可进行重启操作，正常情况下我们推荐使用更新操作来完成服务重启，若服务任何属性都未变化，无法使用更新。   修改所属应用 服务可以灵活调整所属的应用   删除 删除服务是一个危险的操作，请谨慎操作。服务删除后持久化数据默认会保留7天。    构建操作  适用场景：服务的任何状态
+ 针对不同类型的服务，触发 构建 操作后，有着不同的含义，下表针对不同类型的服务加以说明：
+   服务类型 说明     从源代码构建的服务 拉取最新源代码，根据预先识别的语言类型进行服务版本构建并进行滚动升级   从Docker镜像构建的服务 重新拉取指定镜像地址的镜像，构建出服务新版本并进行滚动升级   从云市应用构建的服务 若云市应用不存在更新的版本，构建操作将提醒用户无需操作，若已存在多个更新版本，将提示用户选择需要获取的版本号。根据所选版本获取服务介质生成构建版本并进行滚动升级    - Dockerfile 源码类服务就是将 Dockerfile 及所需要的文件放到 代码仓库（Git/Svn），通过源代码创建的服务。 - 构建后，如果一切顺利，服务会自动切换为新版本并上线，构建操作默认并更新升级，也可在其他设置中去设置构建后不升级流程。 - 滚动升级过程对于多节点的服务理论上无影响，对于单节点的服务如果正常配置了业务级的[健康检测](/user-manual/app-service-manage/service-other-set/#健康检查) 也可以做到无影响升级。 - 处于关闭状态的服务，触发构建操作后，如果构建正常，平台会将服务运行起来。  云市服务升级支持的属性 在对云市服务进行升级的时候, 并不是所有的属性都支持升级; 在升级的时候, 各种属性的处理方式又会有所区别.</description>
+    </item>
+    
+    <item>
+      <title>日志管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-log/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-log/</guid>
+      <description>服务日志 Rainbond平台对服务日志采用实时推送的形式展示，用户也可以通过查询历史日志文件查询历史日志。
+服务操作日志 在服务总览页面中呈现服务的操作历史情况以及每次操作的日志记录，特别是构建操作的日志需要注意，当出现构建失败时请查看日志输出的提醒内容以指导用户对代码的不规范性进行改进。
+服务的操作日志也是对服务进行操作的记录，便于多个用户之间的协作和操作审查。
+服务运行日志 服务运行后输出到标准输出(stdout)和标准错误输出(stderr)的日志将被Rainbond捕获并进行汇聚存储，多个实例的日志将统一汇聚到服务级别进行实时展示和存储。
+在日志显示框中用户可以选择容器ID后只查询某个实例的运行日志。我们尽量追求将日志实时推送到控制台，但由于中间处理的原因会有一定的延时。
+我们推荐用户将服务运行日志区分为访问日志和程序Debug日志，访问日志一般具备被统计分析的任务，将其输出到持久化文件，然后对接其他日志分析服务进行日志分析。 程序Debug日志最主要的功能是呈现给开发者快速发现问题。
+在TODO规划中，我们将在日志收集端增加日志分流功能，直接可以对接像ELK等日志分析系统，将日志直接传输到分析系统中进行分析。</description>
+    </item>
+    
+    <item>
+      <title>性能分析</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-monitor/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-monitor/</guid>
+      <description>性能分析 服务实时性能分析功能依赖于服务开通性能分析类插件完成。 Rainbond目前默认提供了支持HTTP协议和Mysql协议的性能分析插件供用户使用。
+服务性能分析 我们将所有类型的服务的性能情况用三个指标来衡量：
+ 响应时间  响应时间也称为延迟，服务一般工作于网络通信的应用层，比如http、mysql、redis、grpc等。服务每次处理一次客户端请求的用时即响应时间。如果我们从网络报文的维度来衡量的话即请求报文第一个包到达到响应报文的第一个包发出中间的时间。
+ 吞吐率  吞吐率也称为通讯量，即服务在单位时间内处理请求的次数。
+ 错误率  错误有显性错误（比如HTTP 500错误）和隐性错误（比如HTTP返回200然而业务是错误的），这里我们主要关注显形错误，每一种通信协议都有标准的错误类型，比如mysql有查询语句错误。错误率正常情况下与服务的饱和度有密切关系。
+综上所述，实现性能分析时我们有两种思路，一种是在ServiceMesh网络中，代理端会根据不同的协议汇报三类指标，第二种是目前使用的方式，性能分析插件通过旁路的方式监听服务的网络通信，从而直接分析服务上述指标。
+监控效果 性能分析数据持久化的存储于Rainbond monitor组件中，供给客户端查询。在服务监控页面中，我们除了展示监控历史数据以为，还实时的展示http和mysql的请求情况，比如mysql请求的sql语句执行情况。这对于用户进行精细化挑优提供了一个直接的指引。
+更多的协议支持 TODO列表中我们计划支持grpc协议、redis协议、mongodb协议的性能分析。</description>
+    </item>
+    
+    <item>
+      <title>服务伸缩</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-scaling/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-scaling/</guid>
+      <description> 服务伸缩 Rainbond平台服务有两种伸缩方式：
+ 垂直伸缩：增加或减少服务的内存（目前服务 CPU 与内存是联动的，按照一定的比例调整） 水平伸缩：增加或减少服务的实例数，适用于无状态服务和有状态水平集群服务  - 垂直伸缩时平台会自动调整资源后重启服务，单节点服务会中断，多节点服务不受影响。 - 水平伸缩时平台通过滚动新增或者下线节点的方式进行操作，因此操作不会影响现有服务。  垂直伸缩 CPU 与内存比例关系    申请值比例（CPU/内存） 限制值比例（CPU/内存)     0.24&amp;frasl;1 1.28&amp;frasl;1    Kubernetes 针对 CPU 和内存分为申请值与限制值，详情参见: [管理容器的计算资源](https://kubernetes.io/cn/docs/concepts/configuration/manage-compute-resources-container/) 平台目前调整的 CPU 与内存占比是经过生产环境验证过符合大多数服务类型。如果对某些CPU密集型服务自定义分配CPU，可以配置环境变量：ES_CPULIMIT : CPU限制值 ES_CPUREQUEST：CPU请求值  水平伸缩 服务进行水平伸缩的条件  无状态服务  我们一般称无需自己保存运行状态的服务为无状态服务，比如Web类服务。通常情况下只要将缓存系统使用第三方的服务比如Redis，Web类服务即可认为是无状态服务可进行水平伸缩。
+那么有人要问，我的Web服务需要存取文件怎么办，Rainbond将处理服务直接的持久化存储同步。即每个服务实例使用的持久化存储为同一个文件系统，这就是计算与数据分离的实践。
+ 有状态服务  有状态服务的水平伸缩条件将比较复杂，要支持有状态伸缩，首先得应用支持集群化水平扩展。
+比如我们部署了一个Mysql服务，我们直接将其水平扩到两个实例，会出现什么现象呢？ 两个实例都可以正常工作，但是它们之间无任何关系，也就是说是两个Mysql服务。显然这样使用是不行的。
+那什么有状态服务可以水平伸缩呢，主要是以下两类：
+ 可进行水平扩展集群的集群化服务，比如 Etcd, Zookeeper, 小强数据库，TiDB等 主从集群类服务，我们一般可以将从服务进行水平伸缩。比如Mysql、Redis、MongoDB等。  有状态服务集群应用的制作方式我们将在主题文档中讲解  </description>
+    </item>
+    
+    <item>
+      <title>服务依赖</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rely/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rely/</guid>
+      <description>服务连接信息管理 连接信息的作用 当前服务被其他服务依赖时，如果需要注入相关变量给对方以方便对方连接自己。连接信息的实质是环境变量，只是其生效范围是自身和依赖自己的所有服务。比如一个MYSQL服务拥有连接信息 MYSQL_HOST、MYSQL_PORT、MYSQL_USER、MYSQL_PASSWORD、MYSQL_DATABASE。这些信息是其他服务连接 mysql的关键信息，当服务依赖mysql后会自动得到上诉的环境变量从而动态的获取到相关信息。
+添加连接信息 连接信息完全可以在 服务管理-依赖管理 模块自定义添加和删除，当服务端口开启对内服务后，会自动生成 XXX_HOST XXX_PORT的变量信息，这类连接信息如果需要在 端口管理 模块点击端口别名进行修改。
+服务依赖管理 服务为什么要依赖其他服务 当一个独立的业务系统不能完成所有功能时，就需要借助其他的服务来实现。如web服务一般都需要数据库存储数据，前端页面展现程序需要调用后端API服务获取数据等等。因此服务依赖的实质是建立与其他服务通信的链路。在Rainbond中，我们默认采用ServiceMesh的服务网络治理方式处理服务之间的通信，当服务需要请求其他服务时，必须显示的建立依赖关系，从而Rainbond将通过内置的服务注册和服务发现机制发现对方的服务地址，在当前服务的网络空间内建立起本地监听来负载均衡到目标服务的所有实例上。
+graph LR; A[服务A] --|127.0.0.1:8080 | C{envoy} C --|192.168.0.1:8080 | D[服务B实例1] C --|192.168.0.2:8080 | E[服务B实例2]  当服务未开启服务网络治理插件的情况下，Rainbond默认采用envoy 4层通信模型进行网络治理，开通治理插件即可在7层进行网络治理，设置更多路由或限流策略。
+Rainbond中不管时内置服务还是第三方服务，通信维护方式都是一致的。  服务如何连接依赖服务 当服务开启对内服务后，其他服务才能通过【添加依赖服务】的方式进行关联，服务与依赖的服务建立起关联后，下一步就是连接依赖服务。
+在【依赖】页面中的 【依赖应用信息】可以看到已经依赖的服务：
+获取连接信息 选择其中一个依赖服务，点击【连接信息】会弹出连接信息页面: 连接信息分为两类:
+ 变量名 &amp;gt; 当服务的端口打开对内服务后，会生成一个默认的端口别名这个别名就是该服务的连接信息的前缀。如一个内部的API服务，端口别名是 USERAPI 则，其他服务与该API建立关联后，就可以通过 USERAPI_HOST 找到API服务的连接IP，通过USERAPI_PORT 找到API服务的端口号，如果还需要添加其他的变量名，可以通过 【依赖】&amp;ndash;【服务连接信息】添加更多的依赖相关的变量。
+ 变量值 &amp;gt; 服务可以通过确定的变量值来连接被依赖（打开对内服务）的服务，我们不推荐使用这种方式连接，这种方式属于硬编码，所有配置都写死到代码中，对于业务安全与程序灵活性都有影响。我们推荐使用环境变量名的方式连接服务
+  服务连接依赖服务 当服务添加了依赖，并且查看了连接信息后，下一步就是修改服务的配置，连接依赖的服务，以Springcloud程序为例介绍通过环境变量的形式连接依赖的服务：
+application.yml 文件
+... spring: data: mysql: host: ${MYSQL_HOST} username: ${MYSQL_USER} password: ${MySQL_PASS} database: ${MYSQL_DB} port: ${MYSQL_PORT} .</description>
+    </item>
+    
+    <item>
+      <title>服务存储设置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-volume/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-volume/</guid>
+      <description>服务为什么需要存储 服务是 Rianbond 的抽象概念，底层是通过容器封装运行，容器磁盘文件是短暂的，也就是说，在容器中的程序在运行过程中的日志、生成或处理的文件，一旦容器关闭或重启，之前生成或存储的文件就丢失了。因此需要给服务容器挂载一个持久化的存储空间, 用于保存程序运行产生的各类数据。
+存储的类型 Rainbond 默认支持以下几种存储类型:
+ 共享存储(宿主机路径/grdata) 本地存储(宿主机路径/grlocaldata) 配置文件 内存文件存储  共享存储 共享存储是一个分布式文件系统, 默认使用的是 NFS, 你也可以自行对接其它的分布式文件系统(比如: GlusterFS, NAS 等). 共享存储具有非常高的可靠性和扩展性; 与此同时, 它还具有非常高的灵活性, 可以共享给其它的服务组件，基于租户、服务两级进行存储空间分配和隔离。 共享存储针对无状态服务和有状态服务呈现的工作模式不同：
+ 无状态服务  共享存储没有实例差别，多个实例数据一致。 可以被其他服务依赖以实现服务间数据共享。  有状态服务  每个实例具有独立的存储空间 不能被其他服务共享   本地存储 本地存储使用的是当前服务对应的运行实例所在宿主机的一块本地磁盘（通常可以是SSD磁盘），其不具备跨宿主机可用的属性。本地存储只支持有状态服务类型。本地存储通常服务于对存储性能要求非常高的服务，比如数据库类服务。它们可以从应用层面来处理数据在多个实例间的同步，比如Mysql使用主从同步，TiDB基于raft协议的等价集群等。这些服务通常不需要存储层面进行数据同步。
+配置了本地存储的服务调度将跟随存储所在宿主机，是一种受限的调度机制。对于集群类的数据库服务，从应用层处理存储数据的多节点同步，使用本地存储将是一种较优的选择。
+配置文件 配置文件是一种特殊的存储类型，此类型允许用户直接定义文件内容，通常是指配置文件。 Rainbond支持配置文件有两大特性：
+ 动态渲染 动态渲染配置文件解析环境变量的语法:
+${环境变量名} ${环境变量名:默认值}   下面是 MySQL 配置文件的一个片段:
+[mysqld] port = ${PORT:3306} socket = /tmp/mysql.sock  如果服务中存在环境变量 PORT, 那么 Rainbond 会将PORT 的值解析到配置文件中; 如果服务中不存在环境变量 PORT, 那么 Rainbond 会将 3306 解析到配置文件中。</description>
+    </item>
+    
+    <item>
+      <title>服务端口</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-port-domain/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-port-domain/</guid>
+      <description>服务端口管理 服务端口管理 端口相关的管理包含，端口号，端口协议，端口访问控制、对内服务端口变量设置等操作，下图是不同团队、不同端口的服务开启了不同访问控制后的示意图：
+端口号设置 服务端口与容器内部程序监听的端口是完全对应的关系，也就是说，当程序启动后监听的端口是80，那服务的端口就应该设置为80。
+可以通过【添加端口】功能为服务添加其他的端口，需要确保添加的端口与程序监听的端口一致，并选择对应的端口协议。
+端口协议 端口可以指定不同的协议类型，目前Rainbond支持 HTTP、TCP、UDP和 MySQL 协议，请确保选择的协议与你程序监听的协议一致。
+协议的选择会影响服务的后续操作：
+ 性能分析功能 &amp;gt; 不同协议的服务启动了性能分析插件后，其性能分析的方式会有所不同，如HTTP协议会分析HTTP相关的数据，MySQL协议会分析MySQL语句相关的数据。
+ 打开对外服务后的访问 &amp;gt; 当端口打开对外服务后，HTTP协议会分配默认的域名，非HTTP协议会分配IP+端口的访问方式
+  端口访问控制 端口的访问控制分为两类：
+ 对内服务 &amp;gt; 这里的内是指团队内，开启服务对团队内部的访问许可，这时当前服务端口将被注册到团队的内部服务可用池、该团队内部的服务可以通过【添加依赖服务】的方式访问到该服务。
+ 对外服务 &amp;gt; 打开对外服务后，平台会将该服务端口注册到团队对外服务可用池，这时应用网关可以以用户配置的访问策略访问到该服务，此时平台外部以及平台内部其他团队的服务都可以通过应用网关分配的域名或IP访问到该服务。
+  - 修改端口信息后需要更新服务。 - 端口打开对内服务后，其他服务要想连接到该服务，需要先【添加依赖服务】建立关联，然后通过连接地址或环境变量连接。 - 端口访问控制可以根据需要开启和关闭，可单独开启，也可以全部开启，如果服务是个worker程序，只需要连接别的服务，本身没有端口监听就没有必要开启端口访问。  服务访问策略管理 Rainbond为每一个HTTP服务自动生成一个默认的域名，一般情况下这个域名都比较长，不方便记忆。你可以在服务端口管理面板中快捷绑定自定义域名。
+关于服务访问策略的几种管理和高级设置，请参考 应用网关-访问策略管理</description>
+    </item>
+    
+    <item>
+      <title>应用持续构建与部署</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/auto-deploy/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/auto-deploy/</guid>
+      <description>服务自动构建 通过自动构建的功能，可以实现代码提交后应用的自动构建，平台提供了基于代码仓库Webhooks、镜像仓库Webhooks和API等方式触发自动应用部署。方便的对接第三方自动化流程。只需要通过简单的设置，就可以帮您完成重新部署的工作。
+代码仓库自动化构建说明 开启源码自动构建，需要应用具备如下条件：
+ 应用是由源码创建(官方demo除外)，目前支持的代码仓库为GitHub、GitLab、Gitee 与 Gogs 确定应用已经 开启 了此功能 需要在代码仓库的项目中配置正确的 webhooks 目前仅支持项目的push事件 提交信息中包含触发关键字 默认为@deploy，用户可设置 应用状态必须是运行中或运行异常状态  开启自动构建 在服务管理-构建源管理 中请打开Git-Webhook 自动构建功能，并复制我们平台提供的URL前往你使用的Git server 配置Webhook。
+
+配置代码仓库  配置GitHub  如果您的项目存放在Github中，请参考如下截图：
+
+ 配置GitLab  如果您的项目存放在GITLAB中，请参考如下截图:
+
+- 开启自动构建后，每次提交代码的Commit信息中必须包含触发自动构建关键字、例如： `@deploy` 才能触发自动构建, 触发自动构建关键字可自定义设置，设置的仅为关键字，提交信息中在关键字前需加上`@`符号  
+镜像仓库自动化构建说明 镜像仓库自动构建可以实现推送镜像后应用的自动构建，方便的对接第三方自动化流程。当镜像更新事件到达时判断以下条件，都满足时触发自动构建。
+ 应用是由镜像创建，镜像仓库为Docker Hub， 5.1.2版本及以后支持阿里云镜像仓库。 默认更新的镜像名称和tag是否与当前服务构建源镜像名称一致（判断时不包含镜像仓库域名）, 5.1.3版本及以后支持配置Tag触发正则策略，动态匹配和改变服务的镜像Tag。 服务已经 开启 了镜像仓库Webhook功能。 应用状态不是未部署和已关闭  开启镜像仓库Webhook自动构建 需要在应用中启用自动构建功能，并且需要将应用的webhooks url配置到目标镜像仓库的webhooks中。
+
+Tag触发策略 默认情况下Webhook更新事件的镜像名称和Tag必须与服务当前构建源的镜像名称和Tag配置一致才能触发构建和部署。配置了Tag触发策略以后，根据配置的正则表达式，如果接收到的push事件的镜像tag能够正确匹配正则表达式，则认为此次更新事件有效，根据更新的Tag信息来升级当前服务的构建源信息并进行自动构建。
+比如设置 Tag策略为： v5.* 当Tag为 v5.1 v5.2 v5.9等都将被允许。</description>
+    </item>
+    
+    <item>
+      <title>服务插件</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-plugins/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-plugins/</guid>
+      <description>服务插件 服务开通插件是对服务治理功能的扩展，插件的定义请查阅文档 插件管理-插件定义
+当前团队下安装的插件才可以被服务开通，因此插件的使用流程是：
+ 团队插件管理安装或添加插件 构建构建并设置配置项 进入服务管理-插件模块 开通已构建完成的插件  目前主要提供了网络治理类和性能分析类的插件。Rainbond默认提供的两个插件配置文档如下：
+1. 性能分析插件
+2. 网络治理插件
+通常情况下服务不能安装重复的同类型插件。
+插件属性配置 插件的配置根据插件的配置项定义动态渲染而来，比如某个配置项依赖于服务端口，那么在配置面板中服务的每个端口都可以定义配置项的值。
+详细说明查阅： 插件配置项说明</description>
+    </item>
+    
+    <item>
+      <title>服务构建源设置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-source/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-source/</guid>
+      <description>服务构建源 Rainbond内置服务创建有三种模式：源码、镜像和应用市场，它们分别具有不同的属性提供配置。
+ 源码 &amp;gt; 源码的构建源配置参数将是最为丰富的，包括基础的代码仓库信息包括（仓库地址，分支，Tag, 授权信息等) &amp;gt; &amp;gt; 还有各语言的编译环境参数
+ 镜像 &amp;gt; 镜像的可配置参数主要是镜像地址，仓库信息和镜像启动命令等
+ 应用市场 &amp;gt; 从应用市场安装的服务不提供更多的参数配置，主要展示来源于哪个云市应用。
+  构建源检测 服务创建时对构建源进行语言检测，在后续的持续开发中，如果源码更改了语言类型，比如从Java-Maven类型更改为Dockerfile类型，需用执行重新检测源码操作，让Rainbond重新设定服务的编译方式才能生效。
+ Rainbond在源码编译过程中不会重新识别语言类型、
+ 自动构建设置 自动构建即通过一种方式自动触发Rainbond服务版本构建的操作，详细文档见服务自动构建
+构建参数设置 JAVA Maven语言类型    参数名称 默认值 可选值 说明     清除构建缓存(NO_CACHE)  true 默认不启用   OpenJDK版本(BUILD_RUNTIMES) 1.8 1.6,1.7,1.8,1.9,10,11 OpenJDK版本   启用OracleJDK(BUILD_ENABLE_ORACLEJDK)  true 默认不启用OracleJDK   OracleJDK下载路径(BUILD_ENABLE_ORACLEJDK)   OracleJDK(linux amd64)下载路径   Maven版本(BUILD_RUNTIMES_MAVEN) 3.3.1 3.0.5,3.1.1,3.2.5,3.3.1,3.3.9 Maven版本   Web服务器支持(BUILD_RUNTIMES_SERVER) tomcat85 tomcat7,tomcat8,tomcat85,tomcat9,jetty7,jetty9    禁用Maven Mirror(BUILD_MAVEN_MIRROR_DISABLE)  true 默认启用Maven mirror,若禁用Mirror则关于Mirror配置不生效   MAVEN MIRROR OF配置(BUILD_MAVEN_MIRROR_OF) *     MAVEN MIRROR_URL(BUILD_MAVEN_MIRROR_URL) maven.</description>
+    </item>
+    
+    <item>
+      <title>服务版本管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rollback/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rollback/</guid>
+      <description> 服务版本管理 服务每次成功部署后，都会生成一个服务版本，每个版本对应一次代码提交（基于源码创建），或者一个镜像版本（Docker 镜像创建）
+通过 构建版本管理 功能，可以将服务回滚到指定版本，Rainbond 默认保留服务构建成功的版本。
+版本管理中可以查询当前运行的版本，构建的历史版本和版本构建成功率。每一个版本都可以追溯代码提交记录或源镜像记录。
+版本回滚  服务可以随时回滚到历史构建成功的版本，Rainbond回滚操作与升级类似，采用滚动的方式进行。
+- 多节点服务回滚操作采用滚动升级方式，因此时不会影响服务，但会有较短的时间同时存在 2 种版本的情况。 - Rainbond 5.X版本中对于服务回滚只会回滚代码和镜像运行环境，对服务配置（端口、环境变量、内存设置等）不会回滚到历史状态。 - 若你需要将应用整体回滚到历史的状态，包括持久化数据，请使用[应用备份与恢复机制](/user-manual/app-manage/app-backup/)  </description>
+    </item>
+    
+    <item>
+      <title>服务其他设置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-other-set/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-other-set/</guid>
+      <description>服务其他设置 服务的其他功能，包括更多的服务信息、环境变量、健康检查、服务权限等更多属性都在 服务的 【设置】页面中，下文会对每一块功能做详细介绍。
+服务基础信息 服务基础信息显示了服务当前的版本信息、来源及状态，不同类型的服务显示的内容也会有所不同，并且在基础可以改变应用的部署类型，给服务添加标签，构建后是否自动升级等；只有在服务是有状态的情况下，才可以设置服务名称属性：
+   属性名称 说明 默认值     应用部署类型 服务的部署类型，包括无状态服务和有状态服务 无状态服务   应用特性 应用的运行或调度特性标签，主要用于标识服务的一些特殊特性，比如Windows服务、GPU服务等，可选值由管理后台设定    应用构建后自动升级 设置服务是否在构建完成后自动进行滚动进行，若关闭，则不进行。 是    自定义环境变量 当你通过服务【设置】中的自定义环境变量，添加变量后服务更新或重启后生效。
+通常情况下，我们将配置信息写到配置文件中供程序读取使用，在Rainbond平台中，我们极力推荐使用环境变量的方式来代替传统的配置文件的方式。
+这样做的好处如下：
+ 将配置信息与服务绑定，与代码解耦，摆脱不同环境下切换配置文件的麻烦 敏感信息与代码分离，避免程序漏洞造成数据丢失 省去配置管理的工作  下面是一个生产环境的服务使用环境变量进行配置的截图：
+ 
+以Python为例介绍在配置读取环境变量的方法：
+# -*- coding: utf8 -*- import os DEBUG = os.environ.get(&#39;DEBUG&#39;) or False TEMPLATE_DEBUG = os.environ.get(&#39;TEMPLATE_DEBUG&#39;) or False DEFAULT_HANDLERS = [os.environ.get(&#39;DEFAULT_HANDLERS&#39;) or &#39;zmq_handler&#39;] DATABASES = { &#39;default&#39;: { &#39;ENGINE&#39;: &#39;django.</description>
+    </item>
+    
+    <item>
+      <title>高级环境变量配置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-env/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-env/</guid>
+      <description>Rainbond平台启动服务时默认注入以下环境变量信息以供应用使用：
+   变量名 变量值 说明     PORT 应用设置的第一个端口号 应用建立端口监听时尽量获取 PORT 环境变量值进行监听   PROTOCOL http\tcp\mysql 等 对应上诉端口的协议类型   DEFAULT_DOMAIN 默认域名 第一个 http 协议的端口的平台默认域名   DOMAIN 自定义域名 最小的http端口对应的域名   TENANT_ID 租户 ID 租户 ID   SERVICE_ID 应用 ID 应用 ID   MEMORY_SIZE micro， small， medium， large， 2xlarge 等 表示当前应用实例的内存大小设置，一般用于应用内存相关设置的初始化，例如 JAVA_OPTS   SERVICE_POD_NUM 应用实例数量 应用实例的数量   DEPEND_SERVICE serviceAlias:serviceID, 依赖的应用   HOST_IP ip地址 服务运行时所在宿主机IP地址   POD_IP ip地址 服务运行时的IP地址   DISCOVER_URL http://xxxxxxx/v1/resources/xxx 配置发现接口地址,插件运行环境有效   DISCOVER_URL_NOHOST /v1/resources/xxx 不带IP地址的配置发现URL, 地址使用HOST_IP：6100    自定义域名注入的补充说明:  1.</description>
+    </item>
+    
+    <item>
+      <title>服务容器终端</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-container/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-container/</guid>
+      <description>进入容器命令行 运行起来的服务后端都是由容器提供的，平台提供了通过浏览器的方式登录到服务容器命令行的方式。当服务正常启动后，可以通过【管理容器】按钮，选择某个节点，进入到容器命令行，容器命令行可以更加方便去操作后台，例如：查看程序日志，数据库查询等：
+当无法正常打开控制台时，请检查服务状态是否正常。Web控制台只用作查看和调试程序，不建议通过控制台部署业务相关的服务。在容器中创建的文件若未存放于持久化目录，重启服务后文件丢失  浏览器兼容情况 推荐使用Google Chrome浏览器</description>
+    </item>
+    
+    <item>
+      <title>第三方服务管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/thirdparty-manage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/thirdparty-manage/</guid>
+      <description>总览 总览页面主要有展示第三方服务创建的元数据, 和对实例的管理.
+实例的类型有两类: 静态实例和动态实例. 对于静态的实例, 可以在 UI 对它们执行查询, 新增, 上线, 下线和删除等操作; 而对于动态实例, 只可以在 UI 上对它们执行查询操作, 它们的新增, 上线, 下线和删除等操作只能体现在服务注册中心数据的变化和健康检查上.
+查询 将当前服务所有的实例展示出来, 包括实例的数量, IP 地址, 端口, 健康状态, 是否上线等信息.
+下线 将实例从当前服务生效的实例列表中移出, 不再提供服务, 并保留当前服务的元数据中.
+上线 将实例从元数据中, 转移到生效的实例列表中, 为当前服务提供服务.
+新增 将新的实例添加到当前服务中. 在默认情况下, Rainbond 会将其设置为上线.
+删除 将指定实例下线, 并从元数据中中将其永久地移除.
+端口 端口的功能基本上和内部的服务保持一致, 唯一的不同点是, 第三方服务只能添加一个端口. 详情参考: 服务端口
+连接信息 详情参考: 连接信息
+更多设置 在更多设置中, 第三方服务保留了健康检测和成员服务权限. 在这两者中, 成员服务权限跟内部服务保持一致, 有变化的是健康检测. 第三方服务不健康处理方式有下线 和 忽略(内部服务为下线和重启).</description>
+    </item>
+    
+    <item>
+      <title>应用市场定义</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-store/app-market-define/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-store/app-market-define/</guid>
+      <description>本文阐述应用市场的概念，并教你如何从Rainbond公共应用市场同步应用与插件。
+什么是应用市场 应用市场是Rainbond定义的一种对于Rainbond应用的存储、共享、交付、管理途径。 Rainbond应用市场与传统意义上的镜像仓库不同之处在于，它基于镜像仓库、包仓库和对象存储等存储系统支持，定义了支持大型、分布式数字化业务系统的标准云原生应用模型，并针对应用模型提供创建、发布、存储、交付、安装、升级等一系列业务支持，对内可作为以便捷灵活的方式共享企业创造的业务系统、中间件的业务性管理平台，对外可作为根据行业特性构建行业话交付标准、交付流程和交付路径的基础，应用市场的最大优点在于它涵盖的不仅是服务组件和应用（业务系统），甚至于解决方案都可以支持一键分享、一键安装使用，极大的便利用户，只需安装使用，覆盖几乎所有的用户，而不仅仅是技术性人员。
+基于Rainbond提供的通过源码、镜像等多种途径创建1-N个服务组件构成业务系统，一键即可构建应用模型并发布到应用市场中，根据不同场景需求和可见级别服务于不同的业务场景。
+应用市场应用同步 应用市场中的业务系统可以通过离线导出的方式，交付到一个离线的Rainbond平台，也可以通过公有云市场的方式在线交付社区用户或目标企业用户。 使用者通过应用市场即可一键安装部署完整业务系统，并且能够持续进行升级。 应用在线同步方式请参考文档 应用市场应用同步
+应用版本 应用市场中的应用支持多个版本共存，应用的操作粒度支持到版本级别。</description>
+    </item>
+    
+    <item>
+      <title>应用市场应用同步</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-store/app-market-synchronous/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-store/app-market-synchronous/</guid>
+      <description>应用市场同步 私有应用市场内置于Rainbond平台中，公有应用市场目前由好雨科技运营提供。公有云市场服务于与其对接互联的私有应用市场，提供跨平台，跨云的应用资源同步和升级。
+企业也可以建立行业公有应用市场，详情参阅 好雨企业服务
+与公有云市场互联
+市场间应用同步
+应用更新 已同步的应用若远端市场存在更新的版本，本地市场即可从远端获取最新的版本应用。当本地市场的应用有更新的版本，安装的服务可进行构建升级操作。</description>
+    </item>
+    
+    <item>
+      <title>基于应用市场的应用交付</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-store/share-app-market/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-store/share-app-market/</guid>
+      <description>应用制作与分享 参考文档 应用管理，分享管理
+应用安装 应用下载同步是在互联网环境下的一种跨平台应用交付方式，通过此方式可以快速获取优秀的、成熟的通用解决方案，例如Mysql、TiDB等数据库方案，Gitlab、Jenkins等IT工具。也可以通过此方式交付商业业务系统给你的用户。当前Rainbond默认提供了与好雨云市的互联用例。
+在Rainbond控制台中点击左侧导航栏进入内部市场，根据你的需求选择应用或插件，点击云端同步即可看到在好雨公有云市发布的应用。应用名称后有(官方发布)字样是我们好雨官方发布或推荐的应用。点击应用名称可查看应用的详细介绍。
+选择要下载的应用或插件点击后方的下载将好雨公有云市应用或插件下载到你的内部市场中。下载完成后，方可在方可在 从应用市场安装直接一键安装本应用。如果是插件可在左侧导航栏我的插件中安装管理你的插件。
+ 点击内部市场应用后方的云端更新，可将好雨云市中该应用的最新版本下载更新到你的内部市场。
+ 应用交付 使用好雨公有云市在线交付 对于有在线环境的用户，可以直接使用好雨公有云市进行业务交付，将业务系统发布到好雨公有云市，用户可在公有云市直接下载一件安装整套业务系统。 应用发布请参考 应用管理，分享管理
+应用安装参考 服务创建
+使用导入导出离线交付 考虑到离线环境的应用交付，我们RainBond设计实现了应用到离线导入和导出功能。复杂的业务系统可以借助网络或离线应用包快速的在不同的环境中交付，安装速度和易用性远远超出传统的交付。除了标准Rainbond应用模型以外，同时还支持导出docker-compose模型脱离Rainbond平台便捷交付。
+应用导出 为了让用户能够更好的管理自己的应用，快捷简单交付业务，我们为平台设计了应用导入导出功能，该功能允许用户通过简单的几次点击，就可以将内部市场的应用打包为一个压缩文件，并可以下载到本地。在导出的时候，支持两种格式，一种为rainbond-app格式，另一种为docker-compose格式。
+ 云市同步的应用不支持导出compose文件，只支持导出rainbond-app格式。
+  格式说明   rainbond-app：为了在多个云帮之间迁移应用而设计，即在A平台导出后，可以导入到B平台，但导出后的文件不能直接运行，导出的文件是一个zip格式的压缩包，其中包含了该应用的描述信息、每个组件的镜像或源码包等。
+ docker-compose：为了快速交付而设计，当我们把云帮上的应用交付给用户时，就需要让应用具备脱离平台可运行的能力，这样才能避免为了使用一个应用而不得不先部署平台的问题，docker-compose导出格式可以在安装有docker和docker-compose的环境中运行，假设我们现在导出了一个docker-compose文件且名为web.tar，那么执行以下命令运行它：
+tar -xf web.tar ./web/run.sh   ​ 使用这种可运行的格式有以下需要注意的事项：
+ 依赖环境：应用的运行需要依赖docker和docker-compose，如果您的系统中没有安装它们，run.sh脚本将会自动为您安装，所以请保证您的系统能够连接互连网，否则请手动安装这两个工具。
+ 端口是否可用，假如我们导出了一个WEB应用，如果它在启动时需要监听80端口，则物理机上的80端口必须是空闲状态，否则会因为端口冲突而导致应用启动失败。
+   点击导出后，导出状态会显示为导出中   完成导出后，点击下载即可将文件下载到本地，导出的文件存放在数据中心下的/grdata/app/rainbond-app或/grdata/app/docker-compose下  应用批量导出 云帮导出的应用包文件会很大，如果网络不好的情况下，我们建议您直接在对应的数据中心的服务器上进行操作。
+每个应用在打包完成后，都会存储在某个数据中心的/grdata/app目录中，利用这一点，我们可以批量导出平台中的应用。
+ 登录云帮，并进入“内部市场”页面。
+ 找到想要导出的应用，并依次点击它们的导出按钮，等待平台打包完成即可。
+ 等待平台打包完成后，登录到数据中心对应的服务器，假设我们要把所有导出的应用包复制到/mnt/sdc1/目录中，执行以下命令：
+ find /grdata/app -maxdepth 2 -name &#39;*.zip&#39; | xargs -I FF cp FF /mnt/sdc1/   应用导入 应用导入任务发起后，由数据中心的rbd-chaos组件将用户上传的RainbondAPP文件解压，保存定义的元数据及镜像或slug包，用于安装构建应用时使用。 对于导出的应用，您也可以通过离线导入应用功能将应用导入到内部市场。在Rainbod左侧导航栏进入内部市场，点击离线导入应用，上传你的RainbondAPP文件开始导入。</description>
+    </item>
+    
+    <item>
+      <title>Rainbond应用市场应用制作规范</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-store/app-specification/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-store/app-specification/</guid>
+      <description>本文档持续完善中&amp;hellip;
+ 规范目的 此规范的制定为了指导用户如何制作Rainbond应用市场SaaS化交付应用。
+规范要求  支持一键安装  一键安装是指可以通过应用市场一键实现自动化安装完整的业务系统，要具备此能力需要做到：
+ 完整的业务系统支持自动的持久化数据初始化和升级的能力。 基于环境变量对服务进行最优化配置。
+ 容错能力强
+  容错能力强是指在云环境下，业务系统中的所有组件可以具备一定的混沌容错性，特别是以下几点：
+ 服务启动时对其他服务的依赖通信做一定的重试。 服务不能出现死锁状态，比如由于与其他服务通信出现一次错误导致服务卡死。
+ 多用户交付
+  应用可以多次安装部署。
+关键因素 数据初始化 数据初始化一般主要是数据库数据初始化和静态数据初始化，推荐的处理方式如下：
+ 数据库数据初始化  在微服务场景中，如果每个服务都有自己的数据库服务，那么可以直接将数据库比如Mysql作为服务进行代码化维护，将其对应的服务SQL初始化代码和升级代码进行持续升级。
+第二种是服务自身维护SQL，每次启动后根据版本特性来执行SQL。这类方式一般进行*只增不减*的升级方式。
+ 静态数据初始化  这类主要是网站类服务需要持久化某些目录，但是目录下已包含一些初始化数据。操作方式是先将初始化数据至于其他目录中，服务启动后判断持久化目录是否包含数据，若未包含，则将初始化数据同步进去以实现初始化。
+服务配置 应用进行SaaS化标准交付时，自定义的配置部分建议完全环境变量化，以环境变量的方式定义不同的参数类型。特别是服务之间的连接信息，务必完全根据Rainbond的规范环境变量化，以确保每次安装数据变化后工作正常。</description>
+    </item>
+    
+    <item>
+      <title>应用插件的定义和分类</title>
+      <link>http://skyzhangyf.github.io/user-manual/plugin-manage/plugin-manage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/plugin-manage/plugin-manage/</guid>
+      <description>插件的定义 应用插件是标准化的为应用提供功能扩展，与应用共同运行的程序，例如：性能分析插件可以实时看到该服务的性能如何，吞吐率、响应时间以及在线人数等；网路治理插件则可以实现智能路由、A/B测试以及灰度发布等。
+插件的运行环境与所绑定的服务一致，包括环境变量、持久化存储、网络空间等。
+插件的分类    分类名称 作用 控制     性能分析类 服务安装性能分析类插件即可显示性能分析页面    入口网络类 ServiceMesh插件类型之一，负载处理服务下游流量 动态分配监听端口   出口网络类 ServiceMesh插件类型之一，负载处理服务上游流量 支持服务发现   初始化类型 服务在插件先启动并正常退出后再启动，用户服务数据初始化或其他初始化操作。    一般类型 比如数据备份、日志收集类     性能分析类 性能分析类插件通过旁路的方式分析服务的性能指标，或通过服务自身暴露性能指标由插件捕获。插件分析的性能指标参考 服务性能分析
+Rainbond在每个计算节点提供了statsd服务接收性能分析插件的性能分析结果，并进行存储和展示。数据提供给其他功能比如自动伸缩参考。
+入口网络类 入口网络插件主要用于ServiceMesh网络或防火墙安全控制，比如，当我们部署了一个web应用后，我们不希望有不合法的请求（比如SQL注入）到达web中，这时我们可以为web应用安装一个安全插件，用来控制所有访问web的请求，就像是一个入口控制器，所以我们把这类插件叫做入口网络插件。
+ 工作原理  当为某个应用安装了入口网络插件后，该插件被置于应用的前面，它必须监听一个由Rainbond分配的新端口用来拦截应用的所有请求，如下图中的8080端口，这时我们可以在插件内部对收到的请求进行必要的处理，然后把处理后的请求转发给应用监听的端口，如下图中的80端口。入口网络插件与应用的关系如下图所示：
+插件需要从Rainbond应用运行时中动态发现配置，配置中包含了服务的实际端口和插件应该监听的端口。
+出口网络类 出口网络类插件是最常用插件之一，Rainbond会默认为具有依赖其他服务的服务自动注入此类插件。同时Rainbond也提供了基于envoy实现的默认网络治理插件。出口网络类插件主要提供当前服务访问上游服务时的治理需求。
+ 工作原理  Rainbond应用运行时提供了XDS规范的服务和配置发现服务，支持支持envoy类型或其他支持此规范的插件类型。也可以通过获取原生插件标准配置信息自行生成插件自己的配置。
+初始化类 初始化类插件工作原理是基于 init-container，即初始化容器，它一般完成数据初始化工作，其工作性质必须是在有限的时间内正常退出。只有初始化插件正常退出后，业务容器才会启动。Rainbond基于此类插件完成多个服务的批量启动时的顺序控制, 参考 rainbond服务组件 rbd-init-probe</description>
+    </item>
+    
+    <item>
+      <title>插件设计与开发</title>
+      <link>http://skyzhangyf.github.io/user-manual/plugin-manage/plugin-design-develop/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/plugin-manage/plugin-design-develop/</guid>
+      <description>插件开发 参考
+1. 性能分析插件
+2. 网络治理类插件
+3. mysql数据备份插件</description>
+    </item>
+    
+    <item>
+      <title>ServiceMesh网络治理插件说明</title>
+      <link>http://skyzhangyf.github.io/user-manual/plugin-manage/mesh-plugin/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/plugin-manage/mesh-plugin/</guid>
+      <description> ServiceMesh网络治理插件 </description>
+    </item>
+    
+    <item>
+      <title>应用性能分析插件说明</title>
+      <link>http://skyzhangyf.github.io/user-manual/plugin-manage/tcm-plugin/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/plugin-manage/tcm-plugin/</guid>
+      <description>当前文档持续完整中
+ 性能分析插件工作原理 性能分析插件是通过运行于与目标分析服务同一个网络空间内，监控网卡的流量来统计分析服务的工作性能，这是一种旁路机制，对服务本身的工作流程和性能无特别影响，插件从网络的TCP层采集网络包，通过实现不同协议的解码器来分析不同的协议请求和响应报文。
+ 如何能够获取服务所在容器的网卡流量  性能分析服务作为插件由Rainbond服务安装，根据Rainbond对插件的支持定义，插件与主业务服务运行于同一个网络空间，因此它们分别所在的容器网卡设备可以认为是同一个设备。
+ 如何进行协议分析  获取到的流量包以报文的形式存在，
+###插件配置项</description>
+    </item>
+    
+    <item>
+      <title>MySQL数据库备份与恢复插件</title>
+      <link>http://skyzhangyf.github.io/user-manual/plugin-manage/create-mysql-plugin/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/plugin-manage/create-mysql-plugin/</guid>
+      <description>数据库的备份与恢复插件基于 Percona XtraBackup 实现，支持 MySQL 数据库物理热备与完全恢复。
+目前此插件处于alpha版本。
+一、插件基本信息  插件 数据库备份插件 数据库恢复插件   插件类型  一般类型插件 初始化类型插件   备份/恢复类型  全量备份 全量恢复   插件镜像地址(rainbond/addones)  xtrabackup_backup xtrabackup_restore   配置组管理主要参数   FULLENABLE  SCHEDULE   RESTOREDATE  RESTOREON    二、数据库备份插件参数定义  目前插件仅支持注入类型:环境变量 参数:
+  DINGTOKEN: 钉钉bot token,用于备份等通知. FULLENABLE: 启动全量备份,默认true. SCHEDULE: 备份定时策略,支持0 30 * * * *; @hourly; @every 1h30m等 UPLOADTYPE: 上传备份到远端,目前支持 minio &amp;amp; ftp  MINIOURL/ACCESSKEY/SECRETKEY/BUCKET(minio配置参数) FTPADDR/FTPPORT/FTPUESR/FTPPASS/FTPDIR(ftp配置参数)   三、数据库恢复插件参数定义  目前插件仅支持注入类型:环境变量</description>
+    </item>
+    
+    <item>
+      <title>ServiceMesh微服务架构简介</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-mesh/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-mesh/</guid>
+      <description>ServiceMesh 一般的字面解释是“服务网格”，作为时下最流行的分布式系统架构微服务的动态链接器，处于服务到服务的通信的专用基础设施层，该层独立于应用程序为服务之间的通信提供轻量级的可靠传递。如果简单的描述的话，可以将它比作是应用程序或者说微服务间的 TCP/IP，负责服务之间的网络调用、限流、熔断和监控，同样使用 ServiceMesh 也就无须关系服务之间的那些原来是通过应用程序或者其他框架实现的事情，比如 Spring Cloud架构，现在只要交给 ServiceMesh 就可以了。ServiceMesh的出现主要是由于应用虚拟化技术的发展，例如Kubernetes, Rainbond等项目，大大降低了应用的部署和运维复杂度。   
+微服务架构对比 
+为何使用ServiceMesh ServiceMesh 并没有给我们带来新功能，它是用于解决其他工具已经解决过的问题，只不过这是在 Cloud Native 的云原生环境下将过去复杂的人工运维工作有机的自动化管理。
+在传统的 MVC 三层 Web 应用程序架构下，服务之间的通讯并不复杂，在应用程序内部自己管理即可，但是在现今的复杂的大型网站情况下，单体应用被分解为众多的微服务，服务之间的依赖和通讯十分复杂，出现了 twitter 开发的 Finagle、Netflix 开发的 Hystrix 和 Google 的 Stubby 这样的 “胖客户端” 库，这些就是早期的 ServiceMesh，但是它们都近适用于特定的环境和特定的开发语言，并不能作为平台级的 ServiceMesh 支持。
+在 Cloud Native 架构下，容器的使用给予了异构应用程序的更多可行性，kubernetes 增强的应用的横向扩容能力，用户可以快速的编排出复杂环境、复杂依赖关系的应用程序，同时开发者又无须过分关心应用程序的监控、扩展性、服务发现、负载均衡和分布式追踪这些繁琐的事情而专注于程序开发，赋予开发者更多的创造性。如果你是符合以下场景，推荐选择ServiceMesh架构：
+ 遗留庞大系统逐步过渡到微服务架构 业务系统由多种开发语言开发  ServiceMesh相对其他微服务架构优势  最大层度透明   ServiceMesh通过全局控制层控制服务与服务之间的调用关系，服务的治理策略。对于服务本身来说，只需要站在单机的维度考虑上游服务的依赖通信，采用简单的通信协议例如HTTP，gRPC等。Mesh层透明的发现上游目标，进行重试/超时、监控、追踪。为单机服务赋予分布式系统能力。
+  学习成本低   过去我们要设计搭建一个完整的微服务架构，比如SpringCloud,Dubbo等，免不了需要改变我们传统的编程思想，学习复杂的架构框架，例如SpringCloud,其包含各类组件10余个，基本与服务业务本身没有直接关系。对于大多数业务开发者来说是一个高高的门槛。但是使用ServiceMesh架构，由于其最大化的透明，开发者几乎不需要额外学习与业务无关的框架技术。大大降低了学习成本。
+  架构灵活   对于不同的团队组成，可能拥有具有掌握不同开发语言的成员，或者具有成熟的已实现业务系统。如果转变到微服务架构支持更大量级用户，如果使用SpringCloud架构，免不了对系统进行重构甚至重写。面对现实与未来，我们需要逐步落地微服务架构，使用合适的开发语言开发合适的服务，甚至融合多种轻量级架构模式，比如Dubbo,SpringBoot和LNMP架构。
+ ServiceMesh架构性能 有人提出，在服务与服务之间增加两层代理对性能会产生较大影响，对于性能问题，我们应该放眼全局，从以下几个方面分析：</description>
+    </item>
+    
+    <item>
+      <title>服务化定义</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-define/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-define/</guid>
+      <description> 服务的定义 Rainbond服务组件即服务，所有运行于Rainbond的服务，组件Rainbond默认按照服务化的管理方式进行运维和治理。
+怎么理解这句话呢？我们从以下几个方面来解读：
+ 我们通常在了解微服务架构的开始阶段总是考虑的是如何进行服务化拆分或规划，这个过程显得很复杂，从而导致微服务落地难。我们试想为什么不能是直接将已有的业务先定义为一个服务先融入到微服务架构中去，这样我们就可以开始新服务的开发或老服务的逐步拆分，走循序渐进 数据库中间件也是服务，微服务架构中我们一般推荐每个业务服务具有自己的数据库。当然也可以共用数据库。云原生下数据库也是服务，它可以独立维护和升级，某些云数据库也需要通信治理和负载均衡。 异构的微服务架构在Rainbond都是服务，比如已经使用SpringCloud开发的微服务架构，部署到Rainbond以后，Rainbond统一管理SpringCloud的所有组件之间的通信。对于单独的SpringCloud架构，它是不维护比如业务与配置中心、业务与数据库的通信的。  </description>
+    </item>
+    
+    <item>
+      <title>服务注册和服务发现</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-re-dis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-re-dis/</guid>
+      <description>服务注册 服务为什么需要注册 在云原生环境下，服务的通信地址可能是不确定的，根据生命周期的变化而变化，同时其还有可能有多个运行实例。那么其他服务需要与去通信的前提是需要发现服务的通信地址，因此服务需要通过服务注册来将自己的通信地址和运行状态注册到服务注册中心，比如SpringCloud架构有eureka注册中心。
+服务注册粒度和范围 Rainbond服务注册的粒度是端口级别，也就是说如果服务组件有多个端口它可以分别控制注册。同时为了区分服务是对外网提供服务（通过应用网关）还是对内网提供服务（通过ServiceMesh）,Rainbond为服务的每个端口设置了两种注册范围。
+服务注册方式 由于Rainbond不同于SpringCloud架构还提供了服务运行环境，因此Rainbond的服务注册是自动的，即服务实例启动就会注册到注册中心。但是需要用户指定注册范围，开启了对内服务或者对外服务。
+服务发现 服务发现与服务注册是对应的概念，即服务A希望访问服务B时，需要先获取对方的服务地址。Rainbond提供了两种服务发现策略。
+声明式服务发现 所谓声明式服务发现即服务A需要访问服务B时，需要显式的在Rainbond设置依赖关系，即A依赖B。当建立依赖关系以后，服务A的同一个网络空间内的Mesh服务会通过XDS协议从Rainbond服务注册中心获取服务B的所有运行健康的服务实例，从而建立本地的监听来对服务B进行负载均衡。 对于服务A来说，访问B的方式是固定的本地地址，比如访问服务B的8080端口，访问地址即是127.0.0.1:8080。此地址可以在代码中固定配置或通过相应的环境变量获取。 由此可以得出，Rainbond的服务发现是对业务层透明的，即用户的业务不需要处理服务发现的逻辑，Mesh层会自动完成。根据Mesh层的自定义路由配置和负载均衡算法配置，目前此方式主要支持无状态服务、单实例有状态服务和可以无差别多实例运行的有状态集群服务。
+基于DNS的服务发现 除了上文提到的服务类型，还有一类服务通信比较特殊，比如以下场景：
+ 集群化服务，支持水平扩容，实例之间需要通信。比如zookeeper、etcd等 主从集群服务，从实例需要与主实例通信。比如Mysql主从集群，Redis主从复制集群  对于上诉服务主要涉及到同一个服务的多个实例间通信。此类需求必须将服务类型设置为有状态服务
+通过固定的DNS解析的方式进行服务发现：
+对于已经部署的有状态服务，我们可以进入容器查看主机名，如下图：
+从中你可以看到，服务实例的主机名是按照如下规则生成的：
+服务别名-服务实例编号.服务别名.租户ID.svc.cluster.local  对于不同的服务涉及的变量主要如下：
+ 服务别名，可以通过获取环境变量SERVICE_NAME 获取 服务实例编号，根据实例数量从0开始依次编号。它们的启动顺序和更新数据都会按照编号顺序进行，因此一般编号0会作为特殊实例，比如主从集群的主实例。 租户ID，可以通过获取环境变量TENANT_ID 获取  通过上述分析你应该已经理解了，当你需要发现当前服务的所有已运行实例地址时，可以以DNS的nslookup方式获取服务别名.租户ID.svc.cluster.local域名的NS记录。此方式有很多现成的实现工具.比如参考： cockroachdb服务源码
+如果需要与主节点通信，直接请求主节点的域名即可。比如 服务别名-0.服务别名.租户ID.svc.cluster.local</description>
+    </item>
+    
+    <item>
+      <title>服务通信治理(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-connection/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-connection/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>服务配置管理(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-config/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-config/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ServiceMesh架构与其他服务化架构的集成(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-integration/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-integration/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>服务安全(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-security/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-security/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>服务运维管理(完善中)</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-operate/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/service_mesh/service-operate/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Jenkins与Rainbond对接部署应用</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/jenkins-rainbond/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/jenkins-rainbond/</guid>
+      <description> 概述 如果您现在已经有了自己的CI工作流程，并且想在云帮中持续部署您的应用，那么本文将引导您将自己的应用部署到云帮并设置持续部署。考虑到Jenkins是目前主流的持续集成工具，并且它在源码测试和Pipline方面已经做得非常成熟，所以我们提供了针对Jenkins的集成方案。一般情况下，我们的源码在经Jenkins的构建和集成后，产出的应用可能是源码格式或镜像。 Rainbond支持应用持续部署，下面我们来分别说明一下jenkins与rainbond对接如何把源码和镜像格式应用部署到云帮。
+构建自己的持续部署流程 在云帮的应用市场中有丰富的应用可以安装使用，您可以使用这些应用构建自己的工作流。我们使用GitLab或GitHub开源代码仓库，Jenkins集成工具与Rainbond对接实现CI、CD。
+源码 我们以Spring Boot demo为例，https://github.com/ITboy6/spring-boot-mysql-demo 对接的点是jenkins进行代码检测（可使用Sonar插件来实现），构建完之后把打包好的jar包和所需文件放在target目录下，rainbond构建时只需要拉target一个目录，进行源码自动部署。
+1. Jenkins配置  Jenkins安装所需插件：系统管理 &amp;ndash;&amp;gt; 插件管理 &amp;ndash;&amp;gt; 安装需要用到的相关插件
+ Jenkins配置测试工程: 新建任务
+  这一步是把所需文件及打包好的jar包都放到target目录下，并push到代码仓库。使用API触发rainbond自动构建。
+2.Rainbond配置  需要有一个创建好的源码应用
+ 如何使用API触发自动构建
+  通过开启API自动构建返回的url，POST方法调用API，携带秘钥即可触发API自动构建，秘钥可以自定义设置。
+API使用：
+curl -d &#39;{&amp;quot;secret_key&amp;quot;:&amp;quot;&amp;lt;秘钥&amp;gt;&amp;quot;}&#39; -H &amp;quot;Content-type: application/json&amp;quot; -X POST &amp;lt;API地址&amp;gt;  在Jenkins构建流程中添加即可
+镜像  Jenkins构建完成后，会产出镜像并且会push到DockerHub
+ 在云帮中创建一个镜像格式应用
+ 在云帮中生成触发镜像仓库的Webhook，将该webhook添加到DockerHub中，使DockerHuab每次更新镜像完成后调用该API
+  </description>
+    </item>
+    
+    <item>
+      <title>Spring Cloud 微服务部署在 Rainbond 的优势</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-advantage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-advantage/</guid>
+      <description>概述 目前很多公司已经拥有了基于 Spring Cloud 微服务框架开发的业务系统。作为老牌成熟的微服务架构，Spring Cloud 微服务框架为企业业务开发提供了诸多好处。 我们不用去探讨这些好处是什么， Spring Cloud 巨大的市场应用基数已经指明了它的价值。但是它是否是完美无瑕，再无可补足之处呢？世界上没有完美的产品， Spring Cloud 也是如此，以下这些缺点亟待完善：
+ 单个组件没有办法很好的管理 难以找到性能监控的方案 难以灵活的伸缩以适应业务并发 部署起来比较麻烦，包括微服务组件本身以及相关的数据库、中间件  针对以上4点，Rainbond平台可以进行天然的补足。
+支持单个组件的全生命周期管理 Rainbond 会把 Spring Cloud 的每个微服务组件单独看待，并可以针对每个组件进行深度的管理，比如：
+ 开启、关闭、重启、构建、删除、滚动更新、版本回滚 性能监控 日志管理 垂直/水平伸缩 基于依赖关系的服务发现与注册 持久化存储以及服务组件间的共享存储 端口设置以及域名配置 插件扩展 构建源设置，包括 MAVEN 各种详细参数的设置、配置自动触发构建机制 自定义环境变量配置、健康检测机制、权限管理   了解服务管理的详情，请参见文档： 服务管理
+ 性能监控 Rainbond 支持插件扩展方式的性能监控方案，支持对基于 Http、Mysql 协议的应用进行 平均响应时间、吞吐率、在线人数 的监控。并检测最近5分钟内耗时做多的 url 排行，对于调试系统性能有指导作用：
+ 了解性能监控的详情，请参见文档： 性能监控
+ 垂直/水平伸缩 Rainbond 支持一键进行伸缩，这种伸缩包含两个层面：
+ 垂直伸缩：伸缩单个服务组件所使用的内存大小 水平伸缩：为服务组件启动多个后端实例，并自动配置负载均衡  Spring Cloud 微服务设计已经将程序与数据分离，所以将服务组件视作无状态服务直接进行水平伸缩进行快速扩容，达成的效果如下：
+ 单个服务组件伸缩只需要一键   多实例服务组件在拓扑图中相应表现   注册中心正常注册  基于应用市场的快速部署 得益于 Rainbond 独有的应用市场机制，在首次部署完成后，我们可以讲整套 Spring Cloud 微服务（包括所有微服务组件以及数据库等中间件）打包发布到应用市场中去。发布完成后，再次安装只需要从应用市场一键安装，极大的简化了部署流程。</description>
+    </item>
+    
+    <item>
+      <title>基于源码的自动CI流程创建</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/autobuild/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/autobuild/</guid>
+      <description>概述 对于从Github、Gitlab、Gogs、Gitee仓库源码构建的应用， Rainbond 提供基于WEBHOOKS的自动部署功能。
+实践场景 Rainbond官方文档系统部署在我们的公有云环境中。现在以此场景为例，演示如何实现源码的自动部署。
+- 项目源码地址： rainbond-docs
+操作配置方式  基于源码创建服务，参考文档 从源码创建服务 进入服务管理-构建源管理-打开Git-Webhook功能，可以获取到hook地址。 参考文档 服务自动构建设置 前往Github或其他Git server配置Webhooks.  值得注意的是：
+Content type 选项务必选择 application/json
+触发方式 webhook配置完成后，再次提交代码，当Commmit信息包含“@deploy”时将自动触发应用自动部署
+ 触发测试  - 提交信息
+- 成果
+这篇文档在提交代码后无需任何其他操作即可上线，即是触发自动部署的成果。</description>
+    </item>
+    
+    <item>
+      <title>Spring Cloud 微服务与 Service Mesh 的融合</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-merge/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-merge/</guid>
+      <description>概述 这篇文档，着重解决一个问题：Spring Cloud 融合于 Rainbond 原生 Service Mesh 的正确姿势是什么样子的。
+Rainbond 原生支持 Service Mesh 微服务架构。也就是说，无论原来是什么，只要部署在 Rainbond 上，那么就天然的成为了 Service Mesh 微服务。这也是 Service Mesh 微服务架构的一大特点：对原应用无侵入。
+Spring Cloud 部署在 Rainbond 上后，整套业务即是完整的 Spring Cloud 微服务，又是一套 Service Mesh 微服务。那么如何使业务系统即保留了原有 Spring Cloud 微服务架构的特点，又能享受到 Service Mesh 带来的种种好处呢？这就涉及到了Spring Cloud 微服务与 Service Mesh 的融合。
+融合的核心思想，就是 Spring Cloud 框架维护的功能，保持不变； Spring Cloud 框架无法维护的功能，交给 Service Mesh 和 Rainbond。
+Spring Cloud 不维护什么 我不会去深入讨论 Spring Cloud 微服务框架都维护了什么，这样的帖子网上有很多。
+在这里，我想说明的是，当读者选择将自己原有的 Spring Cloud 微服务部署在 Rainbond 时，有哪些工作应该由 Rainbond 来完成。</description>
+    </item>
+    
+    <item>
+      <title>Spring Cloud 微服务部署在 Rainbond 的案例</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-case/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-case/</guid>
+      <description>示例项目详情 本文档以Pig 快速开发框架为例，演示如何在Rainbond上部署一套完整的Spring Cloud项目。
+Pig Microservice Architecture V2.1.0：
+ 基于 Spring Cloud Finchley 、Spring Security OAuth2 的RBAC权限管理系统 基于数据驱动视图的理念封装 Element-ui，即使没有 vue 的使用经验也能快速上手 提供对常见容器化支持 Docker、Kubernetes、Rancher2 支持 提供 lambda 、stream api 、webflux 的生产实践  模块说明：
+pig ├── pig-ui -- 前端工程[80] ├── pig-auth -- 授权服务提供[3000] └── pig-common -- 系统公共模块 ├── pig-common-core -- 公共工具类核心包 ├── pig-common-log -- 日志服务 └── pig-common-security -- 安全工具类 ├── pig-config -- 配置中心[8888] ├── pig-eureka -- 服务注册与发现[8761] ├── pig-gateway -- Spring Cloud Gateway网关[9999] └── pig-upms -- 通用用户权限管理模块 └── pigx-upms-api -- 通用用户权限管理系统公共api模块 └── pigx-upms-biz -- 通用用户权限管理系统业务处理模块[4000] └── pigx-visual -- 图形化模块 ├── pigx-monitor -- Spring Boot Admin监控 [5001] └── pigx-codegen -- 图形化代码生成[5003] └── pigx-zipkin -- 微服务链路跟踪[5002]  上述的模块，可以分为类库与服务两类，读者可以对比自己的Spring Cloud项目：</description>
+    </item>
+    
+    <item>
+      <title>离线环境下的Java源码构建</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/offline-java-build/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/offline-java-build/</guid>
+      <description>概述 在交付了很多企业级用户后，我们发现很多用户的环境都是离线的。我们一直在探索离线环境下实现源码构建的方案，以期让这些企业用户可以也可以体验到Rainbond源码构建功能带来的便捷。
+那么，在离线环境下，实现源码构建会有哪些难点呢？其实这个问题的答案就是整套源码构建流程中有那些点对于互联网有依赖：
+- 代码仓库：源码构建过程的起点是一个可用的代码仓库，离线环境下我们不可以使用 Github、Gitee 等基于互联网的代码仓库。Gitlab、Gogs 等私有代码仓库成为了最佳选择。有些用户已经拥有了自己的私有代码仓库，这种情况下，保证Rainbond管理节点所在的服务器可以正常访问到该代码仓库即可；而对于还没有搭建自己的私有代码仓库的用户而言，如何快速搭建一个Gitlab或者Gogs就是离线源码构建需要攻克的第一关。
+- 构建私服：构建私服是指在源码构建过程中，获取依赖包的仓库，常见的有 Nexus、Artifactory 等。有些用户已经拥有了自己的私有构建私服用以管理自己的依赖包，这种情况下，我们提供方案让 Rainbond 可以直接对接私服；而对于还没有搭建自己的构建私服的用户而言，Rainbond自带的 rbd-repo 组件可以作为本地仓库使用。
+- 应用运行时：应用运行时是指服务运行所依赖的环境，比如对于Java应用而言，运行时就是环境中安装的 Jdk。对于用户而言，离线环境如何配置好应用运行时是离线源码构建最大的挑战。
+在明确了上述难点后，接下来的文章，会以Java应用构建为例，指引用户一步步攻克这些难关，最终达成离线源码构建的目标。
+离线部署代码仓库 在离线环境下，推荐使用平台的应用离线导入功能，快速导入 Gitlab 应用并安装使用。
+需要事先获取离线资源：Gitlab应用包 Gogs应用包
+- 访问Rainbond应用管理平台，并导入离线应用包
+ Gogs离线导入方式和Gitlab一致。
+ 至此，我们已经拥有了一个私有化的代码仓库。可以通过它来托管代码，并可以通过它实现自动构建。
+离线对接/部署构建私服 Java源码基于Maven构建过程中，会根据 pom.xml 文件解析依赖关系，并前往指定的构建私服拉取依赖包。而在Rainbond中，安装了默认的源码构建包仓库 rbd-repo ，这个组件既可以作为已有私服的代理，也可以用来搭建本地私服，来应对不同用户的需求。
+- 已有私服的对接
+- 搭建本地仓库，并导入jar包
+离线配置应用运行时 本节提供一个在应用中离线安装运行时（Jdk）的方案，这个方案会运行起一个私服仓库服务，这个私服仓库可以负责安装java运行所需要的Jdk环境。 需要事先获取离线资源：Java运行时私服仓库服务镜像
+ 有网环境下载离线资源镜像  docker pull rainbond/buildpack:java-v5.1.1 docker save rainbond/buildpack:java-v5.1.1 &amp;gt; rainbond-buildpack-java-v5.1.1.tgz   导入镜像  首先，将镜像导入首个管理节点。
+docker load -i rainbond-buildpack-java-v5.1.1.tgz docker tag rainbond/buildpack:java-v5.1.1 goodrain.me/buildpack:java-v5.1.1 docker push goodrain.</description>
+    </item>
+    
+    <item>
+      <title>Maven 多模块源码构建</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/java-multi-module-build/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/java-multi-module-build/</guid>
+      <description>Maven 多模块项目构建识别策略 Maven 多模块项目是根据 pom.xml 文件(下面简称 pom)来划分的, Rainbond 对它的识别也是建立在 pom 的基础上的. 主要是识别出具体模块(module)的构建命令和启动命令. 构建命令的作用是指定需要构建的模块, 是类似于 &amp;ldquo;mvn install -pl &amp;lsquo;module name&amp;rsquo; -am&amp;rdquo; 的 mvn 命令. 启动命令的作用是在构建完成后, 指定需要执行的 Jar 包, 是类似于 &amp;ldquo;web: java $JAVA_OPTS -jar *.jar&amp;rdquo; 的命令.
+识别策略:
+ 根据根 pom 中的 modules 中的 module 标签, 找到相应模块下的 pom. 如果 pom 中的 packing 标签的值是 jar(war), 则解析出当前 pom 对应的模块名和 jar(war)包名. packing 标签的值为空, 会认为是 jar. 模块名由名级父 pom 中的 module 标签的值组成, 用 &amp;ldquo;/&amp;rdquo; 分割, 类似于: rbd-worker/rbd-thirdparty. jar(war) 包名默认是 ${artifaceId}-*.</description>
+    </item>
+    
+    <item>
+      <title>Maven项目源码构建实践之私有仓库对接</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-maven-repository/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-maven-repository/</guid>
+      <description>Maven仓库镜像 Maven仓库 Maven仓库主要分两种:
+ Remote仓库：相当于公共仓库，大部分都是可以通过URL的形式进行访问 Local仓库: 存放于本地磁盘的文件夹(其路径类似.m2/repository)  其中Remote仓库主要有3种：
+ 中央仓库: http://repo1.maven.org/maven2/ 私服: 自建的Maven仓库 其他公共仓库: 其他公网可以访问的Maven仓库  仓库种主要是存放Maven构建时需要的各种构件(jar包或者Maven插件)，当向仓库请求构件时，会先检查本地仓库是否已经存在，不存在会向远程仓库请求并缓存到本地。
+Maven镜像仓库 mirror相当于一个拦截器，它会拦截Maven对remote仓库的相关请求，把请求里的remote仓库地址，重定向到mirror里配置的地址。
+示例1：mirrorOf的值为central，表示该配置为中央仓库的镜像，任何对于中央仓库的请求都会转发给镜像仓库http://192.168.1.200:8081
+ &amp;lt;mirror&amp;gt; &amp;lt;id&amp;gt;maven.goodrain&amp;lt;/id&amp;gt; &amp;lt;name&amp;gt;goodrain maven&amp;lt;/name&amp;gt; &amp;lt;url&amp;gt;http://192.168.1.200:8081/&amp;lt;/url&amp;gt; &amp;lt;mirrorOf&amp;gt;central&amp;lt;/mirrorOf&amp;gt; &amp;lt;/mirror&amp;gt;  示例2: mirrorOf的值为*,则表示该配置是所有仓库的镜像，任何对远程仓库的请求都会转发到这个镜像
+&amp;lt;mirror&amp;gt; &amp;lt;id&amp;gt;maven.all.goodrain&amp;lt;/id&amp;gt; &amp;lt;name&amp;gt;goodrain all maven&amp;lt;/name&amp;gt; &amp;lt;url&amp;gt;http://192.168.1.200:8081&amp;lt;/url&amp;gt; &amp;lt;mirrorOf&amp;gt;*&amp;lt;/mirrorOf&amp;gt; &amp;lt;/mirror&amp;gt;  其他高级操作 &amp;lt;mirrorOf&amp;gt;*&amp;lt;/mirrorOf&amp;gt; # 表示所有远程仓库 &amp;lt;mirrorOf&amp;gt;external:*&amp;lt;/mirrorOf&amp;gt; # 除本地仓库外到远程仓库 &amp;lt;mirrorOf&amp;gt;repo1,repo2&amp;lt;/mirrorOf&amp;gt; # 匹配repo1和repo2 &amp;lt;mirrorOf&amp;gt;*,!repo1&amp;lt;/miiroOf&amp;gt; # 匹配除repo1外所有远程仓库  通过Rainbond构建Maven项目，如果不禁用Mirror功能，默认情况下，在源码构建时会通过添加全局Maven配置文件来定义mirror,即任何对远程仓库的请求都会重定向至maven.goodrain.me,如果没有将自己的私服对接到rbd-repo则可能导致无法正常下载私服中的构件从而导致源码构建失败。默认配置如下
+ &amp;lt;mirror&amp;gt; &amp;lt;id&amp;gt;goodrain-repo&amp;lt;/id&amp;gt; &amp;lt;name&amp;gt;goodrain repo&amp;lt;/name&amp;gt; &amp;lt;url&amp;gt;http://maven.goodrain.me&amp;lt;/url&amp;gt; &amp;lt;mirrorOf&amp;gt;*&amp;lt;/mirrorOf&amp;gt; &amp;lt;/mirror&amp;gt;  由于镜像仓库完全屏蔽了被镜像仓库，当镜像仓库不稳定或者停止服务的时候，Maven仍将无法访问被镜像仓库，因而将无法下载构件。  Rainbond构建源Maven镜像仓库参数说明 1. 禁用Maven Mirror: 默认不禁用镜像功能，即在源码构建时会添加Maven全局配置文件，重定向仓库请求至镜像仓库 2.</description>
+    </item>
+    
+    <item>
+      <title>应用处于启动状态</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/app_startup/</link>
+      <pubDate>Wed, 17 Apr 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/app_startup/</guid>
+      <description> 确定集群是否正常 grctl cluster  查看应用状态 # 5.1.3版本支持伸缩处获取相关命令 grctl service get &amp;lt;应用别名&amp;gt; -t &amp;lt;团队别名&amp;gt;  看PodStatus状态:
+# 如下是应用已经正常启动了，大部分情况是Ready状态是False PodStatus: Initialized : True Ready : True PodScheduled : True  Pod Read状态False排查  Containers是否已经启动，如果已经启动状态还是False，请检查应用健康检查; Containers未启动或者在重启，请查看登录到相关节点查看容器日志  查看k8s Events信息 kubectl describe pods/&amp;lt;PodName&amp;gt; -n &amp;lt;Namespace&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>源码构建提示gzip stdin not in gzip format</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/code_build_failure_download_gzip/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/code_build_failure_download_gzip/</guid>
+      <description>源码构建过程中有提示gzip stdin not in gzip format,大多数都是lang.goodrain.me无法正常访问
+ 验证lang.goodrain.me是否健康
+# 状态码200 curl -I lang.goodrain.me  确定rbd-repo是否正常
+# 1. 访问管理节点8081端口 # 2. 状态码2xx,3xx curl -I &amp;lt;管理节点ip&amp;gt;:8081 # 不正常可以重启 systemctl restart rbd-repo  应用添加BUILD_DEBUG_INFO true显示源码构建Runtime下载路径
+# 管理节点手动下载是否有 wget &amp;lt;runtime download url&amp;gt;  确定访问是否有限制
+# 状态码 403 curl -I http://buildpack.rainbond.com   案例参考 源码构建</description>
+    </item>
+    
+    <item>
+      <title>.slugignore文件</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/slugignore/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/slugignore/</guid>
+      <description> .slugignore文件作用介绍 .slugignore 与大家知道的.gitignore文件一样，具有在打包阶段忽略某些文件的作用。我们在使用Rainbond进行源码构建打包时或许会有这样一个需求，我不想将源代码打包到最终的软件包中，但是Rainbond需要根据你的定义确定哪些文件是你不想要的。因此就有了.slugignore 文件。
+.slugignore文件定义方式  文件位置与命名  文件名称必须为.gitignore，且必须放置于源代码主目录中。
+ 文件内容规范  与.gitignore规范一致，需要忽略的文件将其路径定义到文件中，每行一个，支持通配符。
+示例：
+src/main/java/com/* src/test  </description>
+    </item>
+    
+    <item>
+      <title>5.0.4升级至5.1.0文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.0.4-5.1.0/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.0.4-5.1.0/</guid>
+      <description>5.0.4升级至5.1.0 Rainbond 5.1.0版本仅支持从5.0.4版本升级,其他5.0.x版本需要升级到5.0.4版本，5.0.4版本升级参考[5.0.4升级文档](https://t.goodrain.com/t/rainbond-5-0-4/744);升级后可能数据库结构会发生改变,故不能够回滚升级。 无法确定Rainbond版本，可通过grctl version来确定版本。如果version不是`5.0-3cbc7c6-2019-03-05-12`则为非5.0.4版本  下载 5.1.0 更新包  离线包镜像大小约1.9G，需要保证当前集群磁盘可用空间至少不低于6G
+ # 基础Runtime包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/base.images.2019-03-15-5.1.0.tgz -O /grdata/services/offline/base.images.upgrade.5.1.0.tgz # Rainbond组件包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond.images.2019-03-15-5.1.0.tgz -O /grdata/services/offline/rainbond.images.upgrade.5.1.0.tgz # 5.1.0安装包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond-ansible.upgrade.5.1.0.tgz -O /grdata/services/offline/rainbond-ansible.upgrade.5.1.0.tgz  解压安装脚本,执行升级脚本 rm -rf /tmp/rainbond-ansible rm -rf /grdata/services/offline/upgrade tar xf /grdata/services/offline/rainbond-ansible.upgrade.5.1.0.tgz -C /tmp/ cd /tmp/rainbond-ansible/scripts/upgrade/ bash ./upgrade.sh  升级完成验证 grctl cluster  插件升级说明  卸载所有应用的默认插件，并在插件管理中删除默认插件 刷新页面后重新安装默认插件。 需要使用插件的应用重新安装插件并更新应用。  升级如有问题，请至社区反馈 Rainbond 5.1.0升级文档</description>
+    </item>
+    
+    <item>
+      <title>5.1.0升级至5.1.1文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.1.0-5.1.1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.1.0-5.1.1/</guid>
+      <description>本文档记录了Rainbond v5.1.1 中功能的优化和BUG修复记录。
+功能优化及BUG修复 优化  优化PHP语言支持，增加了大量PHP的扩展支持，详情见文档 PHP语言支持 总览页面展示效果优化 增加允许源码构建服务使用1024以下的端口 优化了第三方服务的特性显示，在拓扑图中使用蓝色，在列表中添加了明显的标识 安装方面扩容节点时优化docker启动流程控制 调整初始化数据中心数据库的初始化脚本路径，便于出错后重新初始化数据库。 优化存储类型为NFS的存储检测方式，兼容提前挂载分布式存储的节点检测。  BUG修复  【重要】修复了服务具有多个端口时导致服务内部依赖和网关访问错误的BUG 【重要】修复了服务垂直升级操作失败的BUG 【重要】修复了应用网关访问策略编辑前端填充数据错误的BUG 修复了平台内部某些功能说明文档的地址错误 修复了源代码检测取回的端口信息为设置成功的BUG 修复了服务点击访问后连接信息显示不全的BUG 修复了第三方服务无法进行批量删除的BUG 修复了构建源重新检测时从Dockerfile类型到其他源码类型转变服务启动命令错误的BUG 修复构建源配置Java等语言设置构建缓存不生效的BUG 升级PHP语言Runtimes版本 #28 修复PHP语言构建失败问题 #25,#26  版本升级 升级要求和注意事项 此版本修复了V5.1.0的几个影响面大的BUG，推荐V5.1.0版本用户升级 V5.1.1版本只支持从V5.1.0版本升级，如果你还未升级到V5.1.0版本，参考[V5.1.0版本升级文档](https://www.rainbond.com/docs/user-operations/upgrade/5.0.4-5.1.0/)版本确认方式：`grctl version`,版本应该为：`Rainbond grctl 5.1.0-4aead9a-2019-03-20-06` 升级过程会重启管理服务，因此只有单管理节点的集群会短暂影响控制台操作，请选择合理的升级时间段  下载 5.1.1 更新包  离线包镜像大小约650MB，需要保证当前集群磁盘可用空间至少不低于2G
+ # Rainbond 组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond.images.2019-03-21-5.1.1.tgz -O /grdata/services/offline/rainbond.images.upgrade.5.1.1.tgz # Rainbond Runtime组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/runtime.upgrade.2019-03-21-5.1.1.tgz -O /grdata/services/offline/runtime.upgrade.2019-03-21-5.1.1.tgz # 5.1.1 升级脚本包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond-ansible.upgrade.5.1.1.tgz -O /grdata/services/offline/rainbond-ansible.upgrade.5.1.1.tgz  解压安装脚本,执行升级脚本 rm -rf /tmp/rainbond-ansible rm -rf /grdata/services/offline/upgrade tar xf /grdata/services/offline/rainbond-ansible.</description>
+    </item>
+    
+    <item>
+      <title>5.1.1升级至5.1.2文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.1.1-5.1.2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.1.1-5.1.2/</guid>
+      <description>本文档记录了Rainbond v5.1.2 中功能的优化和BUG修复记录
+优化  支持阿里云镜像仓库Webhook触发器自动构建服务 优化添加网关策略的交互呈现，更易于用户使用 优化Java War语言类型的构建，支持自动设置JAVA_OPTS参数 优化UI在长时间不刷新页面的情况下出现无法操作的体验 优化Runner环境和启动策略，支持在源码路径下提前挂载配置文件和持久化目录 优化了构建源信息更改的交互逻辑，解决ssh和http协议访问地址的相互切换时无法设置用户名密码的问题 优化了应用Dashboard页面添加组件的流程，增加放弃创建选项 优化服务的访问逻辑，默认访问路径根据用户配置的访问策略路径确定 grctl命令行工具增加显示第三方服务的实例信息 优化了第三方服务的健康检查控制  BUG修复  [重要] 解决了kube-controller-manager重启导致第三方服务实例下线的BUG [重要] 修复了服务健康检查无法更改服务不健康时的操作方式的BUG [重要] 修复了从应用市场安装服务时服务健康检查禁用不生效的BUG [重要] 修复了从应用市场导出DockerCompose规范的离线应用时镜像名称、环境变量不正确的BUG 修复了Java War语言类型不定义webserver时无法构建的BUG 修复了第三方服务在编辑模式的拓扑图中显示错误的BUG 修复了应用网关可以添加重复的访问策略导致应用网关工作异常的BUG  版本安装 当前版本为5.1系列最新版本，从发布之日起安装的5.1版本系列平台即时最新的5.1.2版本，安装参考： Rainbond集群安装
+版本升级 升级要求和注意事项  V5.1.2版本只支持从V5.1.x版本升级，如果你还未升级到V5.1.x版本，参考V5.1.x版本升级文档版本确认方式：  grctl version, 例如版本显示如下：Rainbond grctl 5.1.0-4aead9a-2019-03-20-06
+ 升级过程会重启管理服务，因此只有单管理节点的集群会短暂影响控制台操作，请选择合理的升级时间段 。  下载 5.1.2 更新包  离线包镜像大小约650MB，需要保证当前集群磁盘可用空间至少不低于2G
+ # Rainbond 组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond.images.2019-04-01-5.1.2.tgz -O /grdata/services/offline/rainbond.images.upgrade.5.1.2.tgz # Rainbond Runtime组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/runtime.upgrade.2019-04-01-5.1.2.tgz -O /grdata/services/offline/runtime.upgrade.5.1.2.tgz # 5.</description>
+    </item>
+    
+    <item>
+      <title>5.1.2升级至5.1.3文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.1.2-5.1.3/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.1.2-5.1.3/</guid>
+      <description>本文档记录了Rainbond v5.1.3 中功能的优化和BUG修复记录
+优化和新功能  支持Java Maven多模块批量创建服务[beta] 新增新⼿引导任务流程 完善集群服务监控,内置支持节点物理设备和操作系统监控、节点系统服务监控、容器监控和服务业务性能监控 改进基于应用市场的服务升级策略，新增对环境变量、存储(包括依赖存储)、端⼝、服务依赖等属 性的升级[beta] 改进Docker Compose 批量创建服务的功能，修改服务镜像检测机制⼤大提高DockerCompose检测成功性。同时⽀持设置私有镜像仓库的账号信息。提供了Docker Compose到Kubernetes转化 的稳定功能支持。 Git-Webhook增加对腾讯Coding代码仓库的⽀持 镜像仓库Webhook⾃动构建支持Tag版本根据策略进⾏⾃动验证和改变 改进镜像创建服务识别策略，智能识别镜像信息确定服务部署类型和内存分配，提供服务创建准确性 应用网关支持便捷设置Websocket⽀支持和ProxyBuffer等参数 改进端⼝属性维护机制，增加当端口删除时⾃动设置其他与端口绑定的服务属性，⽐如健康检查.防⽌由于错误的端⼝设置导致服务⼀直运行异常 系统服务注册功能改进，基于健康检查实现注册Endpoint的⾃动上线和下线，解决错误的添加管理节点导致镜像仓库等服务负载均衡错误问题。[beta] 优化安装流程，将push镜像流程更改到最后防止push镜像失败导致安装不成功 新增使⽤第三方数据库的机制，⽤户提供数据库给Rainbond数据中心和控制台使用Rainbond将不再默认安装数据库，适用于生产环境部署时对数据库单独进⾏部署和运维。[beta] 调整部分组件⽇志级别等启动参数  BUG修复  修复在HTTP访问策略中添加IP或其他⾮法域名导致服务无法启动的BUG 修复了DockerRun等⽅式创建的服务后期无法修改账号密码的问题 修复了镜像错误检测失败后无法进行后续操作的问题 修复了重复添加访问策略导致服务⽆法访问的问题 修复了UI搜索访问策略后无法进⾏翻⻚的BUG 修复了服务经过分享过后，伸缩范围固化的问题  版本安装 当前版本为5.1系列最新版本，从发布之日起安装的5.1版本系列平台即时最新的5.1.3版本，安装参考： Rainbond集群安装
+版本升级 升级要求和注意事项  V5.1.3版本只支持从V5.1.x版本升级，如果你还未升级到V5.1.x版本，参考V5.1.x版本升级文档版本确认方式：  grctl version, 例如版本显示如下：Rainbond grctl 5.1.0-4aead9a-2019-03-20-06
+ 升级过程会重启管理服务，因此只有单管理节点的集群会短暂影响控制台操作，请选择合理的升级时间段 。  下载 5.1.3 更新包  离线包镜像大小约650MB，需要保证当前集群磁盘可用空间至少不低于2G
+ # Rainbond 组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond.images.2019-04-15-5.1.3.tgz -O /grdata/services/offline/rainbond.images.upgrade.5.1.3.tgz # Rainbond Runtime组件升级包 wget http://rainbond-pkg.</description>
+    </item>
+    
+    <item>
+      <title>5.1.3升级至5.1.4文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.1.3-5.1.4/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.1.3-5.1.4/</guid>
+      <description>本文档记录了Rainbond v5.1.4 中功能的优化和BUG修复记录
+新功能 在5.1.4之前, rainbond仅仅支持对云市应用中单个服务的升级, 如果想要升级整个云市应用, 则需要单独地对每个服务进行升级, 且无法升级新添加的服务. 这给各位用户的使用带来了极大的不便. 为了让用户有的操作更加的简单, 提高使用体验, 我们在5.1.4版本中, 对云市应用进行了改造升级.
+功能特性  灵活的升级方式: 可以自由地选择需要升级的服务, 可以全部升级也可以部份升级. 创建新加服务: 除了可以升级已有的服务外, 还可以创建旧版本没有, 但是新版本有的服务. 详细的变更信息: 在升级界面中, 可以查看当前版本与新版本服务之间属性的变更. 详细的升级记录: 对每次升级操作, rainbond都进行了详细的记录, 包括: 升级操作的时间, 版本号的变更和各服务属性的变更信息等. 自动回滚: 在应用升级的过程中, 如果程序发生了异常, 会回滚到升级前的状态, 避免只升级部分属性或服务. 手动回滚: 升级成功后, 如果新版本有缺陷导致各个服务无法正常工作, 或者你更倾向升级前的版本, 那么可以选择手动回滚, 回到之前的版本.  优化  第三方服务新添加实例地址时, 允许地址中带有端口 镜像服务支持修改镜像仓库帐号, 密码等信息 grctl命令行工具增加身份属性gateway 将自定义网关策略的域名以环境变量的方式注入到服务中(相关文档) 将环境变量，配置文件等配置信息综合为环境配置 分享应用时支持定义不分享的服务 支持服务链接信息和环境变量的相互转移 关闭或重启服务时, 增加二次确认, 防止误操作  安装方面：
+ 优化安装时初始化数据中心流程 优化调整安装任务结构,调整离线镜像文件路径 支持调整网络类型 优化部分组件配置参数 优化安装过程中宿主机IP段与容器ip段冲突问题  BUG修复  【重要】修复了关闭服务时, pod无法被删除或删除需要花费比较多时间的问题 【重要】修复了多管理节点中, 某个节点rbd-hub服务异常了，但gateway没有将其下线导致goodrain.</description>
+    </item>
+    
+    <item>
+      <title>Java Gradle源码创建</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-gradle/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-gradle/</guid>
+      <description>Gradle项目识别策略 平台默认会根据源码根目录是否有gradlew文件或者build.gradle来识别为Java Gradle项目.
+平台编译运行机制  预编译处理完成后,会根据语言类型选择Java-Gradle的buildpack去编译项目.在编译过程中会安装定义的JDK版本; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  平台默认Gradle编译命令
+gradlew build -x test  Gradle项目源码规范 在此步骤中，你需要提供一个可用的Java Gradle源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的Gradle程序 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根路径下必须需要存在gradlew文件或者build.gradle  编译运行环境设置 在选择JDK版本或其他组件版本时，需要注意JDK或者其他组件版本不要选择比项目使用的版本过高或者过低以免导致源码编译失败  OpenJDK支持 当前Rainbond支持OpenJDK如下版本为：
+ Java 1.6 - 1.6.0_27 Java 1.7 - 1.7.0_95 Java 1.8 - 1.8.0_74 Java 1.9 - 1.9-latest Java 10 - 10.0.2 Java 11 - 11.0.1  平台默认版本使用1.8。若需要使用其他版本的OpenJDK，可以通过在源码根目录下添加system.properties文件来设定java.runtime.version的值来指定所需版本的JDK。
+# system.properties 目前Rainbond能识别的版本值为11,10,1.9,1.8,1.7,1.6 java.runtime.version=1.8  OracleJDK支持 平台目前也支持OracleJDK,但此特性需要在平台里启用才会生效。
+默认不内置提供OracleJDK下载,需要在设置里启用OracleJDK后配置相关OracleJDK下载地址。
+OracleJDK下载地址格式要求: http://&amp;lt;web服务URL&amp;gt;/jdk-8u201-linux-x64.tar.gz
+平台设置的配置优先级要高于程序代码中定义的配置，如Java JDK版本的选择,在程序代码里通过`system.properties`指定了JDK版本为1.9,在平台上选择了JDK版本为11,那么默认在进行源码编译时会优先使用平台指定的版本JDK11  示例demo程序 示例https://github.com/goodrain/java-gradle-demo</description>
+    </item>
+    
+    <item>
+      <title>Java Jar源码构建应用</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-jar/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-jar/</guid>
+      <description>Jar项目识别策略 平台默认会根据源码根目录是否有Jar包来识别为Java Jar项目.
+平台编译运行机制  预编译处理会探测是否定义了启动命令配置文件Procfile,如果未定义会生成默认Jar包启动配置文件; 预编译处理完成后,会根据语言类型选择Java-jar的buildpack去编译项目.在编译过程中会安装定义的JDK版本; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  Jar项目源码规范 在此步骤中，你需要提供一个可用的Java Jar源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的Jar包 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根路径下必须需要存在Jar包文件  Procfile规范 如果项目未定义Procfile文件,平台默认会生成默认Procfile来运行Jar包。
+web: java -Dserver.port=$PORT $JAVA_OPTS -jar ./*.jar  上述是默认Procfile,如果需要扩展更多启动参数,可以自定义Procfile。
+1. `web:`和`java`之间有一个空格 2. 文件结尾不能包含特殊字符 3. JAVA_OPTS: 平台会根据应用的内存大小，自动设置Xmx和Xms的值 4. PORT: 根据用户在平台设置的端口决定监听，默认监听端口为 5000  编译运行环境设置 在选择JDK版本或其他组件版本时，需要注意JDK或者其他组件版本不要选择比项目使用的版本过高或者过低以免导致源码编译失败  OpenJDK支持 当前Rainbond支持OpenJDK如下版本为：
+ Java 1.6 - 1.6.0_27 Java 1.7 - 1.7.0_95 Java 1.8 - 1.8.0_74 Java 1.9 - 1.9-latest Java 10 - 10.0.2 Java 11 - 11.0.1  平台默认版本使用1.</description>
+    </item>
+    
+    <item>
+      <title>Java Maven源码构建应用</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-maven/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-maven/</guid>
+      <description>Maven项目识别策略 平台默认会通过pom.xml来识别源码项目为Java Maven项目。
+编译原理  预编译处理会探测是否定义了启动命令配置文件Procfile,如果未定义会根据打包类型或者项目框架生成默认Procfile文件; 预编译处理完成后,会根据语言类型选择Java的buildpack去编译项目.在编译过程中会安装定义的JDK版本，Maven版本，然后构建编译Maven源码项目; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  默认Maven项目构建命令如下
+mvn -DskipTests clean dependency:list install  Maven项目源码规范 在此步骤中，你需要提供一个可用的Java Maven源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以使用默认Maven命令正常构建的Java Maven源码程序,多模块项目需要确定子模块可以单独编译即mvn install -pl &amp;lt;modulename&amp;gt; -am 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根路径下必须需要存在Java的依赖管理工具Maven所需的pom.xml文件  1. pom.xml规范 SpringBoot项目打包方式推荐使用 jar 包方式 非SpringBoot项目打包方式推荐使用 war 包方式
+2. Procfile规范 如果项目未定义Procfile文件,平台默认会根据识别项目类型生成默认Procfile。
+ 打包方式为 war 包,平台使用 webapp-runner.jar 将打包的 war 包运行起来。示例  web: java $JAVA_OPTS -jar ./webapp-runner.jar --port $PORT target/*.war   打包方式为 jar 包,示例  web: java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar  上述是默认Procfile,如果需要扩展更多启动参数,可以自定义Procfile。</description>
+    </item>
+    
+    <item>
+      <title>Java War源码构建应用</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-war/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/java-war/</guid>
+      <description>War项目识别策略 平台默认会根据源码根目录下是否有War文件来识别为Java War项目。
+平台编译运行机制  预编译处理会探测是否定义了启动命令配置文件Procfile,如果未定义会生成默认War包启动配置文件; 预编译处理完成后,会根据语言类型选择Java-war的buildpack去编译项目.在编译过程中会安装定义的JDK版本,Web服务; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  War项目源码规范 在此步骤中，你需要提供一个可用的Java War源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的War包 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根路径下必须需要存在War文件(即项目已经打成war文件)  Procfile规范 如果项目未定义Procfile文件,平台默认会生成默认Procfile来运行War包。
+web: java $JAVA_OPTS -jar ./webapp-runner.jar --port $PORT ./*.war  上述是默认Procfile,如果需要扩展更多启动参数,可以自定义Procfile。
+1. `web:`和`java`之间有一个空格 2. 文件结尾不能包含特殊字符 3. JAVA_OPTS: 平台会根据应用的内存大小，自动设置Xmx和Xms的值 4. PORT: 根据用户在平台设置的端口决定监听，默认监听端口为 5000  当调整了Web服务器支持后，打包成War需要调整启动命令 - 选择tomcat不同版本时 `web: java $JAVA_OPTS -jar ./webapp-runner.jar --port $PORT ./*.war` - 选择jetty不同版本时 `web: java $JAVA_OPTS -jar ./jetty-runner.jar --port $PORT ./*.war` 需要配置context path,可以通过自定义Procfile指定[webapp-runner参数path](https://github.com/jsimone/webapp-runner#options) - 示例 `web: java $JAVA_OPTS -jar .</description>
+    </item>
+    
+    <item>
+      <title>Jetty-Runner</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/jetty-runner/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/jetty-runner/</guid>
+      <description>##Jetty 和 Jetty Runner 是什么
+Jetty 是一个轻量级的 Java 应用程序 server。为应用程序的启动提供了一系列灵活的特性。其中一个比较灵活的特性就是可以使用嵌入式的Jetty，在 java-hello 代码中可以看到这种使用方式。另外一个好的特性就是 Jetty Runner本身就是一个jar文件。Jetty的每一次发布版本都会包含一个 Jetty Runner jar 文件。这个jar文件可以通过java命令配合war文件直接运行。例如下面的示例：
+$ java -jar jetty-runner.jar application.war  Jetty Runner 会启动一个Jetty实例将war运行起来。
+##创建应用程序
+$ mvn archetype:generate -DarchetypeArtifactId=maven-archetype-webapp ... [INFO] Generating project in Interactive mode Define value for property &#39;groupId&#39;: : com.example Define value for property &#39;artifactId&#39;: : helloworld  (你可以使用任意的 groupId 或 artifactId)。执行完上面的命令后，helloworld目录会生成一个完帐的Java web 应用。
+##配置Maven下载Jetty Runner
+pom.xml文件是Maven进行工作的主要配置文件。在这个文件中我们可以配置Maven项目的groupId、artifactId和version等Maven项目必须的元素；可以配置Maven项目需要使用的远程仓库；可以定义Maven项目打包的形式；可以定义Maven项目的资源依赖关系等等。
+在这一步我们以依赖插件的形式下载Jetty Runner包，将下面内容添加到您pom.xml的合适位置:
+&amp;lt;build&amp;gt; ... &amp;lt;plugins&amp;gt; ... &amp;lt;plugin&amp;gt; &amp;lt;groupId&amp;gt;org.</description>
+    </item>
+    
+    <item>
+      <title>PHP Extensions说明</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php_more/extensions/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php_more/extensions/</guid>
+      <description>PHP 5.6 在Rainbond上自动启用以下内置扩展(此列表不包括默认情况下PHP启用的扩展，例如DOM，JSON，PCRE或PDO):
+ Bzip2
+ cURL FPM mcrypt MySQL (PDO) (uses mysqlnd) MySQLi (uses mysqlnd) OPcache OpenSSL PostgreSQL PostgreSQL (PDO) Readline Sockets Zip Zlib  以下内置扩展已经构建为“共享”，可以通过composer.json（括号中给出的内部标识符名称）启用：
+ BCMath (bcmath) Calendar (calendar) Exif (exif) FTP (ftp) GD (gd; with PNG, JPEG and FreeType support) GMP (gmp) gettext (gettext) IMAP (imap; with SASL and Kerberos support) intl (intl) LDAP (ldap; with SASL support) mbstring (mbstring) MySQL (mysql; note that this extension is deprecated since PHP 5.</description>
+    </item>
+    
+    <item>
+      <title>Procfile文件</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/procfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/procfile/</guid>
+      <description> Procfile介绍 Procfile 是Rainbond基于代码指定服务运行方式的策略。其本身是一个普通的文本文件，需要将其放到代码的跟目录中，其内容是定义源码构建的服务运行起来的启动命令。通常情况下只包含一行信息即可，请看下面的例子：
+ Java语言类型，定义启动命令运行War包  web: java -jar /opt/webapp-runner.jar --port $PORT --session-store redis ./*.war   直接执行二进制文件，例如nginx
+web: vendor/bin/heroku-php-nginx  执行启动脚本，例如执行Maven生成的Tomcat Java Server脚本
+  web: sh target/bin/webapp   启动ruby项目  bundle exec bin/rails server -p $PORT -e $RAILS_ENV  您可能注意到了 `$PORT` 这个环境变量，指定服务的监听端口。Rainbond运行服务时将自动通过用户设置的端口信息注入此环境变量。通过上诉类型的启动命令，实现服务监听端口的灵活配置。类似的机制还可以被使用到例如Tomcat启动等几乎所有语言服务类型中。  Procfile格式说明 &amp;lt;服务类型&amp;gt;: &amp;lt;命令&amp;gt;   &amp;lt;服务类型&amp;gt; : 目前仅支持 web 服务类型
+ &amp;lt;命令&amp;gt; : 启动程序的命令行，执行的命令必须是前台运行。
+  </description>
+    </item>
+    
+    <item>
+      <title>Spring Boot框架配置MySQL</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/spring-boot-mysql/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/spring-boot-mysql/</guid>
+      <description>Spring Boot框架简化了新Spring应用的初始搭建以及开发过程，云帮支持平台部署Spring Boot类应用。
+云帮提供Spring Boot配置MySQL服务的示例，您可以在云市 一键式部署 Spring Boot-MySQL示例
+以下内容是本地创建和运行该示例的过程：
+创建示例 使用spring-boot-cli创建示例
+$ docker run -it --rm \ -v $PWD:/app goodrainapps/spring-boot-cli:1.5.9 spring init --dependencies=web spring-boot-mysql-demo  进入示例类文件存放目录
+$ cd spring-boot-mysql-demo/src/main/java/com/example/springbootmysqldemo  添加DemoApplication.java
+@Controller @SpringBootApplication public class DemoApplication { @RequestMapping(&amp;quot;/&amp;quot;) @ResponseBody String home() { return &amp;quot;Hello World!&amp;quot;; } public static void main(String[] args) { SpringApplication.run(DemoApplication.class, args); } }  构建示例 为了加快maven构建，在setting.xml中添加了国内的mirror。将setting.xml拷贝到您的spring-boot-mysql-demo中。
+$ cd spring-boot-mysql-demo $ docker run -it --rm \ -v &amp;quot;$PWD&amp;quot;:/app/build \ -w /app/build maven:3.</description>
+    </item>
+    
+    <item>
+      <title>Tomcat配置Redis实现Session共享</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/tomcat-redis-session/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/tomcat-redis-session/</guid>
+      <description>为了使您的应用承受更多的并发，提高应用稳定性，您需要在适当情况下进行扩容。每个节点下的Tomcat只存储来访问自己的请求时产生的session，为了解决扩容后session持久化的问题，我们提供 Java的War包项目使用Tomcat配置Redis实现Session共享 解决方案，将您session储存在redis中来保证您应用程序稳定性。如图所示：
+
+ 若 Load Balancing 将请求发送给 container 1 下的 tomcat A ，同时产生 session ，将此 session 持久化到Redis 中。当 Web Server 再次发送请求，若请求到 container 2的 tomcat A ，此时会在Redis 中找到已存在的 session，即取即用。
+ 通过源码构建，您可以通过如下两种方式实现 配置redis实现session共享:
+使用Webapp-Runner或Jetty-Runner 云帮使用 [webapp-Runner]() 内嵌的 tomcat 或 [jetty-Runner]() 内嵌的 jetty 实现服务器功能。在您不创建其他服务器情况下即可轻松将应用部署在云帮。通过以下步骤可实现 配置redis实现session共享。
+ 配置Procfile：将如下命令添加到您的Procfile中，并源码根目录下添加Procfile。
+web: java -jar ./webapp-runner.jar --port $PORT --session-store redis ./*.war   指定了监听端口，通过获取环境变量 $PORT,此变量Rainbond根据平台设置的服务端口进行自动注入 指定session存储--session-store redis  从应用市场安装Redis服务，并设置当前服务依赖创建的Redis服务，参考文档 依赖服务
+ 应用配置redis：将REDIS_URL新增至应用环境变量中，值为 redis://:${REDIS_PASS}@127.0.0.1:6379。
+ 重启应用以适配</description>
+    </item>
+    
+    <item>
+      <title>calico组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/calico/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/calico/</guid>
+      <description>守护运行方式  node会生成calico的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat calico获取calico的systemd配置文件
+calico服务是通过镜像运行
+ calico默认配置文件/opt/rainbond/conf/network.yaml
+常用参数说明 -e IP=&amp;lt;当前节点IP&amp;gt; -e CALICO_IPV4POOL_CIDR=&amp;lt;POD CIDR&amp;gt; -e NODENAME=&amp;lt;当前节点Node的UUID&amp;gt;  健康检查 /opt/rainbond/health/network.sh 检查容器是否运行</description>
+    </item>
+    
+    <item>
+      <title>docker组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/docker/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/docker/</guid>
+      <description> 守护运行方式 默认使用官方的安装方式部署docker.
+常用参数说明 默认配置文件: /etc/docker/daemon.json
+{ &amp;quot;insecure-registries&amp;quot;: [&amp;quot;goodrain.me&amp;quot;], &amp;quot;bip&amp;quot;: &amp;quot;172.30.42.1/16&amp;quot;, &amp;quot;userland-proxy&amp;quot;: false, &amp;quot;storage-driver&amp;quot;: &amp;quot;overlay2&amp;quot;, &amp;quot;max-concurrent-downloads&amp;quot;: 10, &amp;quot;log-driver&amp;quot;: &amp;quot;json-file&amp;quot;, &amp;quot;log-level&amp;quot;: &amp;quot;warn&amp;quot;, &amp;quot;log-opts&amp;quot;: { &amp;quot;max-size&amp;quot;: &amp;quot;20m&amp;quot;, &amp;quot;max-file&amp;quot;: &amp;quot;2&amp;quot; } }  具体参数请参见docker官方文档
+配置docker信任私有镜像仓库 如果你的私有镜像仓库未配置https或者自签发https证书需要配置docker信任.
+ 1. 未配置https或者自签发证书(不被浏览器信任的),则需要配置dockerinsecure-registries值,需要完需要重启docker  &amp;quot;insecure-registries&amp;quot;: [&amp;quot;goodrain.me&amp;quot;,&amp;quot;hub.test.com&amp;quot;],   2. 自签发证书，且docker不需要重启  需要将自签发域名的证书拷贝到如下路径 /etc/docker/certs.d/&amp;lt;私有镜像仓库域名&amp;gt;/
+示例goodrain.me
+root@compute-node-99:/etc/docker/certs.d/goodrain.me# ls server.crt  </description>
+    </item>
+    
+    <item>
+      <title>etcd/etcd-proxy组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/etcd/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/etcd/</guid>
+      <description>守护运行方式  第一次是通过默认systemd配置文件启动，在node启动完成后由node接管
+node会重新生成etcd的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat etcd获取etcd的systemd配置文件
+etcd/etcd-proxy服务是通过镜像运行
+ etcd默认配置文件/opt/rainbond/conf/etcd.yaml (管理节点) etcd-proxy默认配置文件 /opt/rainbond/conf/etcd-proxy.yaml (计算节点)
+常用参数说明 具体参数请参见etcd官方文档</description>
+    </item>
+    
+    <item>
+      <title>grclis</title>
+      <link>http://skyzhangyf.github.io/user-operations/tools/grclis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/tools/grclis/</guid>
+      <description> 启动/停止服务 # 启动所有服务 grclis start # 停某服务 grclis stop &amp;lt;某服务&amp;gt; # 停所有服务 grclis stop  更新服务 # 更新Rainbond所有组件 grclis upgrade all # 更新node grclis upgrade node # 更新Rainbond某组件 grclis upgrade &amp;lt;组件&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>grctl</title>
+      <link>http://skyzhangyf.github.io/user-operations/tools/grctl/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/tools/grctl/</guid>
+      <description>grctl命令是rainbond自带的集群管理工具，它具备如下主要功能特性：
+    功能模块 命令示例     平台应用控制 grctl service get &amp;lt;应用别名&amp;gt; -t &amp;lt;团队别名&amp;gt; 查看应用详情
+grctl service stop &amp;lt;团队别名&amp;gt;/&amp;lt;应用别名&amp;gt; 关闭指定团队内某个应用
+grctl service start &amp;lt;团队别名&amp;gt;/&amp;lt;应用别名&amp;gt; 启动指定团队内某个应用
+grctl service list -t &amp;lt;团队别名&amp;gt; 列出应用信息
+grctl tenant list列出所有团队
+grctl tenant get &amp;lt;团队别名&amp;gt;列出该团队所有应用
+grctl tenant res &amp;lt;团队别名&amp;gt;该团队使用资源grctl tenant batchstop &amp;lt;团队别名&amp;gt;批量停团队应用
+grctl exec &amp;lt;PODNAME&amp;gt; &amp;lt;CMD&amp;gt;
+grctl msg应用异常处理   集群节点控制 grctl init初始化数据中心
+grctl cluster 查看集群情况
+grctl node list 查看集群节点列表
+grctl node get &amp;lt;节点ID&amp;gt;查看节点状态</description>
+    </item>
+    
+    <item>
+      <title>kubelet组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/kubelet/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/kubelet/</guid>
+      <description>守护运行方式  通过二进制运行,由node生成systemd文件并启动
+ kubelet默认配置文件/opt/rainbond/conf/k8s-worker.yaml (计算节点)
+常用参数说明 `ExecStart=/bin/bash -c &#39;NODE_UUID=959eba4b-6bbe-4ad5-ba0f-ecfad17d378d/opt/rainbond/scripts/kubelet.sh&#39;` 其中NODE_UUID值为当前节点node的uuid  具体参数请参见k8s官方文档</description>
+    </item>
+    
+    <item>
+      <title>kubernetes master组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/k8s/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/k8s/</guid>
+      <description>守护运行方式  由node生成systemd文件并启动,以镜像方式运行.
+ kubernetes master组件默认配置文件/opt/rainbond/conf/k8s-master.yaml
+常用参数说明 具体参数请参见k8s官方文档</description>
+    </item>
+    
+    <item>
+      <title>node组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/node/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/node/</guid>
+      <description>  node: 集群监控与控制服务,通过二进制运行
+ 守护运行方式  通过systemd守护运行,可以通过systemctl cat node获取node的systemd配置文件
+ # /opt/rainbond/scripts/start-node.sh NODE_OPTS=&amp;quot;--log-level=info --auto-scheduler=true --hostIP=172.20.0.101 --run-mode master --noderule manage,compute --etcd=http://127.0.0.1:2379 --kube-conf=/opt/rainbond/etc/kubernetes/kubecfg/admin.kubeconfig &amp;quot; exec /usr/local/bin/node $NODE_OPTS  常用参数说明 仅列出启动常用参数，其他未列出参数默认即可
+--auto-registnode (当集群中未注册此节点时自动注册节点,默认启用) --auto-scheduler (当节点不健康时自动将节点设置为不可调度,仅计算节点时生效,默认启用) --etcd (etcd地址,默认 [http://127.0.0.1:2379]) --hostIP (当前节点ip,未指定时获取eth0 ip) --kube-conf (k8s admin用户配置文件 &amp;quot;/opt/rainbond/etc/kubernetes/kubecfg/admin.kubeconfig&amp;quot;) --log-level (日志级别，默认info) --nodeid-file (节点标识文件路径，默认&amp;quot;/opt/rainbond/etc/node/node_host_uuid.conf&amp;quot;,内容格式为`host_uuid=959eba4b-6bbe-4ad5-ba0f-ecfad17d378d`,不存在则会默认生成) --noderule (节点删除属性，默认是compute) --run-mode (node属性,默认是worker)  其他扩展命令 # 更新服务配置并启动，不指定组件名则默认为全部 node service update &amp;lt;组件名&amp;gt; # 启动停止服务 node service start/stop &amp;lt;组件名&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>rainbondfile源码定义环境配置文件</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/rainbondfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/rainbondfile/</guid>
+      <description> rainbondfile介绍 rainbondfile 是Rainbond基于代码指定服务运行环境的策略。其本身是一个普通的yaml格式的文本文件，需要将其放到代码的根目录中，其适用于所有基于源码构建的服务类型。目前rainbondfile支持定义环境变量 端口 持久化存储 启动命令四个项目。Rainbond在创建服务的过程中将识别其中定义的内容自动设置到服务属性中，在Rainbond控制台可以查阅。 完整用例如下：
+language: Java-maven buildpath: target/ ports: - port: 8080 protocol: http #如需开启多个端口，则继续添加端口并指定协议 - port: 5000 protocol: tcp envs: ENV_KEY1: ENV_VALUE1 ENV_KEY2: ENV_VALUE2 # 适用于Dockerfile、NetCore源码类型 cmd: java -jar xxxx.jar  rainbondfile作用 源码定义环境是Rainbond推荐的服务管理策略。通过rainbondfile的定义可以便捷的批量添加环境变量等服务属性，后续版本将逐步增加可配置的属性。
+支持的配置项目说明  language 源码类型 ports 服务端口列表 envs 服务环境变量列表 buildpath 服务主目录不在当前目录时有用，指定二级目录地址 cmd 指定服务运行方式，适用于Dockerfile、NetCore源码类型，其他语言通过Procfile指定运行方式  </description>
+    </item>
+    
+    <item>
+      <title>rbd-api组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-api/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-api/</guid>
+      <description>守护运行方式  node会生成rbd-api的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-api获取rbd-api的systemd配置文件
+rbd-api服务是通过镜像运行
+ rbd-api默认配置文件/opt/rainbond/conf/master.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-app-ui组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-app-ui/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-app-ui/</guid>
+      <description>守护运行方式  node会生成rbd-app-ui的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-app-ui获取rbd-app-ui的systemd配置文件
+rbd-app-ui服务是通过镜像运行
+ rbd-app-ui默认配置文件/opt/rainbond/conf/ui.yaml
+常用参数说明 日志文件在/opt/rainbond/logs/rbd-app-ui</description>
+    </item>
+    
+    <item>
+      <title>rbd-chaos(builder)组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-chaos/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-chaos/</guid>
+      <description> 守护运行方式  node会生成rbd-chaos的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-chaos获取rbd-chaos的systemd配置文件
+rbd-chaos服务是通过镜像运行
+ rbd-chaos默认配置文件/opt/rainbond/conf/master.yaml
+环境变量 GITHUB_PROXY  </description>
+    </item>
+    
+    <item>
+      <title>rbd-db组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-db/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-db/</guid>
+      <description>守护运行方式  node会生成rbd-db的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-db获取rbd-db的systemd配置文件
+rbd-db服务是通过镜像运行
+ rbd-db默认配置文件/opt/rainbond/conf/db.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-dns组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-dns/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-dns/</guid>
+      <description> 守护运行方式  node会生成rbd-dns的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-dns获取rbd-dns的systemd配置文件
+rbd-dns服务是通过镜像运行
+ rbd-dns默认配置文件/opt/rainbond/conf/dns.yaml
+常用参数说明 --nameservers 上游dns --recoders 解析记录  如果需要通过rbd-dns解析某个域名
+--recoders=goodrain.me=192.168.195.1,*.goodrain.me=192.168.195.1,buhuibaidu.me=172.20.0.101,*.buhuigoogle.me=172.20.0.102  </description>
+    </item>
+    
+    <item>
+      <title>rbd-eventlog组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-eventlog/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-eventlog/</guid>
+      <description> 守护运行方式  node会生成rbd-eventlog的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-eventlog获取rbd-eventlog的systemd配置文件
+rbd-eventlog服务是通过镜像运行
+ rbd-eventlog默认配置文件/opt/rainbond/conf/master.yaml
+环境变量 DOCKER_LOG_SAVE_DAY: 日志保留时间(默认7天)  </description>
+    </item>
+    
+    <item>
+      <title>rbd-gateway组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-gateway/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-gateway/</guid>
+      <description>守护运行方式  node会生成rbd-gateway的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-gateway获取rbd-gateway的systemd配置文件
+rbd-gateway服务是通过镜像运行
+ rbd-gateway默认配置文件/opt/rainbond/conf/lb.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-hub组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-hub/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-hub/</guid>
+      <description>rbd-hub基于registry镜像
+ 守护运行方式  node会生成rbd-hub的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-hub获取rbd-hub的systemd配置文件
+rbd-hub服务是通过镜像运行
+ rbd-hub默认配置文件/opt/rainbond/conf/base.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-monitor组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-monitor/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-monitor/</guid>
+      <description> 守护运行方式  node会生成rbd-monitor的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-monitor获取rbd-monitor的systemd配置文件
+rbd-monitor服务是通过镜像运行
+ rbd-monitor默认配置文件/opt/rainbond/conf/master.yaml
+常用参数说明 --alertmanager-address AlertManager地址 --cadvisor-listen-port kubelet cadvisor监听端口 --config.file Prometheus 配置文件路径 --rules-config.file Prometheus alerting rules文件路径 --storage.tsdb.retention 数据保留时间，默认7天  </description>
+    </item>
+    
+    <item>
+      <title>rbd-mq组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-mq/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-mq/</guid>
+      <description>守护运行方式  node会生成rbd-mq的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-mq获取rbd-mq的systemd配置文件
+rbd-mq服务是通过镜像运行
+ rbd-mq默认配置文件/opt/rainbond/conf/master.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-repo组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-repo/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-repo/</guid>
+      <description> 守护运行方式  node会生成rbd-repo的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-repo获取rbd-repo的systemd配置文件
+rbd-repo服务是通过镜像运行
+ rbd-repo默认配置文件/opt/rainbond/conf/base.yaml
+Java程序,推荐配置2核4G起,启动时比较占资源  </description>
+    </item>
+    
+    <item>
+      <title>rbd-webcli组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-webcli/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-webcli/</guid>
+      <description>守护运行方式  node会生成rbd-webcli的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-webcli获取rbd-webcli的systemd配置文件
+rbd-webcli服务是通过镜像运行
+ rbd-webcli默认配置文件/opt/rainbond/conf/master.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-worker组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-worker/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-worker/</guid>
+      <description> 守护运行方式  node会生成rbd-worker的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-worker获取rbd-worker的systemd配置文件
+rbd-worker服务是通过镜像运行
+ rbd-worker默认配置文件/opt/rainbond/conf/master.yaml
+常用参数说明 --node-name=&amp;lt;当前节点Node的UUID&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>webapp-runner使用指南</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/webapp-runner/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java_more/webapp-runner/</guid>
+      <description>webapp-runner可以在任何安装有JRE环境的系统中利用Tomcat将应用程序启动。使用webapp-runner不需要安装Tomcat。它只是一个jar文件可以用java命令运行和配置。
+版本说明  Webapp Runner 是基于Tomcat server的。默认Rainbond支持的版本如下:
+    web服务支持 web服务版本 自定义Procfile中jar文件名     tomcat7 webapp-runner-7.0.91.0.jar webapp-runner.jar   tomcat8 webapp-runner-8.0.52.0.jar webapp-runner.jar   tomcat85 (默认) webapp-runner-8.5.38.0.jar webapp-runner.jar   tomcat9 webapp-runner-9.0.16.0.jar webapp-runner.jar   jetty7 jetty-runner-7.5.4.v20111024.jar jetty-runner.jar   jetty9 jetty-runner-9.4.0.v20161208.jar jetty-runner.jar    Webapp Runner 是如何工作的 在本地或Rainbond使用webapp-runner启动应用程序时的命令类似如下格式：
+$ java -jar ./webapp-runner.jar myProject.war  or
+$ java -jar ./webapp-runner.jar path/to/my/project  help
+$ java -jar .</description>
+    </item>
+    
+    <item>
+      <title>企业中心</title>
+      <link>http://skyzhangyf.github.io/user-manual/business-center/business-center/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/business-center/business-center/</guid>
+      <description> 功能描述 企业管理员可以设置平台信息，管理企业下的团队。
+企业信息 展示包含着企业名称、创建时间以及平台版本。
+平台设置  如果您是企业管理员，平台设置模块才会显示
+ 设置用户是否允许注册 添加用户 填写用户名&amp;gt;所属团队&amp;gt;密码&amp;gt;邮箱&amp;gt;角色权限
+ 提示: 填写团队时,输入框会根据您输入的值匹配企业下的所有团队在下拉框里列出
+提示: 填写角色权限时,下拉框所列出的角色权限是根据团队所分配的
+ 团队管理 管理该平台下的所有团队,包括添加团队，删除团队。
+ 提示：如果您是企业管理员，团队管理模块才会显示。
+ 添加团队 如果您具有团队权限设置权限，才可以进行操作，点击确定后方可在所选的数据中心下创建团队 删除团队 企业管理员可以删除（可以删除的）团队，哪怕你不是该团队的管理员。 </description>
+    </item>
+    
+    <item>
+      <title>其他命令行工具</title>
+      <link>http://skyzhangyf.github.io/user-operations/tools/other/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/tools/other/</guid>
+      <description>din 进入指定容器
+din &amp;lt;容器ID/容器Name&amp;gt;  如报错容器中没有bash，则在命令后加 sh  dps 查看所有容器
+cclear 清理已经退出的容器
+ctop 查看容器资源使用情况</description>
+    </item>
+    
+    <item>
+      <title>其他环境变量设置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/envs/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/envs/</guid>
+      <description> 源码应用设置locale 设置运行环境语言
+# 变量名 变量值 LANGUAGE en_US.UTF-8 LANG en_US:zh_CN.UTF-8 LC_ALL C  </description>
+    </item>
+    
+    <item>
+      <title>对接私有源码仓库（Git、Svn）</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-git-server/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/connection-git-server/</guid>
+      <description>原理解读 通过自定义源码的方式创建应用 当你填写Git地址时，平台会自动判断地址的协议，如果是HTTP的Git地址，平台会提示你输入Git仓库的用户名和密码，如果是公开项目，用户名密码可以省略。当输入的Git地址是SSH协议时，平台会提示你将Rainbond的SSH公钥复制到Git仓库中。Rainbond会为每个团队生成独立的公钥以避免多团队密钥冲突。
+当你填写Svn代码地址时，平台提示输入账号名和密码，如果是私有仓库，请务必输入账号。
+操作流程 本文主要讲解通过 SSH 公钥的方式对接私有部署的Git仓库，以 GitLab为示例进行说明。
+Gitlab创建新项目  如果你已有项目，此步骤跳过
+  新建项目   填写项目名称   创建示例代码  切换到SSH地址后，需要记住项目的SSH地址，后续创建应用时需要用到，这里的地址是 `git@172.16.210.205:test/helloworld.git`  新建一个index.html 的文件，内容为 hello world,hello goodrain! 提交。
+配置SSH公钥对接私有仓库 获取公钥 进入【创建应用】-【从源码创建】-【自定义源码】，将项目的SSh协议的地址复制到【Git仓库地址】栏中时，会提示【配置授权Key】连接，点开显示详细信息：
+将公钥添加到Git仓库  切换到项目首页   添加SSH公钥   SSH 公钥添加完成  测试对接是否成功 通过私有仓库创建应用的方式来测试云帮能否通过SSH关于获取Git仓库中的代码。
+ 创建服务  能够识别语言，代表对接成功
+  在Rainbond部署GitLab私有仓库服务 上文介绍的是对接现有GitLab的情况，如果你还没有Git仓库，Rainbond可以一键部署GitLab应用，下面主要介绍对接云帮上部署的GitLab
+创建GitLab应用 通过 【新建应用】-【应用市场】搜索到GitLab应用，选择需要的版本安装即可。
+配置GitLab GitLab安装完成后，可以在应用的端口页面看到对外打开的端口号，如下图：
+ 端口号：应用内部监听的端口，本例中监听了22和80端口 访问地址：云帮映射的地址与端口，本例中 22端口映射的地址为172.16.210.205，端口为20006 ，80端口地址为80.grea7fc4.zggk.48mt2.goodrain.org，端口为80  - Rainbond为HTTP协议的应用端口默认分配一个访问域名 - Rainbond为非HTTP协议的应用端口默认分配一个访问地址和一个随机的映射端口，但端口映射与应用端口唯一对应，不会变化，因此本例的端口可能与你实际情况不一致。  设置GitLab的HTTP和SSH地址 GitLab应用通过 GITLAB_SSH_HOST 和 GITLAB_HOST 环境变量来设置SSH和HTTP的地址，因此需要将这两个变量设置到GitLab应用中。</description>
+    </item>
+    
+    <item>
+      <title>应用A/B测试实践</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/ab-released-app/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/ab-released-app/</guid>
+      <description>功能说明 对照实验，也叫随机实验和A /B测试。在软件开发中，产品需求通过多种技术手段来实现。 A/B测试实验提供了一个有价值的方式来评估新功能对客户行为的影响。 运行网站和服务的A/B测试实验能力，从而可以用更科学方法来评估规划过程中不同阶段的想法价值。一屋子人拍桌子瞪眼的争辩到底哪个设计好？哪个文案好？哪个执行策略有效，还不如让真实的用户和数据来告诉你答案。
+落实到技术本身上来，A/B测试讲究为不同的客户端提供不同的服务，这里的两个不同非常关键。
+ 不同的客户端   一般是通过某种方式将客户端进行分类，比如HTTP协议，通常根据用户信息设置Header请求头、Cookie从而区分不同客户端。
+  不同的服务   一般是指不同的应用的不同版本，在Rainbond平台是不同的服务组件。
+ {{site.data.alerts.callout_success}}
+Rainbond目前支持HTTP协议的A/B测试实践，这也是目前应用面最广的协议。
+{{site.data.alerts.end}}
+服务需要进行A/B测试，需要区分其是属于内部服务还是对外服务。内部服务的A/B测试特性由ServiceMesh层提供，对外服务由应用网关提供。
+我们以下述场景为例，分别对 外部服务 外部服务2 内部服务 内部服务2 进行A/B测试实践。
+2. 对外服务的A/B测试实践 对外服务的A/B测试是最常使用的场景，因为对外服务是直接面对用户的服务。业务程序需要通过一定的业务策略将用户标识信息注入到Cookie中或者是通过移动端APP注入到Header请求头中。Rainbond应用网关可以识别这些标识并根据用户配置的策略匹配相应的服务提供给用户。
+如上图例子所示，外部服务 外部服务2 我已经提前创建，模拟为同一个业务程序的两个版本
+通过 应用网关 -&amp;gt; 访问策略 添加以下两个HTTP访问策略：
+ 用法一：通过Header请求头标识客户端     域名 请求头 服务     www.test.com 无 外部服务   www.test.com user:test 外部服务2    测试方式：
+# 模拟请求外部服务,请注意，域名请按照添加访问策略文档提示正确进行DNS解析设置或本地HOST文件设置 curl www.test.com # 模拟请求外部服务2 curl -H user:test www.</description>
+    </item>
+    
+    <item>
+      <title>应用分享与发布</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-manage/share-app/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-manage/share-app/</guid>
+      <description>应用分享 应用市场定义了支持大型分布式的数字化业务系统的标准云原生应用模型、它可以包含1-N个服务组件，模型包含其中每个服务组件资源及配置，插件资源及配置，拓扑关系、部署关系等。精心制作完成即可一键发布、一键安装。 在Rainbond中，服务是Rainbond可管理的最小服务单元，用户可以将多个服务组成一个复杂的业务系统，这套业务系统可以对外提供服务，也可以分享给其他组织独立部署，你可以将整套业务系统打包成一个云市应用，并选择将该应用发布到团队、公司、好雨公有云市。分享后的应用可供团队、公司或云市的用户一键安装部署完整的服务体系，实现标准化得一键交付部署。分享到不同的范围，可见性也有所不同，具体可见范围如下：
+ 团队：只有当前团队下的成员可见 公司：当前企业下的所有成员可见 好雨云市：连接好雨公有云市的所有企业及用户可见  我们将一个应用内完整的业务解决方案集成体整体打包成一个云市应用，发布成功后，其他用户在创建应用时可以选择从应用市场安装的方式一键安装部署完整的服务体系，实现标准化得一键交付部署。
+需要注意的是，Rainbond内置应用市场跨数据中心应用安装和交付属于企业版功能，开源版本不支持。  应用发布流程 选择要分享的应用，点击发布到市场。
+ 提示：发布应用时，应用内所有服务的状态必须为运行中
+ 完善应用信息
+ 填写应用基本信息
+  应用名：要发布的应用名称 版本：应用发布版本 ，当同一应用组多次发布时，如果版本号相同，则会覆盖已发布的该版本应用，如果版本不同，将发布为新的版本。 分享范围：发布的可见范围。 应用说明：应用的描述，便于使用者了解应用的作用。 图标：应用LOGO   填写每个服务的配置信息
+  环境变量：编辑该服务默认的环境变量，勾选可修改，则其他用户安装此应用后可编辑这个环境的值，反之不可编辑。 伸缩规则：定义该服务可伸缩的最大最小节点数，及节点伸缩步长，最小安装内存限制。 连接信息：通常连接信息中会出现密码类的信息，Rainbond提供了自动生成此类变量的值的功能可选。  提交发布任务
+完善应用信息后，点击提交，向数据中心发起同步任务。由数据中心的rbd-chaos组件对应用中的每一个服务进行数据同步。如果是发布到好雨公有云市，数据中心会将应用所需的镜像或源码包同步到好雨公有仓库及FTP服务器存储，并将应用的模版数据保存到Console数据库并发送到好雨云市保存。如果是发布到团队或公司，则应用所需的镜像或源码包同步到本数据中心，并将应用的模版数据保存在Console数据库。
+确认发布
+当应用中的所有服务及插件全部完成同步后，点击确认发布，即可完成应用发布。发布成功后可在创建应用下的从应用市场安装中对应的范围下看到你发布的应用。
+上架应用
+如果想要可以在公有云市中找到发布的应用，那么需要在云市中上架该应用。上架后的应用可以被连接好雨公有云市的所有企业及用户看到。
+ 登录Goodrain官网,进入 企业中心 &amp;gt; 应用市场 &amp;gt; 自有市场 &amp;gt; 分享应用管理。 &amp;gt; 登录的时候需要用该企业管理员的Rainbond账号登陆。
+ 信息编辑。使用Markdown编写应用的详细介绍，完善应用README，让用户可以更好地去了解使用应用。
+   设置价格。   上架。  完成上架之后，我们就可以在云端中找到你上架的应用。</description>
+    </item>
+    
+    <item>
+      <title>应用升级</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-manage/upgrade_app/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-manage/upgrade_app/</guid>
+      <description>应用升级 应用升级功能是应用市场在易用性方面的一次全面提升, 通过简单的操作即可把从应用市场安装的应用, 从旧版本升级到新版本.
+升级的对象是什么
+在应用管理菜单下, 有多个我们创建的应用, 我们把它这些应用叫做应用组, 每组应用有多个服务.
+我们在往应用组中添加组件时, 可以直接从应用市场安装一个打包好的云市应用, 每个应用组可以安装多个云市应用, 所以应用组下的这些服务是来自不同的云市应用.
+我们查找了这些服务的安装来源, 找出了这个组安装好的所有云市应用, 针对每个云市应用做升级操作.
+什么时候可以升级
+当云市应用中的服务有变化 (例如：端口、环境变量、存储等) 或 新版本增加了新的服务组件时, 我们会在云市应用升级按钮的左侧, 给您用绿点提示.
+应用升级流程 选择要升级的应用，点击云市场应用升级。
+查看来自应用市场的应用
+ 选择有新版本的应用进行升级
+ 查看升级信息
+ 如果有多个可升级版本, 可按需选择期望升级到的版本.
+当然也可根据意愿, 按需选择期望升级的服务.
+ 升级信息主要包括, 每个服务的变更信息, 以及新增服务的信息.
+在上图中 🔼 标志代表服务是可升级的, ➕标志代表服务是新增的. 没有标志代表该服务没有变化, 无需升级.
+点击升级
+升级时, 我们对升级之前的服务状态做一个备份, 升级完成之后提供回滚功能
+升级完成
+ 现在升级已经完成了, 让我们看看升级前后的对比
+ 回滚
+ 当然有升级就有回滚
+不过有点小小的限制:
+ 为了保证回滚的可靠性, 现在只允许对最后一次的升级操作进行回滚 新增的服务是不能通过回滚删除的   查看升级记录
+查看升级记录详情
+ 这里记录了之前升级
+  我们可以从这里回滚升级(只能是最后一次升级哦)</description>
+    </item>
+    
+    <item>
+      <title>应用备份管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-manage/app-backup/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-manage/app-backup/</guid>
+      <description> 应用备份、恢复与迁移 Rainbond目前提供应用级的全量备份功能，主要用于两类场景：
+ 应用整体的版本备份，包含代码和运行环境，持久化数据，服务&amp;amp;应用配置等所有属性。有了备份，应用即可随时恢复到备份版本。 应用迁移，将应用完整迁移到其他团队或其他数据中心。  Rainbond备份功能目前的设计是全量的冷备份机制，传统意义上我们对服务的备份主要是对持久化数据的备份，比如Mysql数据库的数据。在微服务架构的状态下，如果只是备份某一个服务的数据，应用内包含多个服务时很难在出现故障的情况下同步恢复到历史状态。我们对于应用管理的追求必须要做到应用级的完整备份。在容器化的情况下，对于代码和运行环境的备份是容易的，我们可以方便的做到对所有服务的运行环境热备份。但是对于持久化数据，特别是有状态服务的持久化数据，我们不能保证在工作状态下将数据能够安全备份。因此Rainbond目前要求备份应用时需要停止有状态服务。
+后续的版本中我们将以operator的方式支持有状态服务的数据热备份，然后接入应用整体备份流程中。即可实现对应用的完整热备份和定期备份。
+应用备份 从应用的操作列表中即可进入应用备份管理页面，备份操作分为本地备份和云端备份两种。
+ 本地备份：将一组应用备份在本地，本地备份的应用无法进行跨数据中心和租户的迁移操作。 云端备份：Rainbond企业版本支持，将备份数据存储于云端。  只需要添加备份，选择备份模式即可，备份是一个异步的过程，且根据服务的数量的不同耗时不同。如果应用下存在运行中的有状态服务，将拒绝备份操作。
+在5.0以后的版本中新添加全部备份页面，进入后会展示出当前团队数据中心下的所有备份记录，以便清晰查看，同时也解决了之前版本应用有备份记录无法删除的问题。
+备份恢复 恢复对于已经备份成功的一组应用，使用恢复可以将该组应用进行恢复操作。恢复通常是在当前应用出现不可解决的问题。 恢复操作如下：  恢复操作过程中请勿关闭恢复页面，否则可能会导致恢复失败。为了保证您的数据安全，恢复操作过程我们会生成一份您的备份应用的拷贝，您可以在恢复的最后一步中选择删除原有的应用。
+  导出备份 导出备份会将会导出一份备份的数据，目前只有云端备份支持备份的导出。
+ 导入备份 在导出备份以后，您可以在别的云帮平台（可以访问网络）将导出的备份进行导入，导入后会生成相应的备份记录，您可继续后续操作。
+  本地恢复后的注意事项 应用恢复后网关访问策略需要用户手工配置。
+应用的跨租户和跨数据中心迁移 由于我们做到全局的全量备份，借助此我们可以做到应用的整体迁移，包括跨租户迁移和跨数据中心迁移。
+在已经备份的情况下，可以选择迁移操作来进行应用的迁移 迁移操作如下：
+应用完成迁移以后，会跳转到对应的数据中心和租户以方便您查看迁移后的应用。
+Rainbond开源版只能进行当前数据中心下的跨团队迁移，企业版支持跨数据中心迁移。  </description>
+    </item>
+    
+    <item>
+      <title>应用拓扑图</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-manage/app-topology/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-manage/app-topology/</guid>
+      <description>展示模式 拓扑图以图形化的方式展示应用的所有服务组件实时状态，它将展示如下几个维度的信息：
+ 服务网络拓扑关系  图中可以清楚的展示服务直接的网络调用关系以及公网开放情况，结合流量状态可以便捷发现通信状态。
+ 服务整体业务依赖关系  图中服务之间的连线表示服务业务依赖关系，让用户可以一看便知复杂业务系统的业务关系。
+ 服务流量跟踪状态  拓扑图中的每条线在开通了性能分析插件后将实时呈现每条通信链路的吞吐率和响应时间，未来还会将错误率和分布式跟踪情况展现在链路中
+ 服务运行状态  服务以颜色展示服务状态，对应关系如下：
+   颜色 未构建/未启动     黑色/灰色 未构建/未启动   绿色 运行中   浅绿色 升级中   红色 已关闭     如果服务六方体呈现为叠加状，表明当前服务运行了多个实例。
+ 编辑模式 编辑拓扑图目前支持:服务组件连接建立或取消依赖关系、打开或关闭服务组件对外端口，方便快捷；
+ 删除动作  点击连接线按下delete键快速删除组件依赖关系、关闭服务组件所有对外端口，方便快捷；
+ 增加动作  点击起点焦点拖拽到终点即可建立两个服务间的依赖关系或打开外网访问。</description>
+    </item>
+    
+    <item>
+      <title>应用灰度发布实践方案</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/gray-released-app/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/gray-released-app/</guid>
+      <description>功能说明 灰度发布主要是按照一定策略选取部分用户，让他们先行体验新版本的应用，通过收集这部分用户对新版本应用的反馈，以及对新版本功能、性能、稳定性等指标进行评论，进而决定继续放大新版本投放范围直至全量升级或回滚至老版本。灰度发布可以保证整体系统的稳定，在初始灰度的时候就可以发现、调整问题，以保证其影响度。
+灰度发布策略可以平滑、可控的调整新旧版本的流量负载情况。
+灰度发布实践  基于A/B测试的实践  A/B测试策略本身就是灰度发布的一种实践，在继续下文之前，请务必阅读并掌握 A/B测试实践
+ 基于权重的灰度发布实践  在A/B测试用例中我们主要强调通过客户端标识明确的标识客户请求来精确控制。当然不是所有场景都需要这样的精确控制，或者我们只需要从流量的维度进行控制，比如开始先 10%流量切换到新版本，后续逐步增加这个权重，在正常的情况下直到旧版权重较少到 0。 内部服务和外部服务都支持基于权重的路由控制。
+ 外部服务  依然通过 应用网关 -&amp;gt; 访问策略 添加以下两个HTTP访问策略：
+   域名 权重 服务     www.test.com 90 外部服务   www.test.com 10 外部服务2    根据需要逐步分别降低和升高权重即可。
+ 内部服务  同样通过网络治理插件设置以下参数，权重是在 PREFIX DOMAINS HEADERS 完全一致的情况下生效。
+ PREFIX：URL前缀path配置，例如/api DOMAINS：内网请求域名配置，基于配置的域名转发至下游应用，仅支持一级域名 WEIGHT：转发权重设置，范围1~100。规定相同的DOMAINS与PREFIX组合情况下，权重总和为100。数值越大，权重越高。 HEADERS：HTTP请求头设置，多个参数以;分隔，您可以根据请求头中的参数不同来决定去请求哪个下游应用 LIMITS：TCP限速，设值值为0则熔断  存在的缺陷和改进计划 主要缺陷和计划与A/B测试文档描述的一致。</description>
+    </item>
+    
+    <item>
+      <title>应用网关说明</title>
+      <link>http://skyzhangyf.github.io/user-manual/gateway/gateway/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/gateway/gateway/</guid>
+      <description>这篇文章将会介绍如何在 什么是应用网关, 以及应用网关的作用.
+应用网关定义 在百度百科中, 网关的定义是这样子的: 网关(Gateway)就是一个网络连接到另一个网络的&amp;rdquo;关口&amp;rdquo;. 类似的, 应用网关是 Rainbond 中的一个组件(rbd-gateway), 它是外部流量流入应用的&amp;quot;关口&amp;quot;. 也可以说是南北向流量中, 北向流量流向南向流量的一个&amp;rdquo;关口&amp;rdquo;.
+应用网关的作用 在介绍应用网关的作用前, 首先需要提一下 Ingress. Kubernetes 官方对 Ingress 的介绍是: 在Kubernetes v1.1 中添加的 Ingress, 暴露了从集群外部到集群内服务的 HTTP 和 HTTPs 路由. 流量路由 Ingress 定义的策略控制.
+ 注意, Ingress 只是定义了从集群外部到集群内服务的路由策略, 并没有实现这些策略. 
+ 应用网关的作用就是实现 Ingress 中定义的各种策略. 除了 HTTP 和 HTTPs 路由外, 应用网关还提供了其他丰富的功能. 目前支持的功能有:
+ HTTP 和 HTTPs 策略 TCP/UDP 策略 泛域名策略 多种负载均衡算法 高级路由: 根据访问路径, 请求头, Cookie, 权重的访问控制 服务与域名访问情况监控  HTTP 和 HTTPs 策略 HTTP（HTTPs）策略是当前IT领域中最重要的服务访问策略，目前Rainbond对HTTP访问策略的支持如下：</description>
+    </item>
+    
+    <item>
+      <title>快速部署Gitlab源码管理服务</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/app-create/gitlab/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/app-create/gitlab/</guid>
+      <description>Gitlab简介 GitLab是利用 Ruby on Rails 一个开源的版本管理系统，实现一个自托管的Git项目仓库，可通过Web界面进行访问公开的或者私人项目。它拥有与Github类似的功能，能够浏览源代码，管理缺陷和注释。同时Gitlab集成了一系列的CI功能。不得不说，Gitlab在企业中是的使用率非常高。
+Rainbond非常推荐用户使用Git代码仓库管理代码，从而获取更好的源代码管理和自动化CI体验。话不多说，接下来我们用10分钟的时间完成Gitlab服务在Rainbond的完整部署。
+准备工作  准备一个可用的域名（如果你可以准备），比如 git.example.com 准备域名对应的证书（如果你可以准备） Rainbond平台已安装完成，参考文档Rainbond快速安装 Rainbond平台处在能够连接互联网的环境下。  部署步骤 本教程我们将采用基于已制作完成的Docker镜像安装的方式部署Gitlab。部署完成后在Rainbond的运行效果如下：
+ 我们在Rainbond部署一个开源的项目，基于Docker镜像的方式是最快，最简单的方式，特别是一些根据云原生的建议制作的镜像在Rainbond运行兼容性和体验都非常优越。
+ 我们今天部署的Gitlab服务包括Postgresql组件、Redis组件和Gitlab-Server组件，它们的网络依赖关系如上图你看到一样，我们根据依赖关系从小到上依次部署。
+首先创建应用 GItlab然后从应用管理页面开始添加服务组件：
+我们采用基于DockerRun命令的方式创建服务，参考文档 基于镜像创建服务 ,
+此次部署的Gitlab镜像由社区提供，是目前使用最广的镜像。源码参考 docker-gitlab
+部署Postgresql组件 添加服务组件，基于以下DockerRun命令，Rainbond将从下面的命令中获取镜像名称和持久化存储目录。
+docker run --name gitlab-postgresql -d \ --volume /srv/docker/gitlab/postgresql:/var/lib/postgresql \ sameersbn/postgresql:10  服务构建源识别完成后，通常的过程是直接创建并启动，但是我们这里还需要设置服务的运行类型为有状态服务，并且还需要设置一下连接信息。因此我们需要选择创建不启动。方式如下：
+强调一下，取消图中红色框框中的单选框，这一步非常重要  确认后页面直接跳转到服务管理页面，我们做以下几步设置：
+ 更改端口别名，设置连接信息  进入服务端口管理页面，服务已默认添加了5432端口，更改端口协议为TCP, 打开端口的对内服务按钮，同时单击&amp;rdquo;使用别名&amp;rdquo;后方的端口别名信息，在弹出窗中设置端口别名为 &amp;ldquo;DB&amp;rdquo;。确认后将自动生成DB_HOST和DB_POST两个连接信息，在服务&amp;rdquo;依赖&amp;rdquo;页面可以查询连接信息, 同时我们继续添加以下连接信息：
+   变量名 值 说明     DB_EXTENSION pg_trgm    DB_NAME gitlabhq_production 数据库名称   DB_PASS password 密码，你自己可以随便定义值   DB_USER gitlab 连接数据库用户名    添加这些连接信息有两个作用：</description>
+    </item>
+    
+    <item>
+      <title>无影响滚动升级无状态应用</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/upgrade-stateless-app/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/upgrade-stateless-app/</guid>
+      <description>无状态应用可以包含多个实例，其中所有实例都相同，但各实例之间相互独立，互不依赖，任意一个Web请求完全与其他请求隔离,用户不需要保存应用的状态或者持久化数据，访问时系统会自动为多实例的应用分发请求，所有实例共享存储卷。Rainbond针对无状态应用采用滚动升级策略。
+应用场景 应用部署运行时，如果应用不需要任何稳定的状态标示、有序的部署、更新升级、删除和扩展，建议使用无状态(Deployment)方式部署。大多数Web类和API类都可以选用无状态应用。平台创建应用默认是无状态应用。
+平台设置 源码构建还是镜像构建，配置流程一致，这里以镜像创建为例。
+创建应用时设置应用类型 应用检测通过后可以配置高级设置
+已创建应用修改应用类型 目前只能对已关闭应用进行应用类型修改。
+在应用的其他设置基础信息里可配置应用类型,修改应用类型会丢数据。
+滚动升级(RollingUpdate) Rainbond默认使用Deployment类型来部署Web类应用, 应用升级策略方面采用了滚动升级策略.所谓的滚动升级策略就是采用逐步替换的方式，使用新的实例逐步更新替换旧的实例.好处是不会中断服务，但会导致调用时出现应用版本不一致情况，输出内容不一致。
+滚动更新策略 # 默认RollingUpdateStrategy 25% max unavailable, 25% max surge  部署可以确保在更新时只有一定数量的实例可能会关闭。默认情况下，它确保至少比所需的实例数量少25％（25% max unavailable,）。 部署还可以确保在所需数量的实例之上只能创建一定数量的实例。默认情况下，它确保最多比所需数量的实例多25％（25% max surge）。 如果你的实例数为3,确保可用实例至少为2，并且保证实例数总数最多为4.
+操作 滚动升级在平台体现在两个方面的操作流程，一个是构建并启动过程，另外一个就是伸缩过程。
+如果仔细查看上面的部署，您将看到它首先创建了一个新的Pod，然后删除了一些旧的Pod并创建了新的Pod。在有足够数量的新Pod出现之前，它不会杀死旧的Pod，并且在足够数量的旧Pod被杀之前不会创建新的Pod。它确保可用Pod的数量至少为2，并且Pod的总数最多为4。 也可以通过命名行方式查看具体event事件，来确定滚动更新具体流程。
+Name: eb02a36a5f8d0b349b2254461393369e-deployment Namespace: 34869bb254f6491e97d4993980a2cf85 Annotations: deployment.kubernetes.io/revision=4 Selector: name=gr93369e,service_id=eb02a36a5f8d0b349b2254461393369e,tenant_id=34869bb254f6491e97d4993980a2cf85 Replicas: 3 desired | 3 updated | 3 total | 3 available | 0 unavailable StrategyType: RollingUpdate MinReadySeconds: 0 RollingUpdateStrategy: 25% max unavailable, 25% max surge Conditions: Type Status Reason ---- ------ ------ Available True MinimumReplicasAvailable Progressing True NewReplicaSetAvailable OldReplicaSets: &amp;lt;none&amp;gt; NewReplicaSet: eb02a36a5f8d0b349b2254461393369e-deployment-9fcdf797 (3/3 replicas created) Events: Type Reason Age From Message ---- ------ ---- ---- ------- Normal ScalingReplicaSet 27m deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-84dc79c979 to 1 #第一次部署，新建实例数设置为1 Normal ScalingReplicaSet 25m deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-d5ff5fbd4 to 1 #构建操作，新建实例数设置为1 Normal ScalingReplicaSet 24m deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-84dc79c979 to 0 #构建操作，旧实例数设置为0 Normal ScalingReplicaSet 24m deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 1 #伸缩操作，新建实例数设置为1 Normal ScalingReplicaSet 24m deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-d5ff5fbd4 to 0 #伸缩操作，旧实例数设置为0 Normal ScalingReplicaSet 30s deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 3 #伸缩操作，新建实例数设置为3 Normal ScalingReplicaSet 22s deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-9fcdf797 to 1 #构建操作，新建实例数设置为1 Normal ScalingReplicaSet 20s deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 2 #构建操作，旧实例数设置为2 Normal ScalingReplicaSet 20s deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-9fcdf797 to 2 #构建操作，新实例数设置为2 Normal ScalingReplicaSet 18s deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 1 #构建操作，旧实例数设置为1 Normal ScalingReplicaSet 18s deployment-controller Scaled up replica set eb02a36a5f8d0b349b2254461393369e-deployment-9fcdf797 to 3 #构建操作，新实例数设置为3 Normal ScalingReplicaSet 16s deployment-controller Scaled down replica set eb02a36a5f8d0b349b2254461393369e-deployment-66b58566c9 to 0 #构建操作，旧实例数设置为0  无影响升级 无影响的前提，是已经多实例部署了。如果单实例部署，需要保证应用启动即服务。</description>
+    </item>
+    
+    <item>
+      <title>服务配置文件实践</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/config-file/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/config-file/</guid>
+      <description>这篇文章将会介绍 Rainbond 中的配置文件, 并且会以 mariadb 为例, 演示配置文件的使用.
+配置文件的介绍 Rainbond 结合了 Kubernetes 的 ConfigMap 实现的配置文件, 是一种特殊的存储类型, 此类型允许用户直接定义文件内容, 通常是指配置文件.
+配置文件有两大特性：动态渲染环境变量 和 配置文件共享.
+动态渲染环境变量 动态渲染配置文件解析环境变量的语法:
+${环境变量名} ${环境变量名:默认值}  如果服务中存在指定的环境变量, 那么 Rainbond 会将该环境变量的值解析到配置文件中; 如果服务中不存在该环境变量, 那么 Rainbond 会将默认值解析到配置文件中。
+如果指定的环境变量不存在, 且没有设置默认值, 那么 Rainbond 不会进行解析  配置文件共享 可以通过存储共享的机制来共享配置文件, 如果你有多个服务使用同一个配置文件的场景, 可以直接共享, 无需多次编辑设置.共享的配置文件只会解析当前服务的环境变量.
+配置文件在 Mariadb 中的应用 mariadb, Docker 的官方镜像, 给出了两种自定义 MySQL 配置文件的方法.
+Mariadb 官方的配置方法 第一种方法是在宿主机创建一个配置文件, 并将这个配置文件挂载到容器的 /etc/mysql/conf.d 目录下. /etc/mysql/conf.d下的配置文件就会覆盖默认配置文件 /etc/mysql/my.cnf. 这种方法不够灵活, 无法在创建服务时确认 Pod 会被调度在哪个节点上(数据中心通常是集群), 需要服务创建完成后才能挂载配置文件, 然后重启服务使其生效.
+第二种方法是在 docker run 命令中传入 mysqld 的参数, 比如, 通过 character-set-server 和 collation-server 两个参数修改l默认的编码和校对规则:</description>
+    </item>
+    
+    <item>
+      <title>版本发布周期</title>
+      <link>http://skyzhangyf.github.io/quick-start/release-cycle/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/release-cycle/</guid>
+      <description>一、版本号规范 版本格式：A.B.C
+ A : 表示大版本号，一般当软件整体重写，底层组件大版本升级（Docker，Kubernetes）或出现不向后兼容的改变时，增加A B : 表示功能更新，出现新功能时增加B C : 表示小修改，如修复bug，只要有修改就增加C  版本示例：3.6.1 表示，第3个大版本中的第6个功能更新版本，并且在这个功能更新版本中进行了一个版本的bug修复。
+二、版本更新周期    版本类型 更新周期 说明     A: 大版本号 6~12个月 版本重构，底层关键组件升级，向后不兼容   B: 功能更新版本 1~3个月 功能更新   C: Bug修复 1~2周 Bug或安全补丁    三、当前版本及说明    版本号 说明     3.4 历史版本，不再维护   3.5.2 历史版本，不再维护   3.6.1 历史版本，不再维护   3.7.2 历史版本，不再维护   5.</description>
+    </item>
+    
+    <item>
+      <title>用户、管理员注册</title>
+      <link>http://skyzhangyf.github.io/user-manual/user-registration-login/user-register/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/user-registration-login/user-register/</guid>
+      <description>功能描述 如果您第一次使用rainbond平台，首先得注册一个账户，以方便您访问rainbond应用控制平台。用户在Rainbond平台中只作为操作身份的标识，不具备给类资源所属权，Rainbond的服务、应用、网关策略、插件等资源只属于团队,用户只能从团队中获取操作权。 每一个用户可以加入多个团队，主动加入团队时需要团队管理员审核。
+平台管理员注册 Rainbond注册的第一个用户是（平台）企业管理员，拥有管理员所拥有的权限，能够对平台的一些基础功能进行设置管理，同时具备对团队的管理权，后续再注册的用户为普通用户。企业管理员用户可以查看当前企业下所有团队的资源信息。
+ 企业版中企业管理员可以登录管理后台 企业版中可以通过管理后台添加更多的企业管理员用户。  普通用户注册 在开启用户注册功能的情况下，注册流程由用户完成，过程如下： - 点击 注册账户 - 填写用户名，邮箱，密码，验证码 - 点击 注册 - 选择其中一个团队加入，等待平台管理员审核 - 审核通过可进入平台
+ 提示: 进入到某一个团队才能拥有团队所拥有的资源的操作权限
+  用户登录页面演示
+  用户注册页面演示
+  非管理员用户注册完成后必须加入到某个团队才能进入系统。
+  等待团队管理员审核通过
+ 关闭注册功能 为了适应企业账号管理方式，管理员可以通过 企业管理 页面关闭用户注册功能，采用人工添加用户的方式。
+与第三方用户体系集成 Rainbond计划支持LDAP,Auth2.0等标准规范的第三方用户管理集成策略。</description>
+    </item>
+    
+    <item>
+      <title>第三方服务实践-统一管理集群内服务访问集群外数据库</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice2/</guid>
+      <description>如果在公有云(比如阿里云, AWS)上的分布式数据库, 无法迁移到 Rainbond 上; 或是其他尚未迁移到 Rainbond 的数据库, 那么你可以使用第三方服务将它们注册到 Rainbond 中, 从而使得集群内服务也可以访问它们。本文将演示如何把集群外的 MySQL 通过第三方服务注册到 Rainbond 集群中, 并为其定义共享环境变量，从而解决多个服务重复定义数据库连接信息变量的问题。
+ 如果Rainbond安装在阿里云，请注意使用阿里云RDS云数据库时必须与Rainbond集群处于同一个区域。
+ 前期准备  请确保你已经安装了 Rainbond V5.1 或更高的版本。
+ 需要添加的服务, 本文使用的是 Rainbond 集群外的一个 MySQL。
+ phpMyAdmin, 可以在应用云市中安装, 也可以通过镜像的方式创建.
+  你可以假设这个 MySQL 是非常复杂的, 比如它是一个分布式, 主从复制, 读写分享的 MySQL, 迁移的难度比较在; 那么你可以先不迁移这个 MySQL, 通过第三方服务将这个 MySQL 的实例添加到 Rainbond 集群中, 让它也可以使用 Rainbond 服务通信治理, 服务拓扑关系等功能.
+步骤 1: 填写第三方服务信息 登录 Rainbond 控制台, 进入 创建应用 -&amp;gt; 添加第三方服务.
+填写 服务名称, 应用名称, 服务注册方式(以 API 注册为例), 服务地址等信息.</description>
+    </item>
+    
+    <item>
+      <title>第三方服务实践-通过Rainbond应用网关访问企业内网应用</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/practices/thirdparty-service-practice1/</guid>
+      <description>企业基于Rainbond建设自己的私有云，管理企业所有的应用的过程中，会遇到这样一个问题，有一些应用需要被公网访问，但是由于各种原因，应用尚未迁移到 Rainbond 中。但是 公司只有一个公网 IP。用户为了能够使Rainbond集群内外的应用可以同时对外网提供服务，不得不单独部署一个nginx服务来作为最外层的应用负载。这样带来的问题就是没办法直接方便的使用Rainbond网关，每开放一个应用都需要手动配置nginx的规则，如果不了解Rainbond网关的工作原理，这个过程将更加复杂。
+为了解决这个问题，结合其他方面的需求，Rainbond第三方服务管理集成功能应运而生。参考第三方服务定义
+本文将会实践如何使用第三方服务, 让未迁移到Rainbond集群的应用也能够直接动态注册到Rainbond网关，从而实现基于Rainbond网关来管理企业所有的对外提供服务的应用。
+前期准备  请确保你已经安装了 Rainbond V5.1 或更高的版本。
+ 企业内网的其他服务, 本文使用一个Nginx应用来说明。
+  步骤 1: 填写第三方服务信息 登录 Rainbond 控制台, 进入 创建应用 -&amp;gt; 添加第三方服务.
+填写 服务名称, 应用名称, 服务注册方式(以静态注册为例), 服务地址等信息.
+点击 创建服务, 并在检测通过后, 点击 创建.
+步骤 2: 添加端口 创建完成后, 会进入到服务的管理页面. 在导航中选择 端口.
+点击添加端口, 输入端口为 80, 选择 http 协议.
+添加完成后, 打开对外服务, 让应用网关代理该服务.
+这里需要注意的是, 内部的服务可以添加多个端口, 而第三方服务只能添加一个端口.  步骤 3: 确认服务 打开对外服务后, 你会得到一个类似http://80.grf53077.ex05o2yt.2cbcac.grapps.cn/的域名, 这是 Rainbond 为该服务会分配一个默认的域名, 最关键的是这时候你可以在网关中为该服务自定义域名和设置需要的访问策略参数。
+参考文档 网关访问策略管理</description>
+    </item>
+    
+    <item>
+      <title>访问控制</title>
+      <link>http://skyzhangyf.github.io/user-manual/gateway/traffic-control/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/gateway/traffic-control/</guid>
+      <description>这篇文章将会介绍如何在配置应用网关中的规则, 从而对应用的访问进行控制.
+在这篇文章中, 你将会完成:
+添加 HTTP 策略 添加 HTTP 强转 HTTPs 策略 添加 TCP 策略 添加 泛域名 策略 添加 A/B 测试, 灰度发布策略 参数配置
+前期准备 请确保你能够满足以下条件:
+ 一个状态健康的 Rainbond. 一个或多个运行中的服务 一个可用, 并且已经解析到应用网关所在机器上的域名(机器的 IP 可以在添加策略的面板上找到)  添加 HTTP 策略  准备一个服务，参考服务创建文档 点击 应用网关 -&amp;gt; 访问控制 -&amp;gt; 添加策略 填写路由条件等信息 点击 确认   配置完成后, 就可以通过域名(www.test.com)对应用(Nginx)进行访问了.
+HTTPs 策略, HTTP 强转 HTTPs 策略  准备一个服务，参考服务创建文档 点击 应用网关 -&amp;gt; 访问控制 -&amp;gt; 添加策略 填写 域名, 绑定证书, 应用(组), 服务组件, 端口号, HTTP Rewrite HTTPs 等信息 点击 确认   如果没有勾选 HTTP Rewrite HTTPs, 那么将会是单纯的HTTPs</description>
+    </item>
+    
+    <item>
+      <title>证书管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/gateway/cert-management/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/gateway/cert-management/</guid>
+      <description>证书管理的作用是管理 HTTPs 所需的证书. 包括 添加证书, 编辑证书和删除证书.
+添加证书 证书管理 正确的证书添加后Rainbond会自动识别签发的域名和过期时间，以确保用户绑定域名时选择正确的域名证书。过期时间可以让用户便捷的发现证书的有效期，及时更新证书。</description>
+    </item>
+    
+    <item>
+      <title>通过应用市场做应用交付与升级</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/devops/application-delivery/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/devops/application-delivery/</guid>
+      <description>概述 在企业选定Rainbond作为生产交付平台后，如何将开发好的应用交付到最终用户的生产环境中去，就变成了一个非常重要的课题。本文通过实际的测试流程，讲解了如何通过Rainbond应用市场做应用的交付，以及在原始应用有升级后，如何将升级内容同步到其他已经通过原始版本的应用市场部署的应用。
+基于Rainbond应用市场交付的流程 事先准备 完成这个操作需要两套Rainbond环境。一套作为应用的发布平台，用于应用的发布与升级；另一套作为部署平台，我们将会通过离线导出/导入市场应用的方式，实现应用的交付与升级操作。
+本文在写作的时候搭建了两套Rainbond v3.7.2 作为测试环境，来演示与验证通过应用市场做应用交付与升级。
+应用的发布与导出 本次测试挑选了一个基于Maven构建的 spring boot 项目。搭配了 mysql 组成了一个完整的应用。接下来，将其发布为一个应用市场的应用,并将其导出为包。这里提供本次导出的测试应用包，以供用户进行测试。
+应用包的导入 接下来，我们会在一个新的环境导入刚刚导出的应用包。此过程对应了离线环境下，基于Rainbond应用市场的交付场景。
+导入完成后，即可以使用从应用市场构建，来将导入的包构建为应用。基于Rainbond应用市场的应用交付就完成了。
+应用市场升级操作 应用的重新发布 对于已发布到应用市场的应用，该如何才能升级呢？这涉及到同一个应用的重复发布。在这里指出很重要的一点：
+ 将应用发布到应用市场后，不要将原始应用删除。未来的升级将以原始应用为基础，进行调整。在调整完成后，重新发布到应用市场，即可完成应用市场中应用的升级。
+ 接下来，依然以spring boot为基础，完整的实现一次升级操作。在开始之前，通过未升级的应用市场部署一个应用 app_delivery作为测试用例；并为应用的源码仓库添加了一个标示文件 new_file_for_test 模拟应用源码发生变更。
+重新构建来升级原始应用
+重新发布来升级应用市场中的应用
+ 需要注意的是，重新发布同一个应用的时候，版本 应与原应用保持一致，方视为对原应用的升级；否则，会发布出一个新的应用。
+ 同Rainbond下应用市场部署应用的升级 对于使用了应用市场中应用的首个版本部署的应用 app_delivery 。在重新发布应用后，就可以进行升级操作了。Rainbond会自动检测应用市场应用的版本，并体现 应用升级按钮。
+不同Rainbond下应用市场应用的升级 对于已交付的其他Rainbond环境，我们在升级了应用后，如何在交付环境中升级呢？我们需要将应用重新导出，再导入到交付环境中去。导出的方式以及介绍过了，这里提供本次导出的测试应用升级包，以供用户进行测试。
+成功将应用市场应用升级后，就可以对已通过原始版本的应用进行升级操作了。</description>
+    </item>
+    
+    <item>
+      <title>部署Mysql主从集群应用</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/app-create/create-middleware-cluster/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/app-create/create-middleware-cluster/</guid>
+      <description>Mysql主从同步原理 1）在Slave 服务器上执行sart slave命令开启主从复制开关，开始进行主从复制。
+2）此时，Slave服务器的IO线程会通过在master上已经授权的复制用户权限请求连接master服务器，并请求从执行binlog日志文件的指定位置（日志文件名和位置就是在配置主从复制服务时执行change master命令指定的）之后开始发送binlog日志内容。
+3）Master服务器接收到来自Slave服务器的IO线程的请求后，其上负责复制的IO线程会根据Slave服务器的IO线程请求的信息分批读取指定binlog日志文件指定位置之后的binlog日志信息，然后返回给Slave端的IO线程。返回的信息中除了binlog日志内容外，还有在Master服务器端记录的IO线程。返回的信息中除了binlog中的下一个指定更新位置。
+4）当Slave服务器的IO线程获取到Master服务器上IO线程发送的日志内容、日志文件及位置点后，会将binlog日志内容依次写到Slave端自身的Relay Log（即中继日志）文件（Mysql-relay-bin.xxx）的最末端，并将新的binlog文件名和位置记录到master-info文件中，以便下一次读取master端新binlog日志时能告诉Master服务器从新binlog日志的指定文件及位置开始读取新的binlog日志内容。
+5）Slave服务器端的SQL线程会实时检测本地Relay Log 中IO线程新增的日志内容，然后及时把Relay LOG 文件中的内容解析成sql语句，并在自身Slave服务器上按解析SQL语句的位置顺序执行应用这样sql语句，并在relay-log.info中记录当前应用中继日志的文件名和位置点。
+Mysql主从同步注意事项  master节点和slave节点的uuid不同 master节点和slave节点的server_id不同  制作Mysql容器镜像 同一镜像区创建不同容器的uuid 用同一mysql镜像创建mysql主从集群时，发现每台mysql服务的uuid都是相同的，是因为在数据初始化时将uuid写在了/var/lib/mysql/auto.cnf文件中，造成每个容器的uuid都是相同的。
+为了解决不同容器的uuid不同问题，需要在mysql启动生成配置文件后并在启动前 随机生成一个uuid写入到/var/lib/mysql/auto.cnf，这样就可以确保同一镜像生成的容器的uuid都不相同。
+同一服务不同实例的server_id处理 用同一mysql镜像创建mysql主从集群时，如何确保每个mysql服务的server_id不同？
+k8s在创建容器时，会为每个容器创建创建一个主机名( 如：gr78648d-0)，创建多个容器后面的数字会依次递增，所以可以利用这一特性生成不同的server_id（主机名数字部分 + 环境变量数字），然后在maser和slave使用不同的环境变量数字数字即可。
+3.3 创建镜像，并将镜像推到dockerhub上 基于镜像创建服务 创建master服务 通过指定镜像创建服务 参考文档 基于镜像创建服务
+master服务 开启内部的3306端口 master服务 设置依赖所需要连接的配置信息 Master节点设置同步的数据库名称 通过设置环境变量 MYSQLC_MYSQLD_binlog_do_db 设置同步数据库名。
+创建Slave服务 slave服务 开启内部的3306端口
+​ slave服务设置依赖所需要连接的配置信息
+​ 设置slave依赖master
+将slave服务实例水平伸缩为2
+从应用市场安装Mysql主从集群应用 应用市场安装mysql主从集群应用。
+mysql主从同步配置 ​ 查看master节点状态，记录二进制文件名(mysql-bin.000003)和位置(154)
+​ slave节点执行同步SQL语句(需要主服务器主机名，登陆凭据，二进制文件的名称和位置)</description>
+    </item>
+    
+  </channel>
+</rss>

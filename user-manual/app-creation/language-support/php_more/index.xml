@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php_more/</link>
+    <description>Recent content on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-manual/app-creation/language-support/php_more/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>PHP Extensions说明</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php_more/extensions/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php_more/extensions/</guid>
+      <description>PHP 5.6 在Rainbond上自动启用以下内置扩展(此列表不包括默认情况下PHP启用的扩展，例如DOM，JSON，PCRE或PDO):
+ Bzip2
+ cURL FPM mcrypt MySQL (PDO) (uses mysqlnd) MySQLi (uses mysqlnd) OPcache OpenSSL PostgreSQL PostgreSQL (PDO) Readline Sockets Zip Zlib  以下内置扩展已经构建为“共享”，可以通过composer.json（括号中给出的内部标识符名称）启用：
+ BCMath (bcmath) Calendar (calendar) Exif (exif) FTP (ftp) GD (gd; with PNG, JPEG and FreeType support) GMP (gmp) gettext (gettext) IMAP (imap; with SASL and Kerberos support) intl (intl) LDAP (ldap; with SASL support) mbstring (mbstring) MySQL (mysql; note that this extension is deprecated since PHP 5.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>网络解决方案 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-operations/network/</link>
+    <description>Recent content in 网络解决方案 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 11 Mar 2019 12:50:54 +0800</lastBuildDate>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-operations/network/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Calico网络</title>
+      <link>http://skyzhangyf.github.io/user-operations/network/calico/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/network/calico/</guid>
+      <description>一、Calico介绍 Rainbond默认使用Calico定义容器虚拟网络。
+Calico是一个纯3层的数据中心网络方案。能够提供可控的VM、容器、裸机之间的IP通信。
+通过将整个互联网的可扩展IP网络原则压缩到数据中心级别，Calico在每一个计算节点利用Linux Kernel实现了一个高效的vRouter来负责数据转发，而每个vRouter通过BGP协议负责把自己上运行的workload的路由信息像整个Calico网络内传播——小规模部署可以直接互联，大规模下可通过指定的BGP route reflector来完成。
+这样保证最终所有的workload之间的数据流量都是通过IP路由的方式完成互联的。
+Calico节点组网可以直接利用数据中心的网络结构（无论是L2或者L3），不需要额外的NAT，隧道或者Overlay Network。
+如上图所示，这样保证这个方案的简单可控，而且没有封包解包，节约CPU计算资源的同时，提高了整个网络的性能。
+此外，Calico基于iptables还提供了丰富而灵活的网络Policy，保证通过各个节点上的ACLs来提供Workload的多租户隔离、安全组以及其他可达性限制等功能。
+1.1 Calico 架构  Felix，Calico Agent,跑在每台需要运行Workload的节点上，主要负责配置路由及ACLs等信息来确保Endpoint的连通状态；
+ etcd，分布式键值存储，主要负责网络元数据一致性，确保Calico网络状态的准确性；
+ BGP Client（BIRD）, 主要负责把Felix写入Kernel的路由信息分发到当前Calico网络，确保Workload间的通信的有效性；
+ BGP Route Reflector（BIRD），大规模部署时使用，摒弃所有节点互联的 mesh 模式，通过一个或者多个BGP Route Reflector来完成集中式的路由分发；
+  二、对接Rainbond 2.1 Rainbond-Calico架构图 2.2 Calico在Rainbond实现的功能  容器网络的互连  Calico在每一个计算节点利用Linux Kernel实现了一个高效的vRouter来负责数据转发，而每个vRouter通过BGP协议负责把自己上运行的workload的路由信息像整个Calico网络内传播——小规模部署可以直接互联，大规模下可通过指定的BGP route reflector来完成。 这样保证最终所有的workload之间的数据流量都是通过IP路由的方式完成互联。
+ 隔离租户  Calico基于iptables提供了丰富而灵活的网络Policy，保证通过各个节点上的ACLs来提供Workload的多租户隔离、安全组以及其他可达性限制等功能。
+2.3 k8s结合calico的使用  k8s与calico流程架构图   通过k8s创建启动网络容器，通过calico-cni插件根据cni的配置然后分配calico的网络。
+ CNI配置文件介绍
+  cat /opt/rainbond/etc/cni/10-calico.conf { &amp;quot;name&amp;quot;: &amp;quot;calico-k8s-network&amp;quot;, ##网络的名字 &amp;quot;cniVersion&amp;quot;: &amp;quot;0.</description>
+    </item>
+    
+  </channel>
+</rss>

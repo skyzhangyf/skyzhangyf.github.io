@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>版本升级 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-operations/upgrade/</link>
+    <description>Recent content in 版本升级 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-operations/upgrade/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>5.0.4升级至5.1.0文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.0.4-5.1.0/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.0.4-5.1.0/</guid>
+      <description>5.0.4升级至5.1.0 Rainbond 5.1.0版本仅支持从5.0.4版本升级,其他5.0.x版本需要升级到5.0.4版本，5.0.4版本升级参考[5.0.4升级文档](https://t.goodrain.com/t/rainbond-5-0-4/744);升级后可能数据库结构会发生改变,故不能够回滚升级。 无法确定Rainbond版本，可通过grctl version来确定版本。如果version不是`5.0-3cbc7c6-2019-03-05-12`则为非5.0.4版本  下载 5.1.0 更新包  离线包镜像大小约1.9G，需要保证当前集群磁盘可用空间至少不低于6G
+ # 基础Runtime包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/base.images.2019-03-15-5.1.0.tgz -O /grdata/services/offline/base.images.upgrade.5.1.0.tgz # Rainbond组件包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond.images.2019-03-15-5.1.0.tgz -O /grdata/services/offline/rainbond.images.upgrade.5.1.0.tgz # 5.1.0安装包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond-ansible.upgrade.5.1.0.tgz -O /grdata/services/offline/rainbond-ansible.upgrade.5.1.0.tgz  解压安装脚本,执行升级脚本 rm -rf /tmp/rainbond-ansible rm -rf /grdata/services/offline/upgrade tar xf /grdata/services/offline/rainbond-ansible.upgrade.5.1.0.tgz -C /tmp/ cd /tmp/rainbond-ansible/scripts/upgrade/ bash ./upgrade.sh  升级完成验证 grctl cluster  插件升级说明  卸载所有应用的默认插件，并在插件管理中删除默认插件 刷新页面后重新安装默认插件。 需要使用插件的应用重新安装插件并更新应用。  升级如有问题，请至社区反馈 Rainbond 5.1.0升级文档</description>
+    </item>
+    
+    <item>
+      <title>5.1.0升级至5.1.1文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.1.0-5.1.1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.1.0-5.1.1/</guid>
+      <description>本文档记录了Rainbond v5.1.1 中功能的优化和BUG修复记录。
+功能优化及BUG修复 优化  优化PHP语言支持，增加了大量PHP的扩展支持，详情见文档 PHP语言支持 总览页面展示效果优化 增加允许源码构建服务使用1024以下的端口 优化了第三方服务的特性显示，在拓扑图中使用蓝色，在列表中添加了明显的标识 安装方面扩容节点时优化docker启动流程控制 调整初始化数据中心数据库的初始化脚本路径，便于出错后重新初始化数据库。 优化存储类型为NFS的存储检测方式，兼容提前挂载分布式存储的节点检测。  BUG修复  【重要】修复了服务具有多个端口时导致服务内部依赖和网关访问错误的BUG 【重要】修复了服务垂直升级操作失败的BUG 【重要】修复了应用网关访问策略编辑前端填充数据错误的BUG 修复了平台内部某些功能说明文档的地址错误 修复了源代码检测取回的端口信息为设置成功的BUG 修复了服务点击访问后连接信息显示不全的BUG 修复了第三方服务无法进行批量删除的BUG 修复了构建源重新检测时从Dockerfile类型到其他源码类型转变服务启动命令错误的BUG 修复构建源配置Java等语言设置构建缓存不生效的BUG 升级PHP语言Runtimes版本 #28 修复PHP语言构建失败问题 #25,#26  版本升级 升级要求和注意事项 此版本修复了V5.1.0的几个影响面大的BUG，推荐V5.1.0版本用户升级 V5.1.1版本只支持从V5.1.0版本升级，如果你还未升级到V5.1.0版本，参考[V5.1.0版本升级文档](https://www.rainbond.com/docs/user-operations/upgrade/5.0.4-5.1.0/)版本确认方式：`grctl version`,版本应该为：`Rainbond grctl 5.1.0-4aead9a-2019-03-20-06` 升级过程会重启管理服务，因此只有单管理节点的集群会短暂影响控制台操作，请选择合理的升级时间段  下载 5.1.1 更新包  离线包镜像大小约650MB，需要保证当前集群磁盘可用空间至少不低于2G
+ # Rainbond 组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond.images.2019-03-21-5.1.1.tgz -O /grdata/services/offline/rainbond.images.upgrade.5.1.1.tgz # Rainbond Runtime组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/runtime.upgrade.2019-03-21-5.1.1.tgz -O /grdata/services/offline/runtime.upgrade.2019-03-21-5.1.1.tgz # 5.1.1 升级脚本包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond-ansible.upgrade.5.1.1.tgz -O /grdata/services/offline/rainbond-ansible.upgrade.5.1.1.tgz  解压安装脚本,执行升级脚本 rm -rf /tmp/rainbond-ansible rm -rf /grdata/services/offline/upgrade tar xf /grdata/services/offline/rainbond-ansible.</description>
+    </item>
+    
+    <item>
+      <title>5.1.1升级至5.1.2文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.1.1-5.1.2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.1.1-5.1.2/</guid>
+      <description>本文档记录了Rainbond v5.1.2 中功能的优化和BUG修复记录
+优化  支持阿里云镜像仓库Webhook触发器自动构建服务 优化添加网关策略的交互呈现，更易于用户使用 优化Java War语言类型的构建，支持自动设置JAVA_OPTS参数 优化UI在长时间不刷新页面的情况下出现无法操作的体验 优化Runner环境和启动策略，支持在源码路径下提前挂载配置文件和持久化目录 优化了构建源信息更改的交互逻辑，解决ssh和http协议访问地址的相互切换时无法设置用户名密码的问题 优化了应用Dashboard页面添加组件的流程，增加放弃创建选项 优化服务的访问逻辑，默认访问路径根据用户配置的访问策略路径确定 grctl命令行工具增加显示第三方服务的实例信息 优化了第三方服务的健康检查控制  BUG修复  [重要] 解决了kube-controller-manager重启导致第三方服务实例下线的BUG [重要] 修复了服务健康检查无法更改服务不健康时的操作方式的BUG [重要] 修复了从应用市场安装服务时服务健康检查禁用不生效的BUG [重要] 修复了从应用市场导出DockerCompose规范的离线应用时镜像名称、环境变量不正确的BUG 修复了Java War语言类型不定义webserver时无法构建的BUG 修复了第三方服务在编辑模式的拓扑图中显示错误的BUG 修复了应用网关可以添加重复的访问策略导致应用网关工作异常的BUG  版本安装 当前版本为5.1系列最新版本，从发布之日起安装的5.1版本系列平台即时最新的5.1.2版本，安装参考： Rainbond集群安装
+版本升级 升级要求和注意事项  V5.1.2版本只支持从V5.1.x版本升级，如果你还未升级到V5.1.x版本，参考V5.1.x版本升级文档版本确认方式：  grctl version, 例如版本显示如下：Rainbond grctl 5.1.0-4aead9a-2019-03-20-06
+ 升级过程会重启管理服务，因此只有单管理节点的集群会短暂影响控制台操作，请选择合理的升级时间段 。  下载 5.1.2 更新包  离线包镜像大小约650MB，需要保证当前集群磁盘可用空间至少不低于2G
+ # Rainbond 组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond.images.2019-04-01-5.1.2.tgz -O /grdata/services/offline/rainbond.images.upgrade.5.1.2.tgz # Rainbond Runtime组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/runtime.upgrade.2019-04-01-5.1.2.tgz -O /grdata/services/offline/runtime.upgrade.5.1.2.tgz # 5.</description>
+    </item>
+    
+    <item>
+      <title>5.1.2升级至5.1.3文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.1.2-5.1.3/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.1.2-5.1.3/</guid>
+      <description>本文档记录了Rainbond v5.1.3 中功能的优化和BUG修复记录
+优化和新功能  支持Java Maven多模块批量创建服务[beta] 新增新⼿引导任务流程 完善集群服务监控,内置支持节点物理设备和操作系统监控、节点系统服务监控、容器监控和服务业务性能监控 改进基于应用市场的服务升级策略，新增对环境变量、存储(包括依赖存储)、端⼝、服务依赖等属 性的升级[beta] 改进Docker Compose 批量创建服务的功能，修改服务镜像检测机制⼤大提高DockerCompose检测成功性。同时⽀持设置私有镜像仓库的账号信息。提供了Docker Compose到Kubernetes转化 的稳定功能支持。 Git-Webhook增加对腾讯Coding代码仓库的⽀持 镜像仓库Webhook⾃动构建支持Tag版本根据策略进⾏⾃动验证和改变 改进镜像创建服务识别策略，智能识别镜像信息确定服务部署类型和内存分配，提供服务创建准确性 应用网关支持便捷设置Websocket⽀支持和ProxyBuffer等参数 改进端⼝属性维护机制，增加当端口删除时⾃动设置其他与端口绑定的服务属性，⽐如健康检查.防⽌由于错误的端⼝设置导致服务⼀直运行异常 系统服务注册功能改进，基于健康检查实现注册Endpoint的⾃动上线和下线，解决错误的添加管理节点导致镜像仓库等服务负载均衡错误问题。[beta] 优化安装流程，将push镜像流程更改到最后防止push镜像失败导致安装不成功 新增使⽤第三方数据库的机制，⽤户提供数据库给Rainbond数据中心和控制台使用Rainbond将不再默认安装数据库，适用于生产环境部署时对数据库单独进⾏部署和运维。[beta] 调整部分组件⽇志级别等启动参数  BUG修复  修复在HTTP访问策略中添加IP或其他⾮法域名导致服务无法启动的BUG 修复了DockerRun等⽅式创建的服务后期无法修改账号密码的问题 修复了镜像错误检测失败后无法进行后续操作的问题 修复了重复添加访问策略导致服务⽆法访问的问题 修复了UI搜索访问策略后无法进⾏翻⻚的BUG 修复了服务经过分享过后，伸缩范围固化的问题  版本安装 当前版本为5.1系列最新版本，从发布之日起安装的5.1版本系列平台即时最新的5.1.3版本，安装参考： Rainbond集群安装
+版本升级 升级要求和注意事项  V5.1.3版本只支持从V5.1.x版本升级，如果你还未升级到V5.1.x版本，参考V5.1.x版本升级文档版本确认方式：  grctl version, 例如版本显示如下：Rainbond grctl 5.1.0-4aead9a-2019-03-20-06
+ 升级过程会重启管理服务，因此只有单管理节点的集群会短暂影响控制台操作，请选择合理的升级时间段 。  下载 5.1.3 更新包  离线包镜像大小约650MB，需要保证当前集群磁盘可用空间至少不低于2G
+ # Rainbond 组件升级包 wget http://rainbond-pkg.oss-cn-shanghai.aliyuncs.com/offline/5.1/rainbond.images.2019-04-15-5.1.3.tgz -O /grdata/services/offline/rainbond.images.upgrade.5.1.3.tgz # Rainbond Runtime组件升级包 wget http://rainbond-pkg.</description>
+    </item>
+    
+    <item>
+      <title>5.1.3升级至5.1.4文档</title>
+      <link>http://skyzhangyf.github.io/user-operations/upgrade/5.1.3-5.1.4/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/upgrade/5.1.3-5.1.4/</guid>
+      <description>本文档记录了Rainbond v5.1.4 中功能的优化和BUG修复记录
+新功能 在5.1.4之前, rainbond仅仅支持对云市应用中单个服务的升级, 如果想要升级整个云市应用, 则需要单独地对每个服务进行升级, 且无法升级新添加的服务. 这给各位用户的使用带来了极大的不便. 为了让用户有的操作更加的简单, 提高使用体验, 我们在5.1.4版本中, 对云市应用进行了改造升级.
+功能特性  灵活的升级方式: 可以自由地选择需要升级的服务, 可以全部升级也可以部份升级. 创建新加服务: 除了可以升级已有的服务外, 还可以创建旧版本没有, 但是新版本有的服务. 详细的变更信息: 在升级界面中, 可以查看当前版本与新版本服务之间属性的变更. 详细的升级记录: 对每次升级操作, rainbond都进行了详细的记录, 包括: 升级操作的时间, 版本号的变更和各服务属性的变更信息等. 自动回滚: 在应用升级的过程中, 如果程序发生了异常, 会回滚到升级前的状态, 避免只升级部分属性或服务. 手动回滚: 升级成功后, 如果新版本有缺陷导致各个服务无法正常工作, 或者你更倾向升级前的版本, 那么可以选择手动回滚, 回到之前的版本.  优化  第三方服务新添加实例地址时, 允许地址中带有端口 镜像服务支持修改镜像仓库帐号, 密码等信息 grctl命令行工具增加身份属性gateway 将自定义网关策略的域名以环境变量的方式注入到服务中(相关文档) 将环境变量，配置文件等配置信息综合为环境配置 分享应用时支持定义不分享的服务 支持服务链接信息和环境变量的相互转移 关闭或重启服务时, 增加二次确认, 防止误操作  安装方面：
+ 优化安装时初始化数据中心流程 优化调整安装任务结构,调整离线镜像文件路径 支持调整网络类型 优化部分组件配置参数 优化安装过程中宿主机IP段与容器ip段冲突问题  BUG修复  【重要】修复了关闭服务时, pod无法被删除或删除需要花费比较多时间的问题 【重要】修复了多管理节点中, 某个节点rbd-hub服务异常了，但gateway没有将其下线导致goodrain.</description>
+    </item>
+    
+  </channel>
+</rss>

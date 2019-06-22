@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>管理集群 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-operations/management/</link>
+    <description>Recent content in 管理集群 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 11 Mar 2019 12:50:54 +0800</lastBuildDate>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-operations/management/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>节点管理(添加,删除,重置)</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/node/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/node/</guid>
+      <description>添加节点 1. 安装节点时，请勿使用之前wget下载的grctl工具即(./grctl)，直接使用grctl命令。 2. 管理节点不支持批量扩容操作，只能依次扩容。 3. 管理节点数目推荐为奇数1,3,5,7，两个节点无法保证高可用。 4. 支持使用root执行安装操作  # 添加管理节点 grctl node add --host &amp;lt;managexx&amp;gt; --iip &amp;lt;管理节点内网ip&amp;gt; -p &amp;lt;root密码&amp;gt; --role manage ## 法2默认已经配置ssh信任登陆 grctl node add --host &amp;lt;managexx&amp;gt; --iip &amp;lt;管理节点内网ip&amp;gt; --key /root/.ssh/id_rsa.pub --role manage # 添加计算节点 grctl node add --host &amp;lt;gatewayxx&amp;gt; --iip &amp;lt;网关节点内网ip&amp;gt; -p &amp;lt;root密码&amp;gt; --role gateway ## 法2默认已经配置ssh信任登陆 grctl node add --host &amp;lt;gatewayxx&amp;gt; --iip &amp;lt;网关节点内网ip&amp;gt; --key /root/.ssh/id_rsa.pub --role gateway # 添加计算节点 grctl node add --host &amp;lt;computexx&amp;gt; --iip &amp;lt;计算节点内网ip&amp;gt; -p &amp;lt;root密码&amp;gt; --role compute ## 法2默认已经配置ssh信任登陆 grctl node add --host &amp;lt;computexx&amp;gt; --iip &amp;lt;计算节点内网ip&amp;gt; --key /root/.</description>
+    </item>
+    
+    <item>
+      <title>Rainbond组件运维</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/component-op/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/component-op/</guid>
+      <description>目前Rainbond绝大多数组件都是由node维护，即由node生成服务的配置文件并启动。目前所有关于rainbond服务(除node外)的配置文件目录：/opt/rainbond/conf
+服务配置说明    配置文件 节点类型 具体组件 说明     base.yaml 管理节点* rbd-repo,rbd-hub 基础服务组件   db.yaml 管理节点 rbd-db 数据库组件   dns.yaml 管理节点/计算节点 rbd-dns dns组件   etcd.yaml 管理节点* etcd etcd组件   etcd-proxy.yaml 计算节点* etcd-proxy etcd-proxy组件   health.yaml 管理节点/计算节点  系统健康检查组件，如存储等   k8s-master.yaml 管理节点* kube-controller-manager,kube-scheduler,kube-apiserver k8s master组件   k8s-worker.yaml 计算节点*/复用的管理节点(仅第一个管理节点) kubelet k8s worker组件   master.yaml 管理节点*  Rainbond管理节点组件   network.</description>
+    </item>
+    
+    <item>
+      <title>应用域名运维</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/domain/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/domain/</guid>
+      <description>  Rainbond平台上运行起来的应用，如果需要外部访问，都需要一个域名与之对应。这个域名是应用的标示，同时也是平台负载均衡区分后端服务的方法。Rainbond在线安装未指定自定义域名时，默认会自动注册一个*.&amp;lt;random&amp;gt;.grapps.cn的泛域名并进行dns的解析工作
+ 自定义域名 离线安装环境，如果未指定自定义域名，默认域名为pass.example.com或者pass.grapps.cn
+安装完成后修改自定义域名 需要编辑/opt/rainbond/conf/master.yaml文件中关于EX_DOMAIN的值,示例
+sed -i &amp;quot;s#&amp;lt;默认域名&amp;gt;#&amp;lt;自定义域名&amp;gt;#g&amp;quot; /opt/rainbond/conf/master.yaml  更新完成后需要更新服务
+node service update  更新数据库相关值 docker exec rbd-db mysql -e &#39;use console;update region_info set httpdomain=&amp;quot;自定义域名&amp;quot;&#39;  自定义域名需要泛解析到当前管理节点。如自定义域名(www.a.com),管理节点ip(1.1.1.1),需要在域名解析记录里添加如下A记录
+*.www.a.com A 1.1.1.1  调整已有域名解析  只支持默认分配的grapps.cn域名,示例将默认域名解析记录有内网改为外网
+ domain-cli -newip &amp;lt;公网ip&amp;gt;/grctl domain --ip &amp;lt;公网ip&amp;gt; #两者都可以 # 更新成功后，稍等几分钟。如果没生效，请检查dns。 docker exec -it rbd-db mysql -e &amp;quot;update console.region_info set wsurl=&#39;ws://&amp;lt;公网ip&amp;gt;:6060&#39;,tcpdomain=&#39;&amp;lt;公网ip&amp;gt;&#39;;&amp;quot; # 特别说明一下：如果已经修改过域名解析，需要再次修改域名解析请使用domain-cli domain-cli -newip &amp;lt;newip&amp;gt; -oldip &amp;lt;oldip&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>自定义节点Pod CIDR</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/reset-pod-cidr/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/reset-pod-cidr/</guid>
+      <description>  主要是针对calico网络而言
+ 安装前自定义 grctl init --pod-cidr 192.168.0.0/16  如果不自定义的话,默认会根据宿主机ip段选择对应的pod的cidr. calico 宿主机(`192.168.0.0/16`)则pod的cidr为`10.0.0.0/16`,否则pod的cidr为`192.168.0.0/16` flannel 默认pod cidr为`10.244.0.0/16`  安装后自定义 这里以调整为 172.16.0.0/16为例，请注意，此调整将重启所有应用：
+ 1. 调整所有节点的calico启动参数  vi /opt/rainbond/conf/network.yaml 将： -e CALICO_IPV4POOL_CIDR=192.168.0.0/16 更改为： -e CALICO_IPV4POOL_CIDR=172.16.0.0/16    调整所有节点的calico启动参数
+ETCDCTL_API=3 etcdctl del /calico --prefix    重启calico服务
+node service update    重启所有应用分配ip   </description>
+    </item>
+    
+    <item>
+      <title>扩容网关节点</title>
+      <link>http://skyzhangyf.github.io/user-operations/management/add-lb-node/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/management/add-lb-node/</guid>
+      <description>5.1.4版本之后支持扩容网关节点(具体可参考节点管理部分),历史版本只能手动扩容添加网关节点  手动添加网关节点 1. 准备工作  生成node的systemd文件  cat &amp;gt; /etc/systemd/system/node.service &amp;lt;&amp;lt;EOF [Unit] Description=Goodrain Rainbond node After=network.target [Service] Type=simple User=root LimitCORE=infinity LimitNOFILE=102400 LimitNPROC=102400 EnvironmentFile=-/opt/rainbond/envs/node.sh PermissionsStartOnly=true ExecStart=/opt/rainbond/scripts/start-node.sh Restart=always RestartSec=10 [Install] WantedBy=multi-user.target EOF   生成node启动脚本  cat &amp;gt; /opt/rainbond/scripts/start-node.sh &amp;lt;&amp;lt;EOF #!/bin/bash NODE_OPTS=&amp;quot;--log-level=info --auto-scheduler=true --kube-conf=/opt/rainbond/etc/kubernetes/kubecfg/admin.kubeconfig --etcd=http://&amp;lt;etcd地址&amp;gt; --hostIP=&amp;lt;新增网关节点ip&amp;gt; --run-mode master --noderule manage&amp;quot; exec /usr/local/bin/node $NODE_OPTS EOF   生成node的uuid  cat &amp;gt; /opt/rainbond/etc/node/node_host_uuid.conf &amp;lt;&amp;lt;EOF host_uuid=&amp;lt;node_uuid, 可以用uuidgen生成&amp;gt; EOF   从管理节点同步文件
+ 从第一个管理节点同步/opt/rainbond/conf目录下的network.yaml,lb.yaml文件到新增网关节点同样目录下 从第一个管理节点同步/opt/rainbond/etc/kubernetes/kubecfg目录到新增网关节点同样目录下 从第一个管理节点同步/opt/rainbond/health目录到新增网关节点同样目录下 从第一个管理节点同步/opt/rainbond/etc/tools/bin/node到新增网关节点/usr/local/bin/node  编辑新增网关节点 /opt/rainbond/conf/network.</description>
+    </item>
+    
+  </channel>
+</rss>

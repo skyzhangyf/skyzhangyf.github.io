@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>快速开始 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/quick-start/</link>
+    <description>Recent content in 快速开始 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/quick-start/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>简介</title>
+      <link>http://skyzhangyf.github.io/quick-start/rainbond_overview/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/rainbond_overview/</guid>
+      <description>Rainbond是什么  Rainbond（云帮）是企业应用云操作系统。 Rainbond支撑企业应用的开发、架构、交付和运维的全流程，通过“无侵入”架构，无缝衔接各类企业应用，底层资源可以对接和管理IaaS、虚拟机和物理服务器。   企业应用包括： 各类信息系统、OA、CRM、ERP、数据库、大数据、物联网、互联网平台、微服务架构等运行在企业内部的各种系统。
+ Rainbond可以做什么  企业应用开发  开发环境、微服务架构、服务治理及各类技术工具“开箱即用”，不改变开发习惯，让企业专注核心业务，提升10倍效率。
+ 企业应用交付  支持持续交付、企业应用市场交付、SaaS化、企业应用销售、二次开发等交付流程，客户统一管理，兼顾标准化交付和个性化交付
+ 企业应用运维  透明对接管理多种计算资源，天然实现多云和混合云，企业应用自动化运维，提高2倍资源利用率。
+Rainbond主要特性    特性 描述     超越Kubernetes 平台底层基于Kubernetes，但用户无需学习和编辑复杂的yaml文件，通过应用级图形界面操作使用，现实业务流程开箱即用。   原生Service Mesh微服务架构 跨语言、跨协议、代码无侵入的Service Mesh微服务架构原生支持，传统应用直接变成微服务架构。同时支持常见微服务架构Spring Cloud、Dubbo等，通过插件扩展架构能力及治理功能。   一体化DevOps 衔接需求、开发、测试、构建、上线、运维的一体化DevOps。支持对接第三方软件（Jira、Sonar、Jenkins、Gitlab等）。   企业级应用市场 非镜像市场和服务目录，支持各类企业级应用，像手机应用即点即用，全流程管理（应用开发、应用发布、应用展示、应用离线导入/导出、应用安装/升级、应用运维）。   自动化运维 应用自动化运维。节点自动安装、扩容、监控、容错。平台支持高可用、多数据中心管理、多租户管理。   Serverless PaaS 以应用为核心，使用过程不需要了解服务器相关概念，简单灵活。通过对接行业应用，快速构建行业专有PaaS。     更多特性请见 功能列表 版本计划详见 开发计划  Rainbond的优势  只需要关注自身业务，业务之外的技术问题（资源管理、运维、架构、治理、环境等），一站式解决。 Rainbond结合行业应用，通过模块化组装和少量定制开发，就可实现行业专属开发、交付、运维平台。 通过“无侵入”架构，支持各类遗留系统，也不需要改变开发习惯。 系统兼容性强，Windows、国产系统均可支持。  我已经了解，开始安装</description>
+    </item>
+    
+    <item>
+      <title>简介</title>
+      <link>http://skyzhangyf.github.io/quick-start/rainbond_overview1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/rainbond_overview1/</guid>
+      <description>Rainbond是什么  Rainbond（云帮）是企业应用云操作系统。 Rainbond支撑企业应用的开发、架构、交付和运维的全流程，通过“无侵入”架构，无缝衔接各类企业应用，底层资源可以对接和管理IaaS、虚拟机和物理服务器。   企业应用包括： 各类信息系统、OA、CRM、ERP、数据库、大数据、物联网、互联网平台、微服务架构等运行在企业内部的各种系统。
+ Rainbond可以做什么  企业应用开发  开发环境、微服务架构、服务治理及各类技术工具“开箱即用”，不改变开发习惯，让企业专注核心业务，提升10倍效率。
+ 企业应用交付  支持持续交付、企业应用市场交付、SaaS化、企业应用销售、二次开发等交付流程，客户统一管理，兼顾标准化交付和个性化交付
+ 企业应用运维  透明对接管理多种计算资源，天然实现多云和混合云，企业应用自动化运维，提高2倍资源利用率。
+Rainbond主要特性    特性 描述     超越Kubernetes 平台底层基于Kubernetes，但用户无需学习和编辑复杂的yaml文件，通过应用级图形界面操作使用，现实业务流程开箱即用。   原生Service Mesh微服务架构 跨语言、跨协议、代码无侵入的Service Mesh微服务架构原生支持，传统应用直接变成微服务架构。同时支持常见微服务架构Spring Cloud、Dubbo等，通过插件扩展架构能力及治理功能。   一体化DevOps 衔接需求、开发、测试、构建、上线、运维的一体化DevOps。支持对接第三方软件（Jira、Sonar、Jenkins、Gitlab等）。   企业级应用市场 非镜像市场和服务目录，支持各类企业级应用，像手机应用即点即用，全流程管理（应用开发、应用发布、应用展示、应用离线导入/导出、应用安装/升级、应用运维）。   自动化运维 应用自动化运维。节点自动安装、扩容、监控、容错。平台支持高可用、多数据中心管理、多租户管理。   Serverless PaaS 以应用为核心，使用过程不需要了解服务器相关概念，简单灵活。通过对接行业应用，快速构建行业专有PaaS。     更多特性请见 功能列表 版本计划详见 开发计划  Rainbond的优势  只需要关注自身业务，业务之外的技术问题（资源管理、运维、架构、治理、环境等），一站式解决。 Rainbond结合行业应用，通过模块化组装和少量定制开发，就可实现行业专属开发、交付、运维平台。 通过“无侵入”架构，支持各类遗留系统，也不需要改变开发习惯。 系统兼容性强，Windows、国产系统均可支持。  我已经了解，开始安装</description>
+    </item>
+    
+    <item>
+      <title>平台安装</title>
+      <link>http://skyzhangyf.github.io/quick-start/rainbond_install/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/rainbond_install/</guid>
+      <description>快速安装Rainbond  此方式适用于你想快速安装和试用Rainbond平台, 最少只需要单台裸系统机器即可安装完成。此方式为基础安装方式，后续安装方案都是在本方案基础上的扩展和延伸。
+ 安装请阅读： 快速安装
+阿里云安装Rainbond  此方式适用于你使用阿里云服务资源，此方式我们将使用阿里云 ECS+NAS+专有网络(弹性IP)等资源。
+ 安装请阅读： 基于阿里云资源安装Rainbond
+Rainbond高可用部署方案  此方式将首先引导你进行相关资源的规划和准备，以完成高可用集群的部署。
+ 安装请阅读： 从零开始搭建Rainbond高可用集群
+Rainbond与已存在Kubernetes集群对接安装  此方式适用于已安装Kubernetes集群的用户，此安装方式Rainbond将使用用户提供的Kubernetes集群。
+ 安装请阅读： 基于已有Kubernetes集群安装
+离线安装Rainbond  此方式适用于外网网络受到严格限制的用户，此版本目前仅支持CentOS 7.4.1708系统。
+ 安装请阅读： 离线安装
+自定义安装  此方式适用于熟悉ansible使用的用户
+ 自定义安装请阅读: 自定义安装</description>
+    </item>
+    
+    <item>
+      <title>功能列表</title>
+      <link>http://skyzhangyf.github.io/quick-start/edition/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/edition/</guid>
+      <description>开发计划
+
+发布周期
+
+本文档列举Rainbond开源版具备的重点基础功能，随着版本升级本文档列举不一定完全，如有疑问请于社区留言咨询。
+应用的部署    功能 功能描述     支持源代码持续构建 支持PHP源码编译，支持PHP源代码、PHP5.3~7版本运行时，apace、nginx构建应用，并支持流行的PHP开发框架    支持Java源码编译，支持Java（maven）源代码、war包、jar包构建应用，并支持流行的java开发框架    支持Python源码编译，支持Python源代码、Python 2.6~3.2运行时构建应用，并支持流行的Python开发框架    支持Node.js源码编译，支持Node.js源代码、Nods.js 6.x~10.x运行时构建应用，流行的Node.js开发框架，包括前端类项目。    支持Golang源码编译、Golang 1.8.x，1.9.x运行时构建应用，并支持流行的Golang开发框架    支持dotnet源码编译、支持选择多个版本的编译和运行环境（.netcore linux运行）    支持Dockerfile识别和构建，支持Dockerfile源码的方式构建应用    支持Helm Chart源码识别和构建（TODO）       Docker镜像持续构建 支持基于DockerRun命令识别服务运行方式构建服务组件    支持解析DockerCompose文件识别服务运行方式批量构建服务组件    支持从私有镜像仓库、公有镜像仓库获取Docker镜像    支持镜像仓库Webhook服务的持续部署与发布       支持集成Git源码仓库 分租户的代码仓库管理，针对不同的团队隔离代码仓库    支持GitWebhook自动回调功能，实现应用的持续部署与发布    支持代码分支、tag部署，支持使用不同的代码分支、tag构建应用       支持集成Svn源码仓库 支持从Svn代码仓库获取源码，支持账户授权和子目录构建       支持Windows应用创建 支持基于Dockerfile、镜像创建Windows类服务（.</description>
+    </item>
+    
+    <item>
+      <title>RoadMap</title>
+      <link>http://skyzhangyf.github.io/quick-start/roadmap/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/roadmap/</guid>
+      <description>功能列表
+
+发布周期
+
+本文档定义了Rainbond开发的路线图。
+V5.1.X版本规划 支持由JavaMaven多模块源代码批量创建服务 支持服务基于应用市场应用完整的升级 支持服务基于应用市场应用升级后的完整回滚 支持应用基于应用市场应用完整的升级  V5.2版本规划 应用运行时 支持基于Helm-Chart源码创建服务组件 基于业务级监控指标（吞吐率、响应时间）的从0开始的服务自动伸缩 支持基于Operator规范的有状态服自动化运维管理 支持服务生命周期操作事件的跟踪和取消 支持完整的服务生命操作和属性变更操作的记录和回滚  Windows支持 支持Windows服务组件Dockerfile构建 支持Windows插件构建,默认提供性能分析插件和网络治理插件 支持智能Windows服务类型检测 支持Windows节点安装  V5.1版本规划  已发布Release
+ 应用运行时 支持第三方服务管理集成 支持内部服务ServiceMesh架构集成 支持网关对接集成 支持基于Etcd发现第三方服务 支持对第三方服务进行健康检查和状态维护  ServiceMesh支持envoy XDS规范 支持服务批量操作时控制服务批量启动顺序  应用网关 支持暴露域名、服务的访问情况实时监控数据 支持访问策略的高级配置参数（超时时间，上传限制等）  UI控制台 团队总览改版，支持更多监控数据可视化 支持各语言编译参数设置 支持从应用市场跨版本进行应用升级 支持服务构建源的重新检测  源码构建 支持NodeJS前端项目源码构建 静态语言类型增加对Nginx的支持 支持各语言编译参数的UI设置  安装&amp;amp;基础环境 默认安装Docker版本升级到18.06.3-ce 支持安装时指定NFS Server地址  关于5.1版本规划如果你有建议请于Rainbond社区t.goodrain.com反馈
+5.1以前版本规划详情</description>
+    </item>
+    
+    <item>
+      <title>RoadMap(历史)</title>
+      <link>http://skyzhangyf.github.io/quick-start/roadmap.5.0/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/roadmap.5.0/</guid>
+      <description>功能列表
+
+发布周期
+
+V5.0版本规划（已发布Release） 应用网关 HTTP、TCP服务访问策略管理 HTTP策略支持基于域名、访问路径、请求头、Cookie访问路由控制 配置HTTPs规则、HTTP转HTTPs规则 支持泛域名规则 支持SSL证书管理 支持A/B测试、灰度发布控制 TCP策略支持基于IP、端口访问控制 自定义负载均衡算法，目前支持支持轮询算法，后续测试版本支持一致性Hash算法，Session粘连算法 支持集群部署，高可用与流量均摊，可工作于4层高性能软硬件负载均衡之后。  应用运行时 应用运行时完整重构，提供以应用为核心的控制器抽象 无状态服务部署类型更改为Kubernetes Deployment资源 有状态服务本地存储、共享存储提供更改为动态PV，运行时提供Provider 应用状态维护由集中式更改为分布式，去除单点间歇性故障 有状态服务、无状态服务皆提供自动化滚动升级策略 默认Kubernetes版本升级到1.10版本 Docker版本升级到17.06版本 支持社区版本Kubernetes集群对接  应用构建（CI） Java PHP Python NodeJS Golang .NetCore 各语言可选Runtime版本全面升级 支持UI配置各语言编译参数选项 Java语言支持Gradle源码构建 ，支持War、Jar包部署 Dockerfile支持多阶段构建 支持离线环境下的源码持续构建（离线环境已具有必要的使用语言包仓库）  控制台UI 明确定义 应用/服务 两级抽象 应用Dashboard页面拓扑图应用状态实时刷新 应用Dashboard页面增加快捷创建服务组件的流程 应用Dashboard页面增加应用级启动、停止、升级控制 增加应用网关完整的控制流程页面 服务组件支持（更新升级）操作, 取代原重启操作。 服务组件支持源码构建配置 服务组件支持CI/CD流程分离 拓扑图增加编辑模式，动态编辑服务依赖关系 支持服务组件UI添加配置文件或模版  Windows 支持 node 组件支持windows节点部署，管理windows节点和平台服务 rbd-chao 组件支持windows节点部署，构建windows应用 服务构建调度支持区分windows和linux应用。 服务运行调度，存储支持Windows节点。 数据中心镜像仓库升级支持Windows镜像。  安装与运维 系统安装策略由SaltStack更换为Ansible 新加windowsutil组件支持传统程序或脚本部署为windows服务 支持多配置文件配置节点服务 支持Windows节点下服务守护和健康检查 grctl多个命令升级改造 内置支持安装flannel host-gateway网络  History version V3.</description>
+    </item>
+    
+    <item>
+      <title>版本发布周期</title>
+      <link>http://skyzhangyf.github.io/quick-start/release-cycle/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/quick-start/release-cycle/</guid>
+      <description>一、版本号规范 版本格式：A.B.C
+ A : 表示大版本号，一般当软件整体重写，底层组件大版本升级（Docker，Kubernetes）或出现不向后兼容的改变时，增加A B : 表示功能更新，出现新功能时增加B C : 表示小修改，如修复bug，只要有修改就增加C  版本示例：3.6.1 表示，第3个大版本中的第6个功能更新版本，并且在这个功能更新版本中进行了一个版本的bug修复。
+二、版本更新周期    版本类型 更新周期 说明     A: 大版本号 6~12个月 版本重构，底层关键组件升级，向后不兼容   B: 功能更新版本 1~3个月 功能更新   C: Bug修复 1~2周 Bug或安全补丁    三、当前版本及说明    版本号 说明     3.4 历史版本，不再维护   3.5.2 历史版本，不再维护   3.6.1 历史版本，不再维护   3.7.2 历史版本，不再维护   5.</description>
+    </item>
+    
+  </channel>
+</rss>

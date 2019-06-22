@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>周边工具集 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-operations/tools/</link>
+    <description>Recent content in 周边工具集 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-operations/tools/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>grclis</title>
+      <link>http://skyzhangyf.github.io/user-operations/tools/grclis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/tools/grclis/</guid>
+      <description> 启动/停止服务 # 启动所有服务 grclis start # 停某服务 grclis stop &amp;lt;某服务&amp;gt; # 停所有服务 grclis stop  更新服务 # 更新Rainbond所有组件 grclis upgrade all # 更新node grclis upgrade node # 更新Rainbond某组件 grclis upgrade &amp;lt;组件&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>grctl</title>
+      <link>http://skyzhangyf.github.io/user-operations/tools/grctl/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/tools/grctl/</guid>
+      <description>grctl命令是rainbond自带的集群管理工具，它具备如下主要功能特性：
+    功能模块 命令示例     平台应用控制 grctl service get &amp;lt;应用别名&amp;gt; -t &amp;lt;团队别名&amp;gt; 查看应用详情
+grctl service stop &amp;lt;团队别名&amp;gt;/&amp;lt;应用别名&amp;gt; 关闭指定团队内某个应用
+grctl service start &amp;lt;团队别名&amp;gt;/&amp;lt;应用别名&amp;gt; 启动指定团队内某个应用
+grctl service list -t &amp;lt;团队别名&amp;gt; 列出应用信息
+grctl tenant list列出所有团队
+grctl tenant get &amp;lt;团队别名&amp;gt;列出该团队所有应用
+grctl tenant res &amp;lt;团队别名&amp;gt;该团队使用资源grctl tenant batchstop &amp;lt;团队别名&amp;gt;批量停团队应用
+grctl exec &amp;lt;PODNAME&amp;gt; &amp;lt;CMD&amp;gt;
+grctl msg应用异常处理   集群节点控制 grctl init初始化数据中心
+grctl cluster 查看集群情况
+grctl node list 查看集群节点列表
+grctl node get &amp;lt;节点ID&amp;gt;查看节点状态</description>
+    </item>
+    
+    <item>
+      <title>其他命令行工具</title>
+      <link>http://skyzhangyf.github.io/user-operations/tools/other/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/tools/other/</guid>
+      <description>din 进入指定容器
+din &amp;lt;容器ID/容器Name&amp;gt;  如报错容器中没有bash，则在命令后加 sh  dps 查看所有容器
+cclear 清理已经退出的容器
+ctop 查看容器资源使用情况</description>
+    </item>
+    
+  </channel>
+</rss>

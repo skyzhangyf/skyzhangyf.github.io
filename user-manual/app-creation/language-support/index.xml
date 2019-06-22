@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>开发语言支持规范 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/</link>
+    <description>Recent content in 开发语言支持规范 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-manual/app-creation/language-support/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Dockerfile</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/dockerfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/dockerfile/</guid>
+      <description>Dockerfile类型识别策略 代码主目录下有 Dockerfile 文件，Rainbond会识别代码语言类型为Dockerfile，此策略优先级最高，当代码同时符合其他语言类型识别策略时，依然以Dockerfile为主。
+编译原理 识别为Dockerfile类型的源码将使用类似于docker build -t xxx/xxx .的命令进行镜像构建，因此此方式是灵活性最高的源码编译方式，理论上可以应用于所有开发语言的支持（如果Docker支持）。
+构建过程支持 docker multi-stage(多阶段构建)和 ARG参数指定。
+Dockerfile规范 Dockerfile 是由一系列命令和参数构成的脚本，这些命令应用于基础镜像并最终创建一个新的镜像。
+Rainbond在源码检测阶段会读取Dockerfile定义的如下参数：
+   参数类型 名称 说明     ENV 环境变量 识别为服务可设置的环境变量配置   ARG 构建参数 识别为构建可设置的参数配置   EXPOSE 暴露端口 识别为服务的端口配置   VOLUME 持久化存储 识别为服务的共享持久化存储配置    Dockerfile的定义方式详见官方文档： https://docs.docker.com/engine/reference/builder/
+在此给出Dockerfile编译部署Golang源码的用例：
+FROM muninn/glide:alpine AS build-env ADD . /go/src/app WORKDIR /go/src/app RUN glide install RUN go build -v -o /go/src/app/app-server FROM alpine RUN apk add -U tzdata RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime COPY --from=build-env /go/src/app/app-server /usr/local/bin/app-server EXPOSE 80 CMD [&amp;quot;app-server&amp;quot;]  完整示例代码  https://github.</description>
+    </item>
+    
+    <item>
+      <title>Java</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/java/</guid>
+      <description>Rainbond 可以快速将 Java 源码程序轻松部署到平台，并提供灵活伸缩的高可用特性。您可以部署标准的基于 Tomcat 或 Jetty 的Web应用，同时也支持 SpringBoot 等框架构建的应用程序。我们致力于在不改变开发习惯情况下将您的 Java 应用在云端快速部署、运行、灵活伸缩！
+Rainbond支持以下几种程序部署类型：
+部署Java Maven源码项目
+
+部署Java Gradle源码项目
+
+直接部署Java Jar包
+
+直接部署Java War包</description>
+    </item>
+    
+    <item>
+      <title>Python</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/python/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/python/</guid>
+      <description>Python语言识别策略 平台默认会根据源码根目录是否有requirements.txt文件来识别为Python项目.
+平台编译运行机制  预编译处理会探测是否定义了启动命令配置文件Procfile,如果未定义会生成默认Flask/Django启动配置文件; 预编译处理完成后,会根据语言类型选择Python的buildpack去编译项目.在编译过程中会安装定义的Python版本以及相关Python依赖; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  Python项目源码规范 在此步骤中，你需要提供一个可用的Python源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行部署的Python程序
+ 项目可以托管到git仓库
+ 项目根目录下必须存在requirements.txt,用来管理Python项目的依赖,也是Rainbond识别为Python语言的必要条件
+ 项目根目录下需要定义Procfile,用来定义程序启动方式 项目根目录下存在runtime.txt,用来定义当前项目的Python使用版本
+  requirements.txt 规范 若程序没有依赖关系，可使requirements.txt为空文件。 若无requirements.txt可用如下命令生成
+pip freeze &amp;gt; requirements.txt  Procfile规范 如果项目未定义Procfile文件,平台默认会生成默认Procfile来运行War包。
+web: gunicorn app:app --log-file - --access-logfile - --error-logfile -  上述是默认Procfile,如果需要扩展更多启动参数,可以自定义Procfile。
+1. `web:`和`gunicorn`之间有一个空格 2. 文件结尾不能包含特殊字符  编译运行环境设置 配置Python版本 推荐使用runtime.txt来定义Python版本,若未定义,Rainbond将会默认使用python-3.6.6版本。
+$ cat runtime.txt python-3.6.6  推荐的python版本
+ Python-2.7.15 Python-3.6.6  默认支持python版本
+# python 2.7.x python-2.7.9 python-2.7.10 python-2.7.13 python-2.7.14 python-2.</description>
+    </item>
+    
+    <item>
+      <title>PHP</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/php/</guid>
+      <description>PHP语言识别策略 平台默认会根据源码根目录是否有index.php 文件或者 composer.json来识别为PHP项目.
+平台编译运行机制  预编译处理会探测是否定义了启动命令配置文件Procfile,如果未定义会生成默认War包启动配置文件; 预编译处理完成后,会根据语言类型选择PHP的buildpack去编译项目.在编译过程中会安装定义的PHP版本,安装相关依赖包; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  # 安装依赖包，解决依赖关系 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction  PHP项目源码规范 在此步骤中，你需要提供一个可用的PHP源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的PHP程序 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根目录下必须需要存在php文件 源码程序根目录下必须存在composer.json,用来管理PHP项目的依赖,也是Rainbond识别为PHP语言的必要条件,同时文件中必须定义项目需要的php版本，定义方式见下文。 源码程序项目根目录下必须存在composer.lock文件
+ 源码程序项目根目录下需要定义Procfile,用来定义程序启动方式  Procfile规范 如果项目未定义Procfile文件,平台默认会生成默认Procfile来运行PHP。
+# apache (默认) web: vendor/bin/heroku-php-apache2 # nginx web: vendor/bin/heroku-php-nginx  上述是默认Procfile,如果需要扩展,可以自定义Procfile。
+Composer文件 默认源码根目录需要存在composer.json和composer.lock文件, 即使应用程序没有Composer依赖项，它也必须至少包含一个空（{}）。composer.lock其中可以通过如下命令生成
+composer update --ignore-platform-reqs  PHP应用程序可以使用Composer安装的依赖项,通常会将依赖项安装到`vendor/`目录，但是部分项目会重新定义这个目录，执行`composer config vendor-dir`配置正确的路径。大多数情况下避免本地安装影响，通常需要将Composer `vendor`目录添加到你的`.gitignore` 当在composer.json中定义了verndor-dir时需注意,需要自行定义Procfile否则会导致应用无法正常运行，Procfile格式类似`web: /heroku/heroku-buildpack-php/bin/heroku-php-apache2` ```json &#34;config&#34; : { &#34;vendor-dir&#34;: &#34;lib/composer&#34;, &#34;optimize-autoloader&#34;: true }, ```  编译运行环境设置 平台提供了不同的PHP版本，您可以使用PHP，HHVM(PHP代码编译器)，或者同时使用二者，通过HHVM提高PHP性能。</description>
+    </item>
+    
+    <item>
+      <title>.NetCore</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/netcore/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/netcore/</guid>
+      <description>.NetCore语言类型识别策略 代码主目录中包含以.sln或者.csproj结尾的文件并且不包含Dockerfile文件时，平台识别项目语言类型为.NetCore
+目前仅支持单项目代码维护形式，如果你一个代码仓库维护了多个 Project, 例如一个微服务架构，那么首先建议你将每个 Project 分离到不同仓库或同个仓库不同二级目录下。  代码规范 源码主目录必须具有Procfile 文件定义服务启动方式，详见项目运行部分
+编译原理 对于.NetCore语言的支持与Dockerfile一样将构建出镜像而不是slug程序包，因此.NetCore不能使用Procfile文件定义。
+NetCore语言构建过程默认使用`microsoft/dotnet:2.2-sdk-alpine` 编译镜像和`microsoft/dotnet:2.2-aspnetcore-runtime`运行环境镜像，若设置其他版本同理。若你未提前下载镜像在构建过程容易出现拉取镜像失败的错误。强烈建议先在Rainbond管理节点提前手动获取上诉镜像。  如果你的源码对系统环境有依赖，需要单独安装系统类库，目前无法直接使用Rainbond提供的默认编译环境编译，你可以采用直接定义[Dockerfile](../dockerfile)的方式支持。  编译环境选择 当前版本平台默认使用 microsoft/dotnet:2.2-sdk-alpine 镜像环境进行源码编译。你可以根据需要设置编译环境版本，可选版本目前还包括包括：
+ 3.0-sdk 2.1-sdk  设置服务环境变量 BUILD_DOTNET_SDK_VERSION=3.0-sdk 即可选择构建环境版本。
+编译方式设置 默认编译方式如下：
+dotnet restore dotnet publish -c Release  若需要在dotnet restore之前执行的命令可以通过 BUILD_DOTNET_RESTORE_PRE环境变量指定。
+若需要改变默认的 dotnet restore命令可以通过BUILD_DOTNET_RESTORE 环境变量指定。比如设置如下环境变量：
+BUILD_DOTNET_RESTORE_PRE=dotnet restore --ignore-failed-sources  关于环境变量的设置参考 服务环境变量
+项目运行 运行环境选择 通常情况下运行环境与编译环境版本一致，当前版本默认提供的运行环境是microsoft/dotnet:2.2-aspnetcore-runtime，可选的运行环境版本为：
+ 3.0-aspnetcore-runtime
+ 2.1-aspnetcore-runtime
+  通过设置环境变量BUILD_DOTNET_RUNTIME_VERSION 设置你需要的版本
+编译的结果文件存放于运行环境的/app目录下。由于平台咱无法很好的感知项目的入口运行文件，需要在源码主目录中定义rainbondfile定义项目的运行启动方式，例如：
+ports: - port: 5000 procotol: http cmd: dotnet aspnetapp.</description>
+    </item>
+    
+    <item>
+      <title>Golang</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/golang/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/golang/</guid>
+      <description>Golang语言识别方式 平台默认会根据源码根目录是否有go.mod或Gopkg.lock或glide.yaml或src目录含有go文件来识别为Golang项目.
+编译原理  预编译处理完成后,会根据语言类型选择Go的buildpack去编译项目.在编译过程中会安装定义的Golang版本; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  Golang项目源码规范 在此步骤中，你需要提供一个可用的Go源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的go build,go run 源码程序必须托管在gitlab等相关git或者svn服务上 在根目录的/Godeps目录下有Godeps.json文件，标识应用由godep管理;在根目录的/vendor目录下有Govendor.json文件，标识应用由govendor管理;在根目录的/src目录下包含&amp;lt;文件名&amp;gt;.go文件，标识应用由gb管理。  Procfile规范 必须定义Procfile
+web: hello  1. `web:`和`hello`之间有一个空格 2. 文件结尾不能包含特殊字符 3. `hello`为编译后的二进制  编译运行环境设置 配置Golang版本 主流支持版本 go1.10.5,go1.11.2，云帮默认版本 go1.11.2。
+#支持版本 go1.9.7 go1.8.7 go1.11.2 go1.11 go1.11.1 go1.10.5 go1.10.4  Go Tools版本  Dep 默认支持版本v0.4.1 Glide 默认支持版本v0.12.3 Govendor 默认支持版本v1.0.8 GB 默认支持版本 0.4.4 PkgErrors 默认支持版本 0.8.0 HG 默认支持版本3.9 TQ 默认支持版本v0.5 MattesMigrate 默认支持版本v3.0.0  示例demo程序 示例https://github.com/goodrain/go-demo</description>
+    </item>
+    
+    <item>
+      <title>静态HTML</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/html/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/html/</guid>
+      <description> 静态HTML识别策略 平台默认会根据源码根目录是否有index.html文件来识别为静态语言项目.
+编译原理  预编译处理完成后,会根据语言类型选择static的buildpack去编译项目.在编译过程中会安装定义的Web服务Nginx或者Apache; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  静态语言项目源码规范  源码程序必须托管在gitlab等相关git或者svn服务上 源码根目录需要存在index.html文件  Procfile规范 如果未定义Procfile，会生成如下默认Procfile
+web: sh boot.sh  Web服务支持  默认使用最新稳定版本Nginx
+ 自定义Nginx配置 需要在源码根目录定义nginx配置文件：web.conf,默认配置文件为
+server { listen 80; location / { root /app/www; index index.html index.htm; } }  示例代码  静态Html示例代码  </description>
+    </item>
+    
+    <item>
+      <title>Node.JS</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs/</guid>
+      <description>Rainbond 5.1版本已支持源码部署NodeJS前端类项目，你可以直接在Rainbond发布Vue, React, Angular等项目 查看文档： 部署NodeJS前端项目到Rainbond  NodeJS语言识别规范 平台默认会根据源码根目录是否有package.json来识别为NodeJS项目.
+平台编译运行机制  预编译处理会探测是否定义了启动命令配置文件Procfile,如果未定义会读取package.json文件中的script.start值来生成启动配置文件; 预编译处理完成后,会根据语言类型选择nodejs的buildpack去编译项目.在编译过程中会安装定义的Node版本以及Nodejs相关依赖; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  NodeJS项目源码规范 在此步骤中，你需要提供一个可用的NodeJS源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的NodeJS项目 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根路径下必须存在package.json,用来管理NodeJS项目的依赖,也是Rainbond识别为NodeJS语言的必要条件  Procfile规范 如果项目未定义Procfile文件,平台会根据package.json文件中的script.start值来生成默认Procfile。
+web: npm start  上述是默认Procfile,如果需要扩展更多启动参数,可以自定义Procfile。
+1. `web:`和`npm`之间有一个空格 2. 文件结尾不能包含特殊字符  编译运行环境设置 Node版本支持 当前Rainbond支持Node如下版本为：
+4.9.1 5.12.0 6.14.4 7.10.1 8.12.0 9.11.2 10.13.0 11.1.0  平台默认版本使用8.12.0。可以在 package.json 里使用 engines 指定版本：
+{ &amp;quot;name&amp;quot;: &amp;quot;myapp&amp;quot;, &amp;quot;description&amp;quot;: &amp;quot;a really cool app&amp;quot;, &amp;quot;version&amp;quot;: &amp;quot;0.0.1&amp;quot;, &amp;quot;engines&amp;quot;: { &amp;quot;node&amp;quot;: &amp;quot;4.8.7&amp;quot; } }  0.8.5 之后的版本包括 0.</description>
+    </item>
+    
+    <item>
+      <title>NodeJS前端语言</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs-static/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/nodejs-static/</guid>
+      <description>NOdeJS前端项目识别方式 平台默认会根据源码根目录是否有package.json和nodestatic.json文件来识别为NodeJS前端类项目.
+编译原理  预编译处理完成后,会根据语言类型选择nodejstatic的buildpack去编译项目.在编译过程中会安装定义的Node版本以及Nodejs相关依赖,安装默认web服务nginx; 编译完成后会检查是否在平台设置了Procfile参数,若配置了会重写启动命令配置文件Procfile.  NodeJS前端项目源码规范 在此步骤中，你需要提供一个可用的NodeJS源码程序用来部署在Rainbond平台上,此应用程序至少需要满足如下条件:
+ 本地可以正常运行的NodeJS项目 源码程序必须托管在gitlab等相关git或者svn服务上 源码程序根路径下必须存在package.json,用来管理NodeJS项目的依赖,是Rainbond识别为NodeJS前端类语言的必要条件 代码的根目录下必须有nodestatic.json文件，是Rainbond识别为NodeJS前端类语言的必要条件  nodestatic.json规范 用于定义NodeJS编译后文件路径。
+# cat nodestatic.json {&amp;quot;path&amp;quot;:&amp;quot;&amp;lt;编译后路径&amp;gt;&amp;quot;}  Procfile规范 如果未定义Procfile，会生成如下默认Procfile
+web: sh boot.sh  上述是默认Procfile,如果需要扩展更多启动参数,可以自定义Procfile。
+1. `web:`和`sh`之间有一个空格 2. 文件结尾不能包含特殊字符  编译运行环境设置 Node版本支持 当前Rainbond支持Node如下版本为：
+4.9.1 5.12.0 6.14.4 7.10.1 8.12.0 9.11.2 10.13.0 11.1.0  平台默认版本使用8.12.0,具体配置参考NodeJS源码构建
+Web服务支持 Web默认支持Nginx,目前Nginx版本为1.14.2。如果需要自定义配置Nginx，需要在源代码根目录添加web.conf或者www/web.conf(需要符合Nginx配置文件语法)。
+默认配置文件web.conf
+server { listen 80; location / { root /app/www; index index.html index.htm; } }  示例demo程序 示例https://github.com/goodrain/rainbond-ui</description>
+    </item>
+    
+    <item>
+      <title>.slugignore文件</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/slugignore/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/slugignore/</guid>
+      <description> .slugignore文件作用介绍 .slugignore 与大家知道的.gitignore文件一样，具有在打包阶段忽略某些文件的作用。我们在使用Rainbond进行源码构建打包时或许会有这样一个需求，我不想将源代码打包到最终的软件包中，但是Rainbond需要根据你的定义确定哪些文件是你不想要的。因此就有了.slugignore 文件。
+.slugignore文件定义方式  文件位置与命名  文件名称必须为.gitignore，且必须放置于源代码主目录中。
+ 文件内容规范  与.gitignore规范一致，需要忽略的文件将其路径定义到文件中，每行一个，支持通配符。
+示例：
+src/main/java/com/* src/test  </description>
+    </item>
+    
+    <item>
+      <title>Procfile文件</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/procfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/procfile/</guid>
+      <description> Procfile介绍 Procfile 是Rainbond基于代码指定服务运行方式的策略。其本身是一个普通的文本文件，需要将其放到代码的跟目录中，其内容是定义源码构建的服务运行起来的启动命令。通常情况下只包含一行信息即可，请看下面的例子：
+ Java语言类型，定义启动命令运行War包  web: java -jar /opt/webapp-runner.jar --port $PORT --session-store redis ./*.war   直接执行二进制文件，例如nginx
+web: vendor/bin/heroku-php-nginx  执行启动脚本，例如执行Maven生成的Tomcat Java Server脚本
+  web: sh target/bin/webapp   启动ruby项目  bundle exec bin/rails server -p $PORT -e $RAILS_ENV  您可能注意到了 `$PORT` 这个环境变量，指定服务的监听端口。Rainbond运行服务时将自动通过用户设置的端口信息注入此环境变量。通过上诉类型的启动命令，实现服务监听端口的灵活配置。类似的机制还可以被使用到例如Tomcat启动等几乎所有语言服务类型中。  Procfile格式说明 &amp;lt;服务类型&amp;gt;: &amp;lt;命令&amp;gt;   &amp;lt;服务类型&amp;gt; : 目前仅支持 web 服务类型
+ &amp;lt;命令&amp;gt; : 启动程序的命令行，执行的命令必须是前台运行。
+  </description>
+    </item>
+    
+    <item>
+      <title>rainbondfile源码定义环境配置文件</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/rainbondfile/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/rainbondfile/</guid>
+      <description> rainbondfile介绍 rainbondfile 是Rainbond基于代码指定服务运行环境的策略。其本身是一个普通的yaml格式的文本文件，需要将其放到代码的根目录中，其适用于所有基于源码构建的服务类型。目前rainbondfile支持定义环境变量 端口 持久化存储 启动命令四个项目。Rainbond在创建服务的过程中将识别其中定义的内容自动设置到服务属性中，在Rainbond控制台可以查阅。 完整用例如下：
+language: Java-maven buildpath: target/ ports: - port: 8080 protocol: http #如需开启多个端口，则继续添加端口并指定协议 - port: 5000 protocol: tcp envs: ENV_KEY1: ENV_VALUE1 ENV_KEY2: ENV_VALUE2 # 适用于Dockerfile、NetCore源码类型 cmd: java -jar xxxx.jar  rainbondfile作用 源码定义环境是Rainbond推荐的服务管理策略。通过rainbondfile的定义可以便捷的批量添加环境变量等服务属性，后续版本将逐步增加可配置的属性。
+支持的配置项目说明  language 源码类型 ports 服务端口列表 envs 服务环境变量列表 buildpath 服务主目录不在当前目录时有用，指定二级目录地址 cmd 指定服务运行方式，适用于Dockerfile、NetCore源码类型，其他语言通过Procfile指定运行方式  </description>
+    </item>
+    
+    <item>
+      <title>其他环境变量设置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/envs/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-creation/language-support/etc/envs/</guid>
+      <description> 源码应用设置locale 设置运行环境语言
+# 变量名 变量值 LANGUAGE en_US.UTF-8 LANG en_US:zh_CN.UTF-8 LC_ALL C  </description>
+    </item>
+    
+  </channel>
+</rss>

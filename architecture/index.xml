@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>架构 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/architecture/</link>
+    <description>Recent content in 架构 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/architecture/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>设计思想</title>
+      <link>http://skyzhangyf.github.io/architecture/design-concept/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/architecture/design-concept/</guid>
+      <description>企业应用云操作系统 
+对于企业IT来说，企业应用是企业IT价值的最主要体现，然而，当前不管是开发应用还是使用应用，都需要面对最底层的计算资源（IaaS/虚拟化/物理服务器），导致技术栈很长，需要做很多跟业务不直接相关的工作，比如：开发和运行环境搭建；服务器管理；网络管理；交付流程管理；技术架构支持；基础技术服务提供；技术工具维护等运维和技术工作，而这些工作对所有企业应用是有通用性的，如果把这些工作统一包装并自动化完成，企业专注自身业务，这样就能让企业IT的效率大幅度提高。
+Rainbond 通过 以应用为中心 的方式包装以上重复性工作，并在此上支撑企业应用的开发、架构、交付和运维，这种抽象粒度，即能简化企业应用的管理，又能满足业务的灵活性。在对接底层基础设施时，通过软件定义实现和对接，能做到对接各类基础设施。通过以上设计，自然形成了企业应用的操作系统。
+无侵入架构 
+Rainbond把广泛支撑企业应用作为首要目标，广泛支撑企业应用意味着各种企业应用都能在Rainbond上开发、架构、运维，这点也是影响使用体验的关键点，为了实现这个目标，Rainbond采用无侵入架构。无侵入架构表现在使用简单，已有应用不需要改动就能支持。
+具体从三方面入手：
+ 在开发阶段，对接代码仓库，自动识别开发语言类型，不改变开发者习惯，尽量最大可能不修改现有代码，直接编译、构建和运行。
+ 在架构阶段，如果已有系统没有分布式架构，Rainbond提供Service Mesh 架构，业务模块不改代码就能变成微服务架构。
+ 在运维阶段，老的遗留系统很难找到原有开发人员，要迁移到新运行环境比较困难，Rainbond使用动态生成配置文件和网络关系的方式，迁移和运行遗留系统。运维和治理功能，Rainbond通过“无侵入”插件的形式提供，根据功能需要选择加载插件。
+  无侵入架构还表现在，对使用者无绑定，开发的应用程序可以脱离Rainbond开发和运行。
+以应用为中心，连接企业应用和企业计算资源 
+以应用为中心是Rainbond的核心设计理念，也是Rainbond的抽象思路，强调关注业务，跟业务相关技术概念对外暴露，跟业务不直接相关的技术概念统一包装。通过这种方式抽象，使用者不用过多考虑服务器的问题，也就是Serverless架构。
+通过以应用为中心抽象可以将企业应用和企业计算资源解耦，企业应用的生命周期管理跟计算资源不直接相关，也就是说企业应用的开发可以在任何类型的计算资源上，开发好的企业应用可以直接安装运行在任何类型的计算资源上，还可以随时从一个资源迁移到另一个资源。
+计算资源对使用者完全透明，根据使用场景差异对接计算资源，当计算资源对接的是公有资源，就是公有云，当计算资源对接的是私有资源，就是私有云，当计算资源同时对接公有资源和私有资源，就是混合云。
+Rainbond通过解耦实现连接企业应用和企业计算资源，对接的各类企业应用积累形成企业应用市场，对接的各类企业计算资源积累形成企业计算资源市场，应用市场中的应用和资源市场中的资源可以自由组合使用。组合使用的过程，表现为SaaS和PaaS两种交互界面。SaaS实现不懂技术的即点即用，PaaS实现高级的定制开发。</description>
+    </item>
+    
+    <item>
+      <title>业务流程</title>
+      <link>http://skyzhangyf.github.io/architecture/flow/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/architecture/flow/</guid>
+      <description>抽象流程 
+Rainbond的流程建立在以应用为中心抽象基础上，以交付为目的
+场景流程 互联网公司交付流程 
+企业软件公司交付流程 
+行业云交付流程 
+大型企事业单位IT流程</description>
+    </item>
+    
+    <item>
+      <title>技术架构</title>
+      <link>http://skyzhangyf.github.io/architecture/architecture/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/architecture/architecture/</guid>
+      <description>Rainbond技术架构 
+Rainbond践行以应用为中心的理念，吸纳优秀的社区解决方案，形成了应用控制、应用运行时，集群控制三大模块结合的数据中心技术架构，结合跨数据中心的上层结构应用控制台和资源控制台，形成了完整的PaaS平台解决方案，下面将对每个组件集进行简述：
+数据中心服务组件说明 数据中心API服务 API服务作为数据中心级抽象的核心控制服务，对外提供Restful风格的API服务，是数据中心控制流的唯一入口，安全控制基于TLS双向安全认证。
+API服务处理三类请求：
+元数据操作请求 直接操作元数据存储数据库。
+异步任务请求 根据业务特性发送异步任务事件到消息中间件。
+代理请求 API服务同时代理了后端Websocket信息推送服务、监控服务、Web终端控制服务。
+应用网关服务 应用网关是外部流量进入Rainbond内部服务的唯一入口, 提供HTTP, HTTPs路由, TCP/UDP服务, 负载均衡器, 高级路由(A/B测试, 灰度发布)等功能.
+应用网关的大部分灵感来自于NGINX Ingress Controller, 通过kube-apiserver将监听到的Kubernetes资源(Ingress, Service, Secret, Endpoint)应用到Nginx上, 再由Nginx把Rainbond内部的服务暴露出去.
+应用网关的高可用和数据一致性:
+为了避免网络故障, 宕机或其它因素使得应用网关无法正常工作, 从而导致内部服务无法被访问, 有必要为应用网关高可用(尤其在生产环境中). Rainbond应用网关的高可用方案是: 配置两个或两个以上的状态完全一样的应用网关, 并且为这些应用网关配置一个四层的负载均衡器或VIP. 每一个应用网关的数据一致性由Kubernetes的Watch机制来保证, 另处, 应用网关会每10秒同步一次K8s的资源. 如下图所示:
+应用构建服务 Rainbond 应用构建服务处理CI过程，将输入源 包括 源代码 或 Docker镜像 或 应用市场应用 进行解析、编译、打包，最终生成 应用（服务）抽象 介质。
+传统意义上说，完整的CI过程会包括：设计、编码、打包、测试和发布，Docker镜像自推出以来逐步成为众多应用代码打包的新形式。现有的CI产品中已经在源码测试和Pipline方面做得非常成熟，例如Jenkins，Gitlab等，因此Rainbond在对于源码或Docker镜像的前置处理方面可以直接对接第三方服务，由第三方服务处理完成的源码或镜像再对接到 Rainbond-Chaos 模块进行应用抽象。
+Chaos的输入源是支持Git、Svn协议的代码仓库，Docker镜像仓库。如果是源代码，Chaos智能判断源码的类型，例如Java, PHP , Python, Dockerfile等，根据不同的源码类型选择对应的BuildingPack(源码构建器)进行源码编译，同时识别源码中定义的运行环境要求参数，应用端口、环境变量等参数，形成应用抽象的配置雏形。除了Dockerfile以外的源码类型将被编译成应用代码环境包（SLUG）存储于分布式存储中，其他的生成Docker本地镜像存储于数据中心镜像仓库中，结合应用的各类属性信息形成应用抽象包。
+  关于源码编译的BuildingPack参考各语言支持文档。 应用构建服务支持多点高可用部署，多点部署从消息中间件获取应用构建任务。   应用运行时控制服务 应用运行时控制服务将应用构建服务构建出来的应用抽象进行实例化，配属应用运行需要的各类资源，完成应用生命周期中的运行态部分，可以认为是CD流程。</description>
+    </item>
+    
+  </channel>
+</rss>

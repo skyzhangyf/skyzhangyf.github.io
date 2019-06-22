@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>服务管理 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-manual/app-service-manage/</link>
+    <description>Recent content in 服务管理 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-manual/app-service-manage/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>服务基础属性说明</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-properties/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-properties/</guid>
+      <description>本文讲解与应用相关的属性及名词，从而让你更清晰的了解应用的概念。
+应用的状态 应用一旦创建，就进入到应用的生命周期，在整个生命周期中会有一系列的状态，下文对各个状态进行解释：
+   应用状态 说明 可进行的操作     创建中  新创建的应用，正处于设置阶段 进行创建流程   部署中  新创建的应用设置完成，正在进行第一次应用版本构建 重新部署   启动中  应用正在启动，暂时不能访问，启动分为两个阶段，进程启动和业务启动，如果未配置启动时健康检查，只要进程启动完成则认 为应用启动完成   运行中  应用所有运行实例处于运行状态，正常来说处于运行中的应用可以被访问，也可能由于业务启动缓慢应用暂时不能访问 访问，重启，关闭，重新部署   运行异常  应用运行正常的实例少于总实例即标识应用运行异常，对于多实例的应用，处于异常态的应用只要还有正常的实例即可提供服务。
+实例异常大多数情况是由于应用本身异常退出或因为内存不足发生 OOM 退出。
+平台会自动尝试重启异常的实例。
+可通过查看应用日志，或通过命令行工具查看更多应用信息 关闭，重启，重新部署   升级中 应用正处于滚动更新过程中，多个节点处于当前状态的应用可以正常访问 关闭   已关闭 应用已经停止运行，持久化数据依然存在 启动，重新部署   未知 应用处于此状态可能由于网络受阻，请求后端服务获取应用状态失败，或后端服务异常
+可以尝试刷新页面，如果不能解决，请联系运维同事。     应用的版本 针对不同类型的应用，版本的标示也有所不同：
+   应用类型 版本信息 示例     源码构建 从代码仓库拉取代码构建应用的时间戳 20180803171811   Docker镜像 镜像tag信息 1.</description>
+    </item>
+    
+    <item>
+      <title>服务基础操作</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/basic-operation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/basic-operation/</guid>
+      <description>服务基本操作 先就服务可进行的操作进行基础说明：
+   基础操作 说明     构建 构建操作将触发服务从构建源获取最新的代码或镜像构建服务的新版本，默认情况下构建成功后将触发滚动升级。   更新（滚动升级） 更新操作将以最新的服务属性配置对集群中运行的服务实例进行滚动升级   启动 具有至少一个可用构建版本的服务可以启动   停止 服务停止即释放所有集群资源   访问 运行中的服务可进行访问，如是HTTP服务将跳转访问网址，非HTTP   管理容器 运行中的服务可进行管理容器操作，选择需要操作的容器实例即可进入容器Web终端控制   重启 运行中的服务可进行重启操作，正常情况下我们推荐使用更新操作来完成服务重启，若服务任何属性都未变化，无法使用更新。   修改所属应用 服务可以灵活调整所属的应用   删除 删除服务是一个危险的操作，请谨慎操作。服务删除后持久化数据默认会保留7天。    构建操作  适用场景：服务的任何状态
+ 针对不同类型的服务，触发 构建 操作后，有着不同的含义，下表针对不同类型的服务加以说明：
+   服务类型 说明     从源代码构建的服务 拉取最新源代码，根据预先识别的语言类型进行服务版本构建并进行滚动升级   从Docker镜像构建的服务 重新拉取指定镜像地址的镜像，构建出服务新版本并进行滚动升级   从云市应用构建的服务 若云市应用不存在更新的版本，构建操作将提醒用户无需操作，若已存在多个更新版本，将提示用户选择需要获取的版本号。根据所选版本获取服务介质生成构建版本并进行滚动升级    - Dockerfile 源码类服务就是将 Dockerfile 及所需要的文件放到 代码仓库（Git/Svn），通过源代码创建的服务。 - 构建后，如果一切顺利，服务会自动切换为新版本并上线，构建操作默认并更新升级，也可在其他设置中去设置构建后不升级流程。 - 滚动升级过程对于多节点的服务理论上无影响，对于单节点的服务如果正常配置了业务级的[健康检测](/user-manual/app-service-manage/service-other-set/#健康检查) 也可以做到无影响升级。 - 处于关闭状态的服务，触发构建操作后，如果构建正常，平台会将服务运行起来。  云市服务升级支持的属性 在对云市服务进行升级的时候, 并不是所有的属性都支持升级; 在升级的时候, 各种属性的处理方式又会有所区别.</description>
+    </item>
+    
+    <item>
+      <title>日志管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-log/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-log/</guid>
+      <description>服务日志 Rainbond平台对服务日志采用实时推送的形式展示，用户也可以通过查询历史日志文件查询历史日志。
+服务操作日志 在服务总览页面中呈现服务的操作历史情况以及每次操作的日志记录，特别是构建操作的日志需要注意，当出现构建失败时请查看日志输出的提醒内容以指导用户对代码的不规范性进行改进。
+服务的操作日志也是对服务进行操作的记录，便于多个用户之间的协作和操作审查。
+服务运行日志 服务运行后输出到标准输出(stdout)和标准错误输出(stderr)的日志将被Rainbond捕获并进行汇聚存储，多个实例的日志将统一汇聚到服务级别进行实时展示和存储。
+在日志显示框中用户可以选择容器ID后只查询某个实例的运行日志。我们尽量追求将日志实时推送到控制台，但由于中间处理的原因会有一定的延时。
+我们推荐用户将服务运行日志区分为访问日志和程序Debug日志，访问日志一般具备被统计分析的任务，将其输出到持久化文件，然后对接其他日志分析服务进行日志分析。 程序Debug日志最主要的功能是呈现给开发者快速发现问题。
+在TODO规划中，我们将在日志收集端增加日志分流功能，直接可以对接像ELK等日志分析系统，将日志直接传输到分析系统中进行分析。</description>
+    </item>
+    
+    <item>
+      <title>性能分析</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-monitor/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-monitor/</guid>
+      <description>性能分析 服务实时性能分析功能依赖于服务开通性能分析类插件完成。 Rainbond目前默认提供了支持HTTP协议和Mysql协议的性能分析插件供用户使用。
+服务性能分析 我们将所有类型的服务的性能情况用三个指标来衡量：
+ 响应时间  响应时间也称为延迟，服务一般工作于网络通信的应用层，比如http、mysql、redis、grpc等。服务每次处理一次客户端请求的用时即响应时间。如果我们从网络报文的维度来衡量的话即请求报文第一个包到达到响应报文的第一个包发出中间的时间。
+ 吞吐率  吞吐率也称为通讯量，即服务在单位时间内处理请求的次数。
+ 错误率  错误有显性错误（比如HTTP 500错误）和隐性错误（比如HTTP返回200然而业务是错误的），这里我们主要关注显形错误，每一种通信协议都有标准的错误类型，比如mysql有查询语句错误。错误率正常情况下与服务的饱和度有密切关系。
+综上所述，实现性能分析时我们有两种思路，一种是在ServiceMesh网络中，代理端会根据不同的协议汇报三类指标，第二种是目前使用的方式，性能分析插件通过旁路的方式监听服务的网络通信，从而直接分析服务上述指标。
+监控效果 性能分析数据持久化的存储于Rainbond monitor组件中，供给客户端查询。在服务监控页面中，我们除了展示监控历史数据以为，还实时的展示http和mysql的请求情况，比如mysql请求的sql语句执行情况。这对于用户进行精细化挑优提供了一个直接的指引。
+更多的协议支持 TODO列表中我们计划支持grpc协议、redis协议、mongodb协议的性能分析。</description>
+    </item>
+    
+    <item>
+      <title>服务伸缩</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-scaling/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-scaling/</guid>
+      <description> 服务伸缩 Rainbond平台服务有两种伸缩方式：
+ 垂直伸缩：增加或减少服务的内存（目前服务 CPU 与内存是联动的，按照一定的比例调整） 水平伸缩：增加或减少服务的实例数，适用于无状态服务和有状态水平集群服务  - 垂直伸缩时平台会自动调整资源后重启服务，单节点服务会中断，多节点服务不受影响。 - 水平伸缩时平台通过滚动新增或者下线节点的方式进行操作，因此操作不会影响现有服务。  垂直伸缩 CPU 与内存比例关系    申请值比例（CPU/内存） 限制值比例（CPU/内存)     0.24&amp;frasl;1 1.28&amp;frasl;1    Kubernetes 针对 CPU 和内存分为申请值与限制值，详情参见: [管理容器的计算资源](https://kubernetes.io/cn/docs/concepts/configuration/manage-compute-resources-container/) 平台目前调整的 CPU 与内存占比是经过生产环境验证过符合大多数服务类型。如果对某些CPU密集型服务自定义分配CPU，可以配置环境变量：ES_CPULIMIT : CPU限制值 ES_CPUREQUEST：CPU请求值  水平伸缩 服务进行水平伸缩的条件  无状态服务  我们一般称无需自己保存运行状态的服务为无状态服务，比如Web类服务。通常情况下只要将缓存系统使用第三方的服务比如Redis，Web类服务即可认为是无状态服务可进行水平伸缩。
+那么有人要问，我的Web服务需要存取文件怎么办，Rainbond将处理服务直接的持久化存储同步。即每个服务实例使用的持久化存储为同一个文件系统，这就是计算与数据分离的实践。
+ 有状态服务  有状态服务的水平伸缩条件将比较复杂，要支持有状态伸缩，首先得应用支持集群化水平扩展。
+比如我们部署了一个Mysql服务，我们直接将其水平扩到两个实例，会出现什么现象呢？ 两个实例都可以正常工作，但是它们之间无任何关系，也就是说是两个Mysql服务。显然这样使用是不行的。
+那什么有状态服务可以水平伸缩呢，主要是以下两类：
+ 可进行水平扩展集群的集群化服务，比如 Etcd, Zookeeper, 小强数据库，TiDB等 主从集群类服务，我们一般可以将从服务进行水平伸缩。比如Mysql、Redis、MongoDB等。  有状态服务集群应用的制作方式我们将在主题文档中讲解  </description>
+    </item>
+    
+    <item>
+      <title>服务依赖</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rely/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rely/</guid>
+      <description>服务连接信息管理 连接信息的作用 当前服务被其他服务依赖时，如果需要注入相关变量给对方以方便对方连接自己。连接信息的实质是环境变量，只是其生效范围是自身和依赖自己的所有服务。比如一个MYSQL服务拥有连接信息 MYSQL_HOST、MYSQL_PORT、MYSQL_USER、MYSQL_PASSWORD、MYSQL_DATABASE。这些信息是其他服务连接 mysql的关键信息，当服务依赖mysql后会自动得到上诉的环境变量从而动态的获取到相关信息。
+添加连接信息 连接信息完全可以在 服务管理-依赖管理 模块自定义添加和删除，当服务端口开启对内服务后，会自动生成 XXX_HOST XXX_PORT的变量信息，这类连接信息如果需要在 端口管理 模块点击端口别名进行修改。
+服务依赖管理 服务为什么要依赖其他服务 当一个独立的业务系统不能完成所有功能时，就需要借助其他的服务来实现。如web服务一般都需要数据库存储数据，前端页面展现程序需要调用后端API服务获取数据等等。因此服务依赖的实质是建立与其他服务通信的链路。在Rainbond中，我们默认采用ServiceMesh的服务网络治理方式处理服务之间的通信，当服务需要请求其他服务时，必须显示的建立依赖关系，从而Rainbond将通过内置的服务注册和服务发现机制发现对方的服务地址，在当前服务的网络空间内建立起本地监听来负载均衡到目标服务的所有实例上。
+graph LR; A[服务A] --|127.0.0.1:8080 | C{envoy} C --|192.168.0.1:8080 | D[服务B实例1] C --|192.168.0.2:8080 | E[服务B实例2]  当服务未开启服务网络治理插件的情况下，Rainbond默认采用envoy 4层通信模型进行网络治理，开通治理插件即可在7层进行网络治理，设置更多路由或限流策略。
+Rainbond中不管时内置服务还是第三方服务，通信维护方式都是一致的。  服务如何连接依赖服务 当服务开启对内服务后，其他服务才能通过【添加依赖服务】的方式进行关联，服务与依赖的服务建立起关联后，下一步就是连接依赖服务。
+在【依赖】页面中的 【依赖应用信息】可以看到已经依赖的服务：
+获取连接信息 选择其中一个依赖服务，点击【连接信息】会弹出连接信息页面: 连接信息分为两类:
+ 变量名 &amp;gt; 当服务的端口打开对内服务后，会生成一个默认的端口别名这个别名就是该服务的连接信息的前缀。如一个内部的API服务，端口别名是 USERAPI 则，其他服务与该API建立关联后，就可以通过 USERAPI_HOST 找到API服务的连接IP，通过USERAPI_PORT 找到API服务的端口号，如果还需要添加其他的变量名，可以通过 【依赖】&amp;ndash;【服务连接信息】添加更多的依赖相关的变量。
+ 变量值 &amp;gt; 服务可以通过确定的变量值来连接被依赖（打开对内服务）的服务，我们不推荐使用这种方式连接，这种方式属于硬编码，所有配置都写死到代码中，对于业务安全与程序灵活性都有影响。我们推荐使用环境变量名的方式连接服务
+  服务连接依赖服务 当服务添加了依赖，并且查看了连接信息后，下一步就是修改服务的配置，连接依赖的服务，以Springcloud程序为例介绍通过环境变量的形式连接依赖的服务：
+application.yml 文件
+... spring: data: mysql: host: ${MYSQL_HOST} username: ${MYSQL_USER} password: ${MySQL_PASS} database: ${MYSQL_DB} port: ${MYSQL_PORT} .</description>
+    </item>
+    
+    <item>
+      <title>服务存储设置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-volume/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-volume/</guid>
+      <description>服务为什么需要存储 服务是 Rianbond 的抽象概念，底层是通过容器封装运行，容器磁盘文件是短暂的，也就是说，在容器中的程序在运行过程中的日志、生成或处理的文件，一旦容器关闭或重启，之前生成或存储的文件就丢失了。因此需要给服务容器挂载一个持久化的存储空间, 用于保存程序运行产生的各类数据。
+存储的类型 Rainbond 默认支持以下几种存储类型:
+ 共享存储(宿主机路径/grdata) 本地存储(宿主机路径/grlocaldata) 配置文件 内存文件存储  共享存储 共享存储是一个分布式文件系统, 默认使用的是 NFS, 你也可以自行对接其它的分布式文件系统(比如: GlusterFS, NAS 等). 共享存储具有非常高的可靠性和扩展性; 与此同时, 它还具有非常高的灵活性, 可以共享给其它的服务组件，基于租户、服务两级进行存储空间分配和隔离。 共享存储针对无状态服务和有状态服务呈现的工作模式不同：
+ 无状态服务  共享存储没有实例差别，多个实例数据一致。 可以被其他服务依赖以实现服务间数据共享。  有状态服务  每个实例具有独立的存储空间 不能被其他服务共享   本地存储 本地存储使用的是当前服务对应的运行实例所在宿主机的一块本地磁盘（通常可以是SSD磁盘），其不具备跨宿主机可用的属性。本地存储只支持有状态服务类型。本地存储通常服务于对存储性能要求非常高的服务，比如数据库类服务。它们可以从应用层面来处理数据在多个实例间的同步，比如Mysql使用主从同步，TiDB基于raft协议的等价集群等。这些服务通常不需要存储层面进行数据同步。
+配置了本地存储的服务调度将跟随存储所在宿主机，是一种受限的调度机制。对于集群类的数据库服务，从应用层处理存储数据的多节点同步，使用本地存储将是一种较优的选择。
+配置文件 配置文件是一种特殊的存储类型，此类型允许用户直接定义文件内容，通常是指配置文件。 Rainbond支持配置文件有两大特性：
+ 动态渲染 动态渲染配置文件解析环境变量的语法:
+${环境变量名} ${环境变量名:默认值}   下面是 MySQL 配置文件的一个片段:
+[mysqld] port = ${PORT:3306} socket = /tmp/mysql.sock  如果服务中存在环境变量 PORT, 那么 Rainbond 会将PORT 的值解析到配置文件中; 如果服务中不存在环境变量 PORT, 那么 Rainbond 会将 3306 解析到配置文件中。</description>
+    </item>
+    
+    <item>
+      <title>服务端口</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-port-domain/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-port-domain/</guid>
+      <description>服务端口管理 服务端口管理 端口相关的管理包含，端口号，端口协议，端口访问控制、对内服务端口变量设置等操作，下图是不同团队、不同端口的服务开启了不同访问控制后的示意图：
+端口号设置 服务端口与容器内部程序监听的端口是完全对应的关系，也就是说，当程序启动后监听的端口是80，那服务的端口就应该设置为80。
+可以通过【添加端口】功能为服务添加其他的端口，需要确保添加的端口与程序监听的端口一致，并选择对应的端口协议。
+端口协议 端口可以指定不同的协议类型，目前Rainbond支持 HTTP、TCP、UDP和 MySQL 协议，请确保选择的协议与你程序监听的协议一致。
+协议的选择会影响服务的后续操作：
+ 性能分析功能 &amp;gt; 不同协议的服务启动了性能分析插件后，其性能分析的方式会有所不同，如HTTP协议会分析HTTP相关的数据，MySQL协议会分析MySQL语句相关的数据。
+ 打开对外服务后的访问 &amp;gt; 当端口打开对外服务后，HTTP协议会分配默认的域名，非HTTP协议会分配IP+端口的访问方式
+  端口访问控制 端口的访问控制分为两类：
+ 对内服务 &amp;gt; 这里的内是指团队内，开启服务对团队内部的访问许可，这时当前服务端口将被注册到团队的内部服务可用池、该团队内部的服务可以通过【添加依赖服务】的方式访问到该服务。
+ 对外服务 &amp;gt; 打开对外服务后，平台会将该服务端口注册到团队对外服务可用池，这时应用网关可以以用户配置的访问策略访问到该服务，此时平台外部以及平台内部其他团队的服务都可以通过应用网关分配的域名或IP访问到该服务。
+  - 修改端口信息后需要更新服务。 - 端口打开对内服务后，其他服务要想连接到该服务，需要先【添加依赖服务】建立关联，然后通过连接地址或环境变量连接。 - 端口访问控制可以根据需要开启和关闭，可单独开启，也可以全部开启，如果服务是个worker程序，只需要连接别的服务，本身没有端口监听就没有必要开启端口访问。  服务访问策略管理 Rainbond为每一个HTTP服务自动生成一个默认的域名，一般情况下这个域名都比较长，不方便记忆。你可以在服务端口管理面板中快捷绑定自定义域名。
+关于服务访问策略的几种管理和高级设置，请参考 应用网关-访问策略管理</description>
+    </item>
+    
+    <item>
+      <title>应用持续构建与部署</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/auto-deploy/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/auto-deploy/</guid>
+      <description>服务自动构建 通过自动构建的功能，可以实现代码提交后应用的自动构建，平台提供了基于代码仓库Webhooks、镜像仓库Webhooks和API等方式触发自动应用部署。方便的对接第三方自动化流程。只需要通过简单的设置，就可以帮您完成重新部署的工作。
+代码仓库自动化构建说明 开启源码自动构建，需要应用具备如下条件：
+ 应用是由源码创建(官方demo除外)，目前支持的代码仓库为GitHub、GitLab、Gitee 与 Gogs 确定应用已经 开启 了此功能 需要在代码仓库的项目中配置正确的 webhooks 目前仅支持项目的push事件 提交信息中包含触发关键字 默认为@deploy，用户可设置 应用状态必须是运行中或运行异常状态  开启自动构建 在服务管理-构建源管理 中请打开Git-Webhook 自动构建功能，并复制我们平台提供的URL前往你使用的Git server 配置Webhook。
+
+配置代码仓库  配置GitHub  如果您的项目存放在Github中，请参考如下截图：
+
+ 配置GitLab  如果您的项目存放在GITLAB中，请参考如下截图:
+
+- 开启自动构建后，每次提交代码的Commit信息中必须包含触发自动构建关键字、例如： `@deploy` 才能触发自动构建, 触发自动构建关键字可自定义设置，设置的仅为关键字，提交信息中在关键字前需加上`@`符号  
+镜像仓库自动化构建说明 镜像仓库自动构建可以实现推送镜像后应用的自动构建，方便的对接第三方自动化流程。当镜像更新事件到达时判断以下条件，都满足时触发自动构建。
+ 应用是由镜像创建，镜像仓库为Docker Hub， 5.1.2版本及以后支持阿里云镜像仓库。 默认更新的镜像名称和tag是否与当前服务构建源镜像名称一致（判断时不包含镜像仓库域名）, 5.1.3版本及以后支持配置Tag触发正则策略，动态匹配和改变服务的镜像Tag。 服务已经 开启 了镜像仓库Webhook功能。 应用状态不是未部署和已关闭  开启镜像仓库Webhook自动构建 需要在应用中启用自动构建功能，并且需要将应用的webhooks url配置到目标镜像仓库的webhooks中。
+
+Tag触发策略 默认情况下Webhook更新事件的镜像名称和Tag必须与服务当前构建源的镜像名称和Tag配置一致才能触发构建和部署。配置了Tag触发策略以后，根据配置的正则表达式，如果接收到的push事件的镜像tag能够正确匹配正则表达式，则认为此次更新事件有效，根据更新的Tag信息来升级当前服务的构建源信息并进行自动构建。
+比如设置 Tag策略为： v5.* 当Tag为 v5.1 v5.2 v5.9等都将被允许。</description>
+    </item>
+    
+    <item>
+      <title>服务插件</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-plugins/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-plugins/</guid>
+      <description>服务插件 服务开通插件是对服务治理功能的扩展，插件的定义请查阅文档 插件管理-插件定义
+当前团队下安装的插件才可以被服务开通，因此插件的使用流程是：
+ 团队插件管理安装或添加插件 构建构建并设置配置项 进入服务管理-插件模块 开通已构建完成的插件  目前主要提供了网络治理类和性能分析类的插件。Rainbond默认提供的两个插件配置文档如下：
+1. 性能分析插件
+2. 网络治理插件
+通常情况下服务不能安装重复的同类型插件。
+插件属性配置 插件的配置根据插件的配置项定义动态渲染而来，比如某个配置项依赖于服务端口，那么在配置面板中服务的每个端口都可以定义配置项的值。
+详细说明查阅： 插件配置项说明</description>
+    </item>
+    
+    <item>
+      <title>服务构建源设置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-source/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-source/</guid>
+      <description>服务构建源 Rainbond内置服务创建有三种模式：源码、镜像和应用市场，它们分别具有不同的属性提供配置。
+ 源码 &amp;gt; 源码的构建源配置参数将是最为丰富的，包括基础的代码仓库信息包括（仓库地址，分支，Tag, 授权信息等) &amp;gt; &amp;gt; 还有各语言的编译环境参数
+ 镜像 &amp;gt; 镜像的可配置参数主要是镜像地址，仓库信息和镜像启动命令等
+ 应用市场 &amp;gt; 从应用市场安装的服务不提供更多的参数配置，主要展示来源于哪个云市应用。
+  构建源检测 服务创建时对构建源进行语言检测，在后续的持续开发中，如果源码更改了语言类型，比如从Java-Maven类型更改为Dockerfile类型，需用执行重新检测源码操作，让Rainbond重新设定服务的编译方式才能生效。
+ Rainbond在源码编译过程中不会重新识别语言类型、
+ 自动构建设置 自动构建即通过一种方式自动触发Rainbond服务版本构建的操作，详细文档见服务自动构建
+构建参数设置 JAVA Maven语言类型    参数名称 默认值 可选值 说明     清除构建缓存(NO_CACHE)  true 默认不启用   OpenJDK版本(BUILD_RUNTIMES) 1.8 1.6,1.7,1.8,1.9,10,11 OpenJDK版本   启用OracleJDK(BUILD_ENABLE_ORACLEJDK)  true 默认不启用OracleJDK   OracleJDK下载路径(BUILD_ENABLE_ORACLEJDK)   OracleJDK(linux amd64)下载路径   Maven版本(BUILD_RUNTIMES_MAVEN) 3.3.1 3.0.5,3.1.1,3.2.5,3.3.1,3.3.9 Maven版本   Web服务器支持(BUILD_RUNTIMES_SERVER) tomcat85 tomcat7,tomcat8,tomcat85,tomcat9,jetty7,jetty9    禁用Maven Mirror(BUILD_MAVEN_MIRROR_DISABLE)  true 默认启用Maven mirror,若禁用Mirror则关于Mirror配置不生效   MAVEN MIRROR OF配置(BUILD_MAVEN_MIRROR_OF) *     MAVEN MIRROR_URL(BUILD_MAVEN_MIRROR_URL) maven.</description>
+    </item>
+    
+    <item>
+      <title>服务版本管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rollback/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-rollback/</guid>
+      <description> 服务版本管理 服务每次成功部署后，都会生成一个服务版本，每个版本对应一次代码提交（基于源码创建），或者一个镜像版本（Docker 镜像创建）
+通过 构建版本管理 功能，可以将服务回滚到指定版本，Rainbond 默认保留服务构建成功的版本。
+版本管理中可以查询当前运行的版本，构建的历史版本和版本构建成功率。每一个版本都可以追溯代码提交记录或源镜像记录。
+版本回滚  服务可以随时回滚到历史构建成功的版本，Rainbond回滚操作与升级类似，采用滚动的方式进行。
+- 多节点服务回滚操作采用滚动升级方式，因此时不会影响服务，但会有较短的时间同时存在 2 种版本的情况。 - Rainbond 5.X版本中对于服务回滚只会回滚代码和镜像运行环境，对服务配置（端口、环境变量、内存设置等）不会回滚到历史状态。 - 若你需要将应用整体回滚到历史的状态，包括持久化数据，请使用[应用备份与恢复机制](/user-manual/app-manage/app-backup/)  </description>
+    </item>
+    
+    <item>
+      <title>服务其他设置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-other-set/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-other-set/</guid>
+      <description>服务其他设置 服务的其他功能，包括更多的服务信息、环境变量、健康检查、服务权限等更多属性都在 服务的 【设置】页面中，下文会对每一块功能做详细介绍。
+服务基础信息 服务基础信息显示了服务当前的版本信息、来源及状态，不同类型的服务显示的内容也会有所不同，并且在基础可以改变应用的部署类型，给服务添加标签，构建后是否自动升级等；只有在服务是有状态的情况下，才可以设置服务名称属性：
+   属性名称 说明 默认值     应用部署类型 服务的部署类型，包括无状态服务和有状态服务 无状态服务   应用特性 应用的运行或调度特性标签，主要用于标识服务的一些特殊特性，比如Windows服务、GPU服务等，可选值由管理后台设定    应用构建后自动升级 设置服务是否在构建完成后自动进行滚动进行，若关闭，则不进行。 是    自定义环境变量 当你通过服务【设置】中的自定义环境变量，添加变量后服务更新或重启后生效。
+通常情况下，我们将配置信息写到配置文件中供程序读取使用，在Rainbond平台中，我们极力推荐使用环境变量的方式来代替传统的配置文件的方式。
+这样做的好处如下：
+ 将配置信息与服务绑定，与代码解耦，摆脱不同环境下切换配置文件的麻烦 敏感信息与代码分离，避免程序漏洞造成数据丢失 省去配置管理的工作  下面是一个生产环境的服务使用环境变量进行配置的截图：
+ 
+以Python为例介绍在配置读取环境变量的方法：
+# -*- coding: utf8 -*- import os DEBUG = os.environ.get(&#39;DEBUG&#39;) or False TEMPLATE_DEBUG = os.environ.get(&#39;TEMPLATE_DEBUG&#39;) or False DEFAULT_HANDLERS = [os.environ.get(&#39;DEFAULT_HANDLERS&#39;) or &#39;zmq_handler&#39;] DATABASES = { &#39;default&#39;: { &#39;ENGINE&#39;: &#39;django.</description>
+    </item>
+    
+    <item>
+      <title>高级环境变量配置</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-env/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-env/</guid>
+      <description>Rainbond平台启动服务时默认注入以下环境变量信息以供应用使用：
+   变量名 变量值 说明     PORT 应用设置的第一个端口号 应用建立端口监听时尽量获取 PORT 环境变量值进行监听   PROTOCOL http\tcp\mysql 等 对应上诉端口的协议类型   DEFAULT_DOMAIN 默认域名 第一个 http 协议的端口的平台默认域名   DOMAIN 自定义域名 最小的http端口对应的域名   TENANT_ID 租户 ID 租户 ID   SERVICE_ID 应用 ID 应用 ID   MEMORY_SIZE micro， small， medium， large， 2xlarge 等 表示当前应用实例的内存大小设置，一般用于应用内存相关设置的初始化，例如 JAVA_OPTS   SERVICE_POD_NUM 应用实例数量 应用实例的数量   DEPEND_SERVICE serviceAlias:serviceID, 依赖的应用   HOST_IP ip地址 服务运行时所在宿主机IP地址   POD_IP ip地址 服务运行时的IP地址   DISCOVER_URL http://xxxxxxx/v1/resources/xxx 配置发现接口地址,插件运行环境有效   DISCOVER_URL_NOHOST /v1/resources/xxx 不带IP地址的配置发现URL, 地址使用HOST_IP：6100    自定义域名注入的补充说明:  1.</description>
+    </item>
+    
+    <item>
+      <title>服务容器终端</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/service-container/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/service-container/</guid>
+      <description>进入容器命令行 运行起来的服务后端都是由容器提供的，平台提供了通过浏览器的方式登录到服务容器命令行的方式。当服务正常启动后，可以通过【管理容器】按钮，选择某个节点，进入到容器命令行，容器命令行可以更加方便去操作后台，例如：查看程序日志，数据库查询等：
+当无法正常打开控制台时，请检查服务状态是否正常。Web控制台只用作查看和调试程序，不建议通过控制台部署业务相关的服务。在容器中创建的文件若未存放于持久化目录，重启服务后文件丢失  浏览器兼容情况 推荐使用Google Chrome浏览器</description>
+    </item>
+    
+    <item>
+      <title>第三方服务管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/app-service-manage/thirdparty-manage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/app-service-manage/thirdparty-manage/</guid>
+      <description>总览 总览页面主要有展示第三方服务创建的元数据, 和对实例的管理.
+实例的类型有两类: 静态实例和动态实例. 对于静态的实例, 可以在 UI 对它们执行查询, 新增, 上线, 下线和删除等操作; 而对于动态实例, 只可以在 UI 上对它们执行查询操作, 它们的新增, 上线, 下线和删除等操作只能体现在服务注册中心数据的变化和健康检查上.
+查询 将当前服务所有的实例展示出来, 包括实例的数量, IP 地址, 端口, 健康状态, 是否上线等信息.
+下线 将实例从当前服务生效的实例列表中移出, 不再提供服务, 并保留当前服务的元数据中.
+上线 将实例从元数据中, 转移到生效的实例列表中, 为当前服务提供服务.
+新增 将新的实例添加到当前服务中. 在默认情况下, Rainbond 会将其设置为上线.
+删除 将指定实例下线, 并从元数据中中将其永久地移除.
+端口 端口的功能基本上和内部的服务保持一致, 唯一的不同点是, 第三方服务只能添加一个端口. 详情参考: 服务端口
+连接信息 详情参考: 连接信息
+更多设置 在更多设置中, 第三方服务保留了健康检测和成员服务权限. 在这两者中, 成员服务权限跟内部服务保持一致, 有变化的是健康检测. 第三方服务不健康处理方式有下线 和 忽略(内部服务为下线和重启).</description>
+    </item>
+    
+  </channel>
+</rss>

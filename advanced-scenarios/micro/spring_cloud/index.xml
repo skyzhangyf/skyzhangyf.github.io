@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SpringCloud应用部署运维 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/</link>
+    <description>Recent content in SpringCloud应用部署运维 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Spring Cloud 微服务部署在 Rainbond 的优势</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-advantage/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-advantage/</guid>
+      <description>概述 目前很多公司已经拥有了基于 Spring Cloud 微服务框架开发的业务系统。作为老牌成熟的微服务架构，Spring Cloud 微服务框架为企业业务开发提供了诸多好处。 我们不用去探讨这些好处是什么， Spring Cloud 巨大的市场应用基数已经指明了它的价值。但是它是否是完美无瑕，再无可补足之处呢？世界上没有完美的产品， Spring Cloud 也是如此，以下这些缺点亟待完善：
+ 单个组件没有办法很好的管理 难以找到性能监控的方案 难以灵活的伸缩以适应业务并发 部署起来比较麻烦，包括微服务组件本身以及相关的数据库、中间件  针对以上4点，Rainbond平台可以进行天然的补足。
+支持单个组件的全生命周期管理 Rainbond 会把 Spring Cloud 的每个微服务组件单独看待，并可以针对每个组件进行深度的管理，比如：
+ 开启、关闭、重启、构建、删除、滚动更新、版本回滚 性能监控 日志管理 垂直/水平伸缩 基于依赖关系的服务发现与注册 持久化存储以及服务组件间的共享存储 端口设置以及域名配置 插件扩展 构建源设置，包括 MAVEN 各种详细参数的设置、配置自动触发构建机制 自定义环境变量配置、健康检测机制、权限管理   了解服务管理的详情，请参见文档： 服务管理
+ 性能监控 Rainbond 支持插件扩展方式的性能监控方案，支持对基于 Http、Mysql 协议的应用进行 平均响应时间、吞吐率、在线人数 的监控。并检测最近5分钟内耗时做多的 url 排行，对于调试系统性能有指导作用：
+ 了解性能监控的详情，请参见文档： 性能监控
+ 垂直/水平伸缩 Rainbond 支持一键进行伸缩，这种伸缩包含两个层面：
+ 垂直伸缩：伸缩单个服务组件所使用的内存大小 水平伸缩：为服务组件启动多个后端实例，并自动配置负载均衡  Spring Cloud 微服务设计已经将程序与数据分离，所以将服务组件视作无状态服务直接进行水平伸缩进行快速扩容，达成的效果如下：
+ 单个服务组件伸缩只需要一键   多实例服务组件在拓扑图中相应表现   注册中心正常注册  基于应用市场的快速部署 得益于 Rainbond 独有的应用市场机制，在首次部署完成后，我们可以讲整套 Spring Cloud 微服务（包括所有微服务组件以及数据库等中间件）打包发布到应用市场中去。发布完成后，再次安装只需要从应用市场一键安装，极大的简化了部署流程。</description>
+    </item>
+    
+    <item>
+      <title>Spring Cloud 微服务与 Service Mesh 的融合</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-merge/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-merge/</guid>
+      <description>概述 这篇文档，着重解决一个问题：Spring Cloud 融合于 Rainbond 原生 Service Mesh 的正确姿势是什么样子的。
+Rainbond 原生支持 Service Mesh 微服务架构。也就是说，无论原来是什么，只要部署在 Rainbond 上，那么就天然的成为了 Service Mesh 微服务。这也是 Service Mesh 微服务架构的一大特点：对原应用无侵入。
+Spring Cloud 部署在 Rainbond 上后，整套业务即是完整的 Spring Cloud 微服务，又是一套 Service Mesh 微服务。那么如何使业务系统即保留了原有 Spring Cloud 微服务架构的特点，又能享受到 Service Mesh 带来的种种好处呢？这就涉及到了Spring Cloud 微服务与 Service Mesh 的融合。
+融合的核心思想，就是 Spring Cloud 框架维护的功能，保持不变； Spring Cloud 框架无法维护的功能，交给 Service Mesh 和 Rainbond。
+Spring Cloud 不维护什么 我不会去深入讨论 Spring Cloud 微服务框架都维护了什么，这样的帖子网上有很多。
+在这里，我想说明的是，当读者选择将自己原有的 Spring Cloud 微服务部署在 Rainbond 时，有哪些工作应该由 Rainbond 来完成。</description>
+    </item>
+    
+    <item>
+      <title>Spring Cloud 微服务部署在 Rainbond 的案例</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-case/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/micro/spring_cloud/spring-cloud-case/</guid>
+      <description>示例项目详情 本文档以Pig 快速开发框架为例，演示如何在Rainbond上部署一套完整的Spring Cloud项目。
+Pig Microservice Architecture V2.1.0：
+ 基于 Spring Cloud Finchley 、Spring Security OAuth2 的RBAC权限管理系统 基于数据驱动视图的理念封装 Element-ui，即使没有 vue 的使用经验也能快速上手 提供对常见容器化支持 Docker、Kubernetes、Rancher2 支持 提供 lambda 、stream api 、webflux 的生产实践  模块说明：
+pig ├── pig-ui -- 前端工程[80] ├── pig-auth -- 授权服务提供[3000] └── pig-common -- 系统公共模块 ├── pig-common-core -- 公共工具类核心包 ├── pig-common-log -- 日志服务 └── pig-common-security -- 安全工具类 ├── pig-config -- 配置中心[8888] ├── pig-eureka -- 服务注册与发现[8761] ├── pig-gateway -- Spring Cloud Gateway网关[9999] └── pig-upms -- 通用用户权限管理模块 └── pigx-upms-api -- 通用用户权限管理系统公共api模块 └── pigx-upms-biz -- 通用用户权限管理系统业务处理模块[4000] └── pigx-visual -- 图形化模块 ├── pigx-monitor -- Spring Boot Admin监控 [5001] └── pigx-codegen -- 图形化代码生成[5003] └── pigx-zipkin -- 微服务链路跟踪[5002]  上述的模块，可以分为类库与服务两类，读者可以对比自己的Spring Cloud项目：</description>
+    </item>
+    
+  </channel>
+</rss>

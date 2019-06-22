@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>应用部署实践 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/advanced-scenarios/app-create/</link>
+    <description>Recent content in 应用部署实践 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/advanced-scenarios/app-create/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>快速部署Gitlab源码管理服务</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/app-create/gitlab/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/app-create/gitlab/</guid>
+      <description>Gitlab简介 GitLab是利用 Ruby on Rails 一个开源的版本管理系统，实现一个自托管的Git项目仓库，可通过Web界面进行访问公开的或者私人项目。它拥有与Github类似的功能，能够浏览源代码，管理缺陷和注释。同时Gitlab集成了一系列的CI功能。不得不说，Gitlab在企业中是的使用率非常高。
+Rainbond非常推荐用户使用Git代码仓库管理代码，从而获取更好的源代码管理和自动化CI体验。话不多说，接下来我们用10分钟的时间完成Gitlab服务在Rainbond的完整部署。
+准备工作  准备一个可用的域名（如果你可以准备），比如 git.example.com 准备域名对应的证书（如果你可以准备） Rainbond平台已安装完成，参考文档Rainbond快速安装 Rainbond平台处在能够连接互联网的环境下。  部署步骤 本教程我们将采用基于已制作完成的Docker镜像安装的方式部署Gitlab。部署完成后在Rainbond的运行效果如下：
+ 我们在Rainbond部署一个开源的项目，基于Docker镜像的方式是最快，最简单的方式，特别是一些根据云原生的建议制作的镜像在Rainbond运行兼容性和体验都非常优越。
+ 我们今天部署的Gitlab服务包括Postgresql组件、Redis组件和Gitlab-Server组件，它们的网络依赖关系如上图你看到一样，我们根据依赖关系从小到上依次部署。
+首先创建应用 GItlab然后从应用管理页面开始添加服务组件：
+我们采用基于DockerRun命令的方式创建服务，参考文档 基于镜像创建服务 ,
+此次部署的Gitlab镜像由社区提供，是目前使用最广的镜像。源码参考 docker-gitlab
+部署Postgresql组件 添加服务组件，基于以下DockerRun命令，Rainbond将从下面的命令中获取镜像名称和持久化存储目录。
+docker run --name gitlab-postgresql -d \ --volume /srv/docker/gitlab/postgresql:/var/lib/postgresql \ sameersbn/postgresql:10  服务构建源识别完成后，通常的过程是直接创建并启动，但是我们这里还需要设置服务的运行类型为有状态服务，并且还需要设置一下连接信息。因此我们需要选择创建不启动。方式如下：
+强调一下，取消图中红色框框中的单选框，这一步非常重要  确认后页面直接跳转到服务管理页面，我们做以下几步设置：
+ 更改端口别名，设置连接信息  进入服务端口管理页面，服务已默认添加了5432端口，更改端口协议为TCP, 打开端口的对内服务按钮，同时单击&amp;rdquo;使用别名&amp;rdquo;后方的端口别名信息，在弹出窗中设置端口别名为 &amp;ldquo;DB&amp;rdquo;。确认后将自动生成DB_HOST和DB_POST两个连接信息，在服务&amp;rdquo;依赖&amp;rdquo;页面可以查询连接信息, 同时我们继续添加以下连接信息：
+   变量名 值 说明     DB_EXTENSION pg_trgm    DB_NAME gitlabhq_production 数据库名称   DB_PASS password 密码，你自己可以随便定义值   DB_USER gitlab 连接数据库用户名    添加这些连接信息有两个作用：</description>
+    </item>
+    
+    <item>
+      <title>部署Mysql主从集群应用</title>
+      <link>http://skyzhangyf.github.io/advanced-scenarios/app-create/create-middleware-cluster/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/advanced-scenarios/app-create/create-middleware-cluster/</guid>
+      <description>Mysql主从同步原理 1）在Slave 服务器上执行sart slave命令开启主从复制开关，开始进行主从复制。
+2）此时，Slave服务器的IO线程会通过在master上已经授权的复制用户权限请求连接master服务器，并请求从执行binlog日志文件的指定位置（日志文件名和位置就是在配置主从复制服务时执行change master命令指定的）之后开始发送binlog日志内容。
+3）Master服务器接收到来自Slave服务器的IO线程的请求后，其上负责复制的IO线程会根据Slave服务器的IO线程请求的信息分批读取指定binlog日志文件指定位置之后的binlog日志信息，然后返回给Slave端的IO线程。返回的信息中除了binlog日志内容外，还有在Master服务器端记录的IO线程。返回的信息中除了binlog中的下一个指定更新位置。
+4）当Slave服务器的IO线程获取到Master服务器上IO线程发送的日志内容、日志文件及位置点后，会将binlog日志内容依次写到Slave端自身的Relay Log（即中继日志）文件（Mysql-relay-bin.xxx）的最末端，并将新的binlog文件名和位置记录到master-info文件中，以便下一次读取master端新binlog日志时能告诉Master服务器从新binlog日志的指定文件及位置开始读取新的binlog日志内容。
+5）Slave服务器端的SQL线程会实时检测本地Relay Log 中IO线程新增的日志内容，然后及时把Relay LOG 文件中的内容解析成sql语句，并在自身Slave服务器上按解析SQL语句的位置顺序执行应用这样sql语句，并在relay-log.info中记录当前应用中继日志的文件名和位置点。
+Mysql主从同步注意事项  master节点和slave节点的uuid不同 master节点和slave节点的server_id不同  制作Mysql容器镜像 同一镜像区创建不同容器的uuid 用同一mysql镜像创建mysql主从集群时，发现每台mysql服务的uuid都是相同的，是因为在数据初始化时将uuid写在了/var/lib/mysql/auto.cnf文件中，造成每个容器的uuid都是相同的。
+为了解决不同容器的uuid不同问题，需要在mysql启动生成配置文件后并在启动前 随机生成一个uuid写入到/var/lib/mysql/auto.cnf，这样就可以确保同一镜像生成的容器的uuid都不相同。
+同一服务不同实例的server_id处理 用同一mysql镜像创建mysql主从集群时，如何确保每个mysql服务的server_id不同？
+k8s在创建容器时，会为每个容器创建创建一个主机名( 如：gr78648d-0)，创建多个容器后面的数字会依次递增，所以可以利用这一特性生成不同的server_id（主机名数字部分 + 环境变量数字），然后在maser和slave使用不同的环境变量数字数字即可。
+3.3 创建镜像，并将镜像推到dockerhub上 基于镜像创建服务 创建master服务 通过指定镜像创建服务 参考文档 基于镜像创建服务
+master服务 开启内部的3306端口 master服务 设置依赖所需要连接的配置信息 Master节点设置同步的数据库名称 通过设置环境变量 MYSQLC_MYSQLD_binlog_do_db 设置同步数据库名。
+创建Slave服务 slave服务 开启内部的3306端口
+​ slave服务设置依赖所需要连接的配置信息
+​ 设置slave依赖master
+将slave服务实例水平伸缩为2
+从应用市场安装Mysql主从集群应用 应用市场安装mysql主从集群应用。
+mysql主从同步配置 ​ 查看master节点状态，记录二进制文件名(mysql-bin.000003)和位置(154)
+​ slave节点执行同步SQL语句(需要主服务器主机名，登陆凭据，二进制文件的名称和位置)</description>
+    </item>
+    
+  </channel>
+</rss>

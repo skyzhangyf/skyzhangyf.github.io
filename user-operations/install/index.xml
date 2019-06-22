@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>部署集群 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-operations/install/</link>
+    <description>Recent content in 部署集群 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-operations/install/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>快速部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/online_install/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/online_install/</guid>
+      <description>一、操作系统准备和检查 1.1 检查操作系统，目前版本支持以下操作系统    系统 版本 说明     CentOS 7.3及以上 64位，推荐安装(7.4.1708)   Debian 9.6及以上 64位   Ubuntu 16.04 64位   中标麒麟 服务器版V7.4 64位    更多关于软硬件要求请参考 软件和硬件环境要求
+1.2 下载系统安装工具 wget https://pkg.rainbond.com/releases/common/v5.1/grctl chmod +x ./grctl  二、初始化数据中心 数据中心 是Rainbond资源集合的核心抽象。初始化数据中心操作需要在第一台服务器上执行安装命令。
+ 初始化安装第一个节点(配置最低2核4G内存40G磁盘)  快速安装无需设置过多的参数，重点注意IP地址的设定。若当前机器存在多个内网IP地址时需要请务必指定内网IP地址(iip);
+ 若当前机器同时具备内网和公网 IP地址时，务必指定公网IP地址(eip)，若无则无需指定;
+ 如果想跳过系统配置检查，安装时指定--enable-check disable,如果配置过低可能会无法正常安装部署;
+ 支持对接外部数据库; 更多参数说明请阅读节点初始化重要参数说明   # 建议使用root执行安装操作 ./grctl init --iip 内网ip --eip 公网ip  安装过程需要下载和处理大约2G的文件，需要一定时间，请耐心等待。若遇到无法解决的错误请于Rainbond社区留言。</description>
+    </item>
+    
+    <item>
+      <title>阿里云部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/install-base-alicloud/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/install-base-alicloud/</guid>
+      <description>一、部署说明 通过阿里云相关产品快速部署Rainbond,主要使用阿里云ECS和NAS,弹性IP,NAT网关,负载均衡SLB可以选用。
+机器资源准备 我们在阿里云有大量生产实践经验，如下配置为推荐配置，建议参考
+ 操作系统推荐,经过我们线上验证推荐
+    操作系统 版本     CentOS 7.4(推荐)   Debian 9.6   Ubuntu 16.04     单台服务器最低配置要求
+    服务器角色 CPU 内存     管理节点 4核 8G   计算节点 16核 64G     单台服务器磁盘配置
+ 管理节点: / 100G /cache 50G-100G #源码构建cache /opt/rainbond/data 100G #etcd,数据库等相关数据持久化目录 (推荐使用SSD) /var/lib/docker 100G+ (至少100G起) 计算节点: / 100G /var/lib/docker 100G+ /var/lib/docker  磁盘推荐都使用SSD云盘</description>
+    </item>
+    
+    <item>
+      <title>高可用部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/install-base-ha/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/install-base-ha/</guid>
+      <description>一、集群高可用说明 在生产环境下，可以调整Rainbond的部署结构，来提高其高可用性。Rainbond高可用性可以从以下几个层面提升：
+ 存储高可用：选择合适的分布式存储系统作为集群的共享存储。
+ 网络高可用：为集群选择合适的SDN网络。
+ 管理节点集群： 部署多个管理节点，实现Rainbond管理功能高可用。
+ 计算节点集群： 分布式部署多个计算节点，实现计算资源高可用。
+ 网关节点集群： 部署多个网关节点，提供多个应用访问入口。
+  二、机器资源准备 2.1 机器资源要求与规划  操作系统要求
+    操作系统 版本     CentOS 7.4.1708(建议安装此版本)     单台服务器计算资源配置要求
+    服务器角色 CPU 内存     管理节点 16核 32G   计算节点 16核 64G   网络节点 8核 16G   存储节点 4核 8G   网关节点 4核 8G     管理节点磁盘分区</description>
+    </item>
+    
+    <item>
+      <title>基于已有Kubernetes集群部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/install-base-kubernetes/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/install-base-kubernetes/</guid>
+      <description>Rainbond与Kubernetes集群的关系 Kubernetes是Rainbond调度和运行应用的基础平台，5.0版本开始Rainbond与Kubernetes进行了完全的解耦合以支持更多的Kubernetes版本。
+Kubernetes集群要求  Kubernetes版本必须 &amp;gt;=1.10 Kubernetes集群必须正常工作 Kube-APIServer 开启了RBAC,支持ServiceAccount、NamespaceLifecycle、LimitRanger  Rainbond将对Kubernetes集群做的修改  创建多个Namespace（每个租户创建一个Namespace） 创建名为rainbondsssc 和 rainbondslsc 的StorageClass 应用创建后创建在所在租户空间内创建各类资源  由Rainbond创建的资源都携带Creater=Rainbond 标签，由Rainbond自动管理，你在未完全了解Rainbond工作机制的情况下请勿自行操作Kubernetes资源。  安装Rainbond 1. 准备Rainbond需要的Kubernetes的相关文件  当前节点路径下有/usr/bin/kubectl文件
+admin.kubeconfig,Kube-Apiserver admin用户权限的配置文件
+kube-proxy.kubeconfig,用于Slave节点Kube-Proxy的配置文件,一般用户名为kube-proxy
+ 需要将这个文件拷贝到/opt/rainbond/etc/kubernetes/kubecfg目录下
+# 查看是否复制成功 ls /opt/rainbond/etc/kubernetes/kubecfg admin.kubeconfig kube-proxy.kubeconfig   通过kubeadm安装的k8s集群相关文件获取方式
+  admin.kubeconfig文件，在master节点获取/etc/kubernetes/admin.conf或者$HOME/.kube/config
+kube-proxy.kubeconfig文件，示例如下
+ # kube-proxy.kubeconfig apiVersion: v1 kind: Config clusters: - cluster: certificate-authority: &amp;lt;base64 ca.crt证书内容&amp;gt; server: &amp;lt;kube api https地址&amp;gt; name: default contexts: - context: cluster: default namespace: default user: default name: default current-context: default users: - name: default user: token: &amp;lt;token&amp;gt; # ca.</description>
+    </item>
+    
+    <item>
+      <title>离线部署</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/offline_install/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/offline_install/</guid>
+      <description>目前我们仅提供CentOS 7.4.1708版本的离线包，其他版本离线包制作请参考[离线包制作文档](/user-operations/op-guide/offline-package/)  软硬件要求  检查操作系统，目前离线版本仅支持CentOS 7.4.1708版本 确保机器重启，服务器IP地址和nameserver不发生改变，推荐配置静态ip 多节点部署时，需要确保所有机器间时间要同步(很重要) 多节点时，机器间网络访问没有限制 支持使用root执行安装操作  更多关于软硬件要求请参考 软件和硬件环境要求,安装前请务必确定是否满足条件。
+同步离线包 # 有网环境下载离线包并同步到离线环境 wget https://pkg.rainbond.com/offline/dev/offline.2019-05-20-5.1.4.tgz  离线安装操作 准备工作 # 需要移除默认源 mv /etc/yum.repos.d/*.repo /tmp/ # 解压离线包 tar xf &amp;lt;离线包&amp;gt; # 进入解压目录下 cd offline # 执行准备工作 ./offline.sh # 安装前检查工作 yum makecache # 确定上述文件都存在后执行后续安装操作  初始化数据中心 离线情况下，初始化数据中心必须指定参数要求： 必须指定install-type为offline 可选参数要求： 1. 如果是多网卡情况下，需要指定iip 2. 离线情况下，默认使用`pass.grapps.cn`域名，需要自行指定离线域名，并需要配置相关解析工作如`*.pass.grapps.cn`解析到数据中心节点 3. role身份,赋予当前节点身份属性,默认为管理和计算节点复用;若role指定为manage，则表示当前节点仅具有管理节点属性  # 当前节点仅具有管理属性 ./grctl init --install-type offline --iip &amp;lt;当前机器内网ip&amp;gt; --domain &amp;lt;自定义域名&amp;gt; [--role manage]   安装完成后检查, 当所有服务和节点皆处于健康状态时平台即可正常使用。  # 集群整体状态 grctl cluster # 集群节点状态 grctl node list # 控制台访问地址 http://&amp;lt;节点IP地址&amp;gt;:7070  如果集群状态是不健康的，参考节点健康检测 文档解决故障。</description>
+    </item>
+    
+    <item>
+      <title>自定义部署方案</title>
+      <link>http://skyzhangyf.github.io/user-operations/install/custom-install/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/install/custom-install/</guid>
+      <description>如何自定义安装部署方案  step 1: fork rainbond-ansible项目 step 2: 通过修改fork后的rainbond-ansible项目来自定义自己的需求 step 3: 安装时指定rainbond-version(分支名或tag),rainbond-repo(rainbond-ansible fork项目路径)  简析rainbond-ansible结构 |-- addmaster.yml # 添加管理节点ansible-playbook |-- addnode.yml # 添加计算节点ansible-playbook |-- ansible.cfg |-- callback_plugins |-- inventory | |-- hosts |-- log |-- roles | |-- bootstrap # 系统配置 | |-- db # 数据库rbd-db | |-- docker # 安装docker | |-- etcd # 管理节点配置etcd | |-- etcd-proxy # 计算节点配置etcd-proxy | |-- health # 服务health检查配置 | |-- image # 下载离线镜像包 &amp;amp; 解压镜像包 &amp;amp; 加载镜像 | |-- kube-master # k8s管理节点 | |-- kube-worker # k8s计算节点 | |-- lb # 网关服务rbd-gateway | |-- master # Rainbond核心组件配置 | |-- network_plugin # 集群网络插件calico等 | |-- node # node服务配置 | |-- nodeinit # 初始化数据中心，仅在第一个节点执行 | |-- nodeup # 上线节点, 仅在第一个节点执行 | |-- prepare # 准备工作 | |-- rainvar # 全局配置(setup.</description>
+    </item>
+    
+  </channel>
+</rss>

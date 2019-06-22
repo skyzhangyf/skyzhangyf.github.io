@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>运维手册 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-operations/</link>
+    <description>Recent content in 运维手册 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 17 Apr 2019 12:50:54 +0800</lastBuildDate>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-operations/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>平台组件架构</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/component-description/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/component-description/</guid>
+      <description>本文主要介绍完整部署Rainbond所需要的所有服务组件，帮助用户了解Rainbond技术栈与组件架构。
+目前版本，所有服务都通过Systemd进行管理。
+一、服务组件概述 以下是通过一键部署方式将会在服务器安装的Rainbond各服务组件及其版本信息。
+   组件 版本 安装属性 说明     docker 18.06 Master/Worker 应用容器引擎   node 5.x Master/Worker 集群监控与控制服务   kube-apiserver/kube-controller-manager/kube-scheduler v1.10.13 Master 应用编排和管理   kubelet v1.10.13 Master/Worker 节点复用时仅第一个管理节点启用   etcd/etcd-proxy 3.2.25 Master/Worker 管理节点etcd/计算节点etcd-proxy   calico v3.3.1 Master/Worker 集群SDN服务，为应用提供网络支持   rbd-dns 5.x Master Rainbond内部dns服务，可作为集群dns服务使用 源码   rbd-db 5.x Master 云帮数据库服务，支持MySQL，Tidb与CockroachDB   rbd-mq 5.x Master 消息队列服务   rbd-hub 2.</description>
+    </item>
+    
+    <item>
+      <title>软件和硬件环境要求</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/recommendation/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/recommendation/</guid>
+      <description>概述 Rainbond 作为一款开源PaaS平台，可以很好的部署和运行在 Intel 架构服务器环境及主流虚拟化环境，并支持绝大多数的主流硬件网络。
+Linux 操作系统版本要求    Linux发行版本 版本     Red Hat Enterprise Linux 7.4 64位   CentOS 7.4.1708 64位   Ubuntu 16.04 64位   Debian 9 64位   中标麒麟 服务器版V7.4 64位     Rainbond在CentOS 7.4的环境下进行过大量的测试，因此，建议使用CentOS 7.4的Linux操作系统来部署Rainbond 以上 Linux 操作系统可运行在物理服务器以及 VMware、KVM、XEN 主流虚拟化环境上。  服务器要求 Rainbond 支持部署和运行在 Intel x86-64 架构的 64 位通用硬件服务器平台。对于开发测试，及生产环境的服务器硬件配置有以下要求和建议：
+开发测试环境    服务器角色 CPU 内存 本地存储 网络 实例数量     管理节点 4核 8G / 100G</description>
+    </item>
+    
+    <item>
+      <title>组件端口</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/required_ports/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/required_ports/</guid>
+      <description>   Protocol Port Range Purpose Used By     TCP 53,8089 rbd-dns Self   TCP 80,443,6443,10254 rbd-gateway Self   TCP 2379&amp;frasl;23790,2380&amp;frasl;23800,4001&amp;frasl;40010 etcd server client API kube-apiserver, etcd,etcd-proxy   TCP 3228 rbd-chaos Self   TCP 3306 rbd-db Self   TCP 4999 rbd-ops-ui Self   TCP 5000 rbd-hub Self   TCP 6060,8443,8888 rbd-api Self   TCP 6100-6102,6666 node Self   TCP 6300-6301 rbd-mq Self   TCP 6362-6366 rbd-eventlog Self   TCP 6369 rbd-worker Self   TCP 6442,8181 Kubernetes API server All   TCP 7070 rbd-app-ui Self   TCP 7171 rbd-webcli Self   TCP 8081 rbd-repo Self   TCP 9999,3329 rbd-monitor Self   TCP 10250 Kubelet API Self, Control plane   TCP 10251 kube-scheduler Self   TCP 10252 kube-controller-manager Self    </description>
+    </item>
+    
+    <item>
+      <title>重置企业管理员密码</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/reset_enterprise_password/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/reset_enterprise_password/</guid>
+      <description> 开源版本目前可通过如下命令修改企业管理员(默认是第一个注册用户)密码，后续会集成到grctl相关工具里.
+管理节点操作  数据库用户名和数据库密码(cat /opt/rainbond/rainbond-ansible/roles/rainvar/defaults/main.yml | grep &amp;quot;^db_&amp;quot;)
+ docker run -it --rm --network host -e MYSQL_HOST=&amp;lt;数据库地址&amp;gt; -e MYSQL_PORT=3306 -e MYSQL_USER=&amp;lt;数据库用户名&amp;gt; -e MYSQL_PASS=&amp;lt;数据库密码&amp;gt; -e MYSQL_DB=console -e PASSWORD=&amp;lt;新密码&amp;gt; rainbond/tools:reset_password  </description>
+    </item>
+    
+    <item>
+      <title>rbd-repo指南</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/op-repo/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/op-repo/</guid>
+      <description>rbd-repo是基于artifactory-oss实现,rbd-repo源码参见goodrain/rbd-repo
+ 更新自定义版本rbd-repo docker pull docker.bintray.io/jfrog/artifactory-oss docker tag docker.bintray.io/jfrog/artifactory-oss goodrain.me/rbd-repo docker push goodrain.me/rbd-repo node service stop rbd-repo  编辑/opt/rainbond/conf/base.yaml关于rbd-repo部分(先备份base.yaml文件)
+- name: rbd-repo endpoints: - name: REPO_ENDPOINTS protocol: port: 8081 health: name: rbd-repo model: http address: 127.0.0.1:8081/artifactory/ max_errors_num: 3 time_interval: 60 after: - docker type: simple pre_start: docker rm rbd-repo start: &amp;gt;- docker run --name rbd-repo --network host -v /grdata/services/artifactory-&amp;lt;随机id&amp;gt;:/var/opt/jfrog/artifactory -i goodrain.me/rbd-repo stop: docker stop rbd-repo restart_policy: always  目录权限配置</description>
+    </item>
+    
+    <item>
+      <title>如何构建离线安装包</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/offline-package/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/offline-package/</guid>
+      <description>构建离线软件包 install-repo
+git clone https://github.com/goodrain/install-repo.git cd install-repo make build_offline  构建离线镜像包 参考 构建离线镜像
+构建离线安装包 默认rainbond-ansible项目的tgz压缩包</description>
+    </item>
+    
+    <item>
+      <title>web进入容器报错</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/error_dialing_backend/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/error_dialing_backend/</guid>
+      <description> 报错信息 Error from server: error dialing backend: dial tcp: lookup 4c4c4544-0037-4d10-8057-b2c04f564c32 on 10.10.10.10:53: no such host  排查方式  管理节点dns解析发生改变 /etc/resolv.conf,应该是nameserver包含管理节点ip 管理节点能否ping 4c4c4544-0037-4d10-8057-b2c04f564c32 在确定上述都ok下,重启kube-apiserver  </description>
+    </item>
+    
+    <item>
+      <title>创建应用提示Table &#39;region.tenants&#39; doesn&#39;t exist</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/table_region_tenants_not_exist/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/table_region_tenants_not_exist/</guid>
+      <description>错误信息如下:
+CallApiError: {&amp;quot;url&amp;quot;: &amp;quot;https://region.goodrain.me:8443/v2/resources/tenants&amp;quot;, &amp;quot;body&amp;quot;: {&amp;quot;msg&amp;quot;: &amp;quot;get resources error, Error 1146: Table &#39;region.tenants&#39; doesn&#39;t exist&amp;quot;}, &amp;quot;httpcode&amp;quot;: 500, &amp;quot;method&amp;quot;: &amp;quot;POST&amp;quot;, &amp;quot;apitype&amp;quot;: &amp;quot;Not specified&amp;quot;}  排查方式  外部数据库类似.
+  检查数据库是否有相关表 docker exec rbd-db mysql -e &amp;quot;use region;show tables;&amp;quot; 重建数据库相关表
+docker exec rbd-db mysql -e &amp;quot;drop database console;drop database region;&amp;quot; /opt/rainbond/.init/updatedb.sh prepare docker exec rbd-app-ui python /app/ui/manage.py migrate docker cp /opt/rainbond/.init/init.sql rbd-db:/root docker cp /opt/rainbond/.init/region_info.sql rbd-db:/root docker exec rbd-db mysql -e &amp;quot;use console;truncate table console_sys_config&amp;quot; docker exec rbd-db mysql -e &amp;quot;use console;source /root/init.</description>
+    </item>
+    
+    <item>
+      <title>控制台异常排查</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/console_error/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/console_error/</guid>
+      <description> 控制台[goodrain/rainbond-console](https://github.com/goodrain/rainbond-console/issues/new)反馈建议 控制台UI[goodrain/rainbond-ui](https://github.com/goodrain/rainbond-ui/issues/new)兼容性等问题反馈建议  控制台异常排查  首先需要确定是哪个接口报异常(通过浏览器DevTools来确定是哪个接口报异常了) 确定是rbd-app-ui服务有问题还是数据中心服务有问题(确定rbd-app-ui服务日志/opt/rainbond/logs/rbd-app-ui/goodrain.log) 如果数据中心无明显错误，请确定rbd-api是否有明显报错(使用journalctl/systemctl/docker logs来查看rbd-api的日志)  </description>
+    </item>
+    
+    <item>
+      <title>平台问题排查FAQ</title>
+      <link>http://skyzhangyf.github.io/user-operations/trouble-shooting/pt-faq/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/trouble-shooting/pt-faq/</guid>
+      <description> 当安装使用 Rainbond 遇到问题时，请先参考本篇文档快速索引部分。如果问题未解决，请按要求收集必要的信息通过[社区(用户帮助)](https://t.goodrain.com/)或者[Github](https://github.com/goodrain) 提供给Rainbond开发者。尽可能提供具体信息，方便排查问题。 ```yaml # 参考模板 Rainbond版本(grctl version/docker run --rm goodrain.me/rbd-api:5.1.1 version): 操作系统/内核版本: 节点配置(CPU核数,内存大小,硬盘类型(SSD/机械硬盘),网络类型,网络拓扑): 安装类型(是否离线或者对接已有集群): 集群状态(是否health，是否有计算节点，是否多管理节点): 如何复现(什么操作导致的): 尝试解决(重启相关组件): 相关截图(具体日志部分截图): ```  安装指南  安装问题建议反馈至 rainbond-ansible
+  安装如何自定ssh port
+# 目前不支持多节点的SSH端口都不同 export INSTALL_SSH_PORT=12306 ./grctl init   使用指南  企业管理员密码忘记如何处理 对接自己私有Artifactory指南 控制台报系统等错误服务排查 web容器管理报错 创建应用提示Table &amp;lsquo;region.tenants&amp;rsquo; doesn&amp;rsquo;t exist  </description>
+    </item>
+    
+    <item>
+      <title>应用问题排查FAQ</title>
+      <link>http://skyzhangyf.github.io/user-operations/trouble-shooting/app-faq/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/trouble-shooting/app-faq/</guid>
+      <description> 当安装使用 Rainbond 遇到问题时，请先参考本篇文档快速索引部分。如果问题未解决，请按要求收集必要的信息通过[社区(用户帮助)](https://t.goodrain.com/)或者[Github](https://github.com/goodrain) 提供给Rainbond开发者。尽可能提供具体信息，方便排查问题。 ```yaml # 参考模板 1. 集群是否正常（grctl node list） 2. 应用是否正常 (grctl service get ) 3. 应用监听端口是否正确，是否开启了健康检测，持久化目录是否设置正确 4. 应用构建失败报错 5. 应用日志是否有明显报错 6. rbd-repo服务是否正常 ```  使用指南  源码构建失败提示gzip stdin not in gzip format 应用状态处于启动中排查  </description>
+    </item>
+    
+    <item>
+      <title>应用处于启动状态</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/app_startup/</link>
+      <pubDate>Wed, 17 Apr 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/app_startup/</guid>
+      <description> 确定集群是否正常 grctl cluster  查看应用状态 # 5.1.3版本支持伸缩处获取相关命令 grctl service get &amp;lt;应用别名&amp;gt; -t &amp;lt;团队别名&amp;gt;  看PodStatus状态:
+# 如下是应用已经正常启动了，大部分情况是Ready状态是False PodStatus: Initialized : True Ready : True PodScheduled : True  Pod Read状态False排查  Containers是否已经启动，如果已经启动状态还是False，请检查应用健康检查; Containers未启动或者在重启，请查看登录到相关节点查看容器日志  查看k8s Events信息 kubectl describe pods/&amp;lt;PodName&amp;gt; -n &amp;lt;Namespace&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>源码构建提示gzip stdin not in gzip format</title>
+      <link>http://skyzhangyf.github.io/user-operations/op-guide/code_build_failure_download_gzip/</link>
+      <pubDate>Mon, 11 Mar 2019 12:50:54 +0800</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/op-guide/code_build_failure_download_gzip/</guid>
+      <description>源码构建过程中有提示gzip stdin not in gzip format,大多数都是lang.goodrain.me无法正常访问
+ 验证lang.goodrain.me是否健康
+# 状态码200 curl -I lang.goodrain.me  确定rbd-repo是否正常
+# 1. 访问管理节点8081端口 # 2. 状态码2xx,3xx curl -I &amp;lt;管理节点ip&amp;gt;:8081 # 不正常可以重启 systemctl restart rbd-repo  应用添加BUILD_DEBUG_INFO true显示源码构建Runtime下载路径
+# 管理节点手动下载是否有 wget &amp;lt;runtime download url&amp;gt;  确定访问是否有限制
+# 状态码 403 curl -I http://buildpack.rainbond.com   案例参考 源码构建</description>
+    </item>
+    
+    <item>
+      <title>calico组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/calico/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/calico/</guid>
+      <description>守护运行方式  node会生成calico的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat calico获取calico的systemd配置文件
+calico服务是通过镜像运行
+ calico默认配置文件/opt/rainbond/conf/network.yaml
+常用参数说明 -e IP=&amp;lt;当前节点IP&amp;gt; -e CALICO_IPV4POOL_CIDR=&amp;lt;POD CIDR&amp;gt; -e NODENAME=&amp;lt;当前节点Node的UUID&amp;gt;  健康检查 /opt/rainbond/health/network.sh 检查容器是否运行</description>
+    </item>
+    
+    <item>
+      <title>docker组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/docker/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/docker/</guid>
+      <description> 守护运行方式 默认使用官方的安装方式部署docker.
+常用参数说明 默认配置文件: /etc/docker/daemon.json
+{ &amp;quot;insecure-registries&amp;quot;: [&amp;quot;goodrain.me&amp;quot;], &amp;quot;bip&amp;quot;: &amp;quot;172.30.42.1/16&amp;quot;, &amp;quot;userland-proxy&amp;quot;: false, &amp;quot;storage-driver&amp;quot;: &amp;quot;overlay2&amp;quot;, &amp;quot;max-concurrent-downloads&amp;quot;: 10, &amp;quot;log-driver&amp;quot;: &amp;quot;json-file&amp;quot;, &amp;quot;log-level&amp;quot;: &amp;quot;warn&amp;quot;, &amp;quot;log-opts&amp;quot;: { &amp;quot;max-size&amp;quot;: &amp;quot;20m&amp;quot;, &amp;quot;max-file&amp;quot;: &amp;quot;2&amp;quot; } }  具体参数请参见docker官方文档
+配置docker信任私有镜像仓库 如果你的私有镜像仓库未配置https或者自签发https证书需要配置docker信任.
+ 1. 未配置https或者自签发证书(不被浏览器信任的),则需要配置dockerinsecure-registries值,需要完需要重启docker  &amp;quot;insecure-registries&amp;quot;: [&amp;quot;goodrain.me&amp;quot;,&amp;quot;hub.test.com&amp;quot;],   2. 自签发证书，且docker不需要重启  需要将自签发域名的证书拷贝到如下路径 /etc/docker/certs.d/&amp;lt;私有镜像仓库域名&amp;gt;/
+示例goodrain.me
+root@compute-node-99:/etc/docker/certs.d/goodrain.me# ls server.crt  </description>
+    </item>
+    
+    <item>
+      <title>etcd/etcd-proxy组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/etcd/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/etcd/</guid>
+      <description>守护运行方式  第一次是通过默认systemd配置文件启动，在node启动完成后由node接管
+node会重新生成etcd的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat etcd获取etcd的systemd配置文件
+etcd/etcd-proxy服务是通过镜像运行
+ etcd默认配置文件/opt/rainbond/conf/etcd.yaml (管理节点) etcd-proxy默认配置文件 /opt/rainbond/conf/etcd-proxy.yaml (计算节点)
+常用参数说明 具体参数请参见etcd官方文档</description>
+    </item>
+    
+    <item>
+      <title>kubelet组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/kubelet/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/kubelet/</guid>
+      <description>守护运行方式  通过二进制运行,由node生成systemd文件并启动
+ kubelet默认配置文件/opt/rainbond/conf/k8s-worker.yaml (计算节点)
+常用参数说明 `ExecStart=/bin/bash -c &#39;NODE_UUID=959eba4b-6bbe-4ad5-ba0f-ecfad17d378d/opt/rainbond/scripts/kubelet.sh&#39;` 其中NODE_UUID值为当前节点node的uuid  具体参数请参见k8s官方文档</description>
+    </item>
+    
+    <item>
+      <title>kubernetes master组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/k8s/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/k8s/</guid>
+      <description>守护运行方式  由node生成systemd文件并启动,以镜像方式运行.
+ kubernetes master组件默认配置文件/opt/rainbond/conf/k8s-master.yaml
+常用参数说明 具体参数请参见k8s官方文档</description>
+    </item>
+    
+    <item>
+      <title>node组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/node/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/node/</guid>
+      <description>  node: 集群监控与控制服务,通过二进制运行
+ 守护运行方式  通过systemd守护运行,可以通过systemctl cat node获取node的systemd配置文件
+ # /opt/rainbond/scripts/start-node.sh NODE_OPTS=&amp;quot;--log-level=info --auto-scheduler=true --hostIP=172.20.0.101 --run-mode master --noderule manage,compute --etcd=http://127.0.0.1:2379 --kube-conf=/opt/rainbond/etc/kubernetes/kubecfg/admin.kubeconfig &amp;quot; exec /usr/local/bin/node $NODE_OPTS  常用参数说明 仅列出启动常用参数，其他未列出参数默认即可
+--auto-registnode (当集群中未注册此节点时自动注册节点,默认启用) --auto-scheduler (当节点不健康时自动将节点设置为不可调度,仅计算节点时生效,默认启用) --etcd (etcd地址,默认 [http://127.0.0.1:2379]) --hostIP (当前节点ip,未指定时获取eth0 ip) --kube-conf (k8s admin用户配置文件 &amp;quot;/opt/rainbond/etc/kubernetes/kubecfg/admin.kubeconfig&amp;quot;) --log-level (日志级别，默认info) --nodeid-file (节点标识文件路径，默认&amp;quot;/opt/rainbond/etc/node/node_host_uuid.conf&amp;quot;,内容格式为`host_uuid=959eba4b-6bbe-4ad5-ba0f-ecfad17d378d`,不存在则会默认生成) --noderule (节点删除属性，默认是compute) --run-mode (node属性,默认是worker)  其他扩展命令 # 更新服务配置并启动，不指定组件名则默认为全部 node service update &amp;lt;组件名&amp;gt; # 启动停止服务 node service start/stop &amp;lt;组件名&amp;gt;  </description>
+    </item>
+    
+    <item>
+      <title>rbd-api组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-api/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-api/</guid>
+      <description>守护运行方式  node会生成rbd-api的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-api获取rbd-api的systemd配置文件
+rbd-api服务是通过镜像运行
+ rbd-api默认配置文件/opt/rainbond/conf/master.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-app-ui组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-app-ui/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-app-ui/</guid>
+      <description>守护运行方式  node会生成rbd-app-ui的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-app-ui获取rbd-app-ui的systemd配置文件
+rbd-app-ui服务是通过镜像运行
+ rbd-app-ui默认配置文件/opt/rainbond/conf/ui.yaml
+常用参数说明 日志文件在/opt/rainbond/logs/rbd-app-ui</description>
+    </item>
+    
+    <item>
+      <title>rbd-chaos(builder)组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-chaos/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-chaos/</guid>
+      <description> 守护运行方式  node会生成rbd-chaos的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-chaos获取rbd-chaos的systemd配置文件
+rbd-chaos服务是通过镜像运行
+ rbd-chaos默认配置文件/opt/rainbond/conf/master.yaml
+环境变量 GITHUB_PROXY  </description>
+    </item>
+    
+    <item>
+      <title>rbd-db组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-db/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-db/</guid>
+      <description>守护运行方式  node会生成rbd-db的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-db获取rbd-db的systemd配置文件
+rbd-db服务是通过镜像运行
+ rbd-db默认配置文件/opt/rainbond/conf/db.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-dns组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-dns/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-dns/</guid>
+      <description> 守护运行方式  node会生成rbd-dns的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-dns获取rbd-dns的systemd配置文件
+rbd-dns服务是通过镜像运行
+ rbd-dns默认配置文件/opt/rainbond/conf/dns.yaml
+常用参数说明 --nameservers 上游dns --recoders 解析记录  如果需要通过rbd-dns解析某个域名
+--recoders=goodrain.me=192.168.195.1,*.goodrain.me=192.168.195.1,buhuibaidu.me=172.20.0.101,*.buhuigoogle.me=172.20.0.102  </description>
+    </item>
+    
+    <item>
+      <title>rbd-eventlog组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-eventlog/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-eventlog/</guid>
+      <description> 守护运行方式  node会生成rbd-eventlog的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-eventlog获取rbd-eventlog的systemd配置文件
+rbd-eventlog服务是通过镜像运行
+ rbd-eventlog默认配置文件/opt/rainbond/conf/master.yaml
+环境变量 DOCKER_LOG_SAVE_DAY: 日志保留时间(默认7天)  </description>
+    </item>
+    
+    <item>
+      <title>rbd-gateway组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-gateway/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-gateway/</guid>
+      <description>守护运行方式  node会生成rbd-gateway的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-gateway获取rbd-gateway的systemd配置文件
+rbd-gateway服务是通过镜像运行
+ rbd-gateway默认配置文件/opt/rainbond/conf/lb.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-hub组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-hub/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-hub/</guid>
+      <description>rbd-hub基于registry镜像
+ 守护运行方式  node会生成rbd-hub的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-hub获取rbd-hub的systemd配置文件
+rbd-hub服务是通过镜像运行
+ rbd-hub默认配置文件/opt/rainbond/conf/base.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-monitor组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-monitor/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-monitor/</guid>
+      <description> 守护运行方式  node会生成rbd-monitor的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-monitor获取rbd-monitor的systemd配置文件
+rbd-monitor服务是通过镜像运行
+ rbd-monitor默认配置文件/opt/rainbond/conf/master.yaml
+常用参数说明 --alertmanager-address AlertManager地址 --cadvisor-listen-port kubelet cadvisor监听端口 --config.file Prometheus 配置文件路径 --rules-config.file Prometheus alerting rules文件路径 --storage.tsdb.retention 数据保留时间，默认7天  </description>
+    </item>
+    
+    <item>
+      <title>rbd-mq组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-mq/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-mq/</guid>
+      <description>守护运行方式  node会生成rbd-mq的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-mq获取rbd-mq的systemd配置文件
+rbd-mq服务是通过镜像运行
+ rbd-mq默认配置文件/opt/rainbond/conf/master.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-repo组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-repo/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-repo/</guid>
+      <description> 守护运行方式  node会生成rbd-repo的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-repo获取rbd-repo的systemd配置文件
+rbd-repo服务是通过镜像运行
+ rbd-repo默认配置文件/opt/rainbond/conf/base.yaml
+Java程序,推荐配置2核4G起,启动时比较占资源  </description>
+    </item>
+    
+    <item>
+      <title>rbd-webcli组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-webcli/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-webcli/</guid>
+      <description>守护运行方式  node会生成rbd-webcli的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-webcli获取rbd-webcli的systemd配置文件
+rbd-webcli服务是通过镜像运行
+ rbd-webcli默认配置文件/opt/rainbond/conf/master.yaml</description>
+    </item>
+    
+    <item>
+      <title>rbd-worker组件说明</title>
+      <link>http://skyzhangyf.github.io/user-operations/component/rbd-worker/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-operations/component/rbd-worker/</guid>
+      <description> 守护运行方式  node会生成rbd-worker的systemd配置文件,并通过systemd守护运行,可以通过systemctl cat rbd-worker获取rbd-worker的systemd配置文件
+rbd-worker服务是通过镜像运行
+ rbd-worker默认配置文件/opt/rainbond/conf/master.yaml
+常用参数说明 --node-name=&amp;lt;当前节点Node的UUID&amp;gt;  </description>
+    </item>
+    
+  </channel>
+</rss>

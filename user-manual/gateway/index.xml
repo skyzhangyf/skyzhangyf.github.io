@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>应用网关管理 on Rainbond文档中心(5.1版)</title>
+    <link>http://skyzhangyf.github.io/user-manual/gateway/</link>
+    <description>Recent content in 应用网关管理 on Rainbond文档中心(5.1版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    
+	<atom:link href="http://skyzhangyf.github.io/user-manual/gateway/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>应用网关说明</title>
+      <link>http://skyzhangyf.github.io/user-manual/gateway/gateway/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/gateway/gateway/</guid>
+      <description>这篇文章将会介绍如何在 什么是应用网关, 以及应用网关的作用.
+应用网关定义 在百度百科中, 网关的定义是这样子的: 网关(Gateway)就是一个网络连接到另一个网络的&amp;rdquo;关口&amp;rdquo;. 类似的, 应用网关是 Rainbond 中的一个组件(rbd-gateway), 它是外部流量流入应用的&amp;quot;关口&amp;quot;. 也可以说是南北向流量中, 北向流量流向南向流量的一个&amp;rdquo;关口&amp;rdquo;.
+应用网关的作用 在介绍应用网关的作用前, 首先需要提一下 Ingress. Kubernetes 官方对 Ingress 的介绍是: 在Kubernetes v1.1 中添加的 Ingress, 暴露了从集群外部到集群内服务的 HTTP 和 HTTPs 路由. 流量路由 Ingress 定义的策略控制.
+ 注意, Ingress 只是定义了从集群外部到集群内服务的路由策略, 并没有实现这些策略. 
+ 应用网关的作用就是实现 Ingress 中定义的各种策略. 除了 HTTP 和 HTTPs 路由外, 应用网关还提供了其他丰富的功能. 目前支持的功能有:
+ HTTP 和 HTTPs 策略 TCP/UDP 策略 泛域名策略 多种负载均衡算法 高级路由: 根据访问路径, 请求头, Cookie, 权重的访问控制 服务与域名访问情况监控  HTTP 和 HTTPs 策略 HTTP（HTTPs）策略是当前IT领域中最重要的服务访问策略，目前Rainbond对HTTP访问策略的支持如下：</description>
+    </item>
+    
+    <item>
+      <title>访问控制</title>
+      <link>http://skyzhangyf.github.io/user-manual/gateway/traffic-control/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/gateway/traffic-control/</guid>
+      <description>这篇文章将会介绍如何在配置应用网关中的规则, 从而对应用的访问进行控制.
+在这篇文章中, 你将会完成:
+添加 HTTP 策略 添加 HTTP 强转 HTTPs 策略 添加 TCP 策略 添加 泛域名 策略 添加 A/B 测试, 灰度发布策略 参数配置
+前期准备 请确保你能够满足以下条件:
+ 一个状态健康的 Rainbond. 一个或多个运行中的服务 一个可用, 并且已经解析到应用网关所在机器上的域名(机器的 IP 可以在添加策略的面板上找到)  添加 HTTP 策略  准备一个服务，参考服务创建文档 点击 应用网关 -&amp;gt; 访问控制 -&amp;gt; 添加策略 填写路由条件等信息 点击 确认   配置完成后, 就可以通过域名(www.test.com)对应用(Nginx)进行访问了.
+HTTPs 策略, HTTP 强转 HTTPs 策略  准备一个服务，参考服务创建文档 点击 应用网关 -&amp;gt; 访问控制 -&amp;gt; 添加策略 填写 域名, 绑定证书, 应用(组), 服务组件, 端口号, HTTP Rewrite HTTPs 等信息 点击 确认   如果没有勾选 HTTP Rewrite HTTPs, 那么将会是单纯的HTTPs</description>
+    </item>
+    
+    <item>
+      <title>证书管理</title>
+      <link>http://skyzhangyf.github.io/user-manual/gateway/cert-management/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://skyzhangyf.github.io/user-manual/gateway/cert-management/</guid>
+      <description>证书管理的作用是管理 HTTPs 所需的证书. 包括 添加证书, 编辑证书和删除证书.
+添加证书 证书管理 正确的证书添加后Rainbond会自动识别签发的域名和过期时间，以确保用户绑定域名时选择正确的域名证书。过期时间可以让用户便捷的发现证书的有效期，及时更新证书。</description>
+    </item>
+    
+  </channel>
+</rss>
